@@ -53,6 +53,19 @@ The finder also searches worldwide for fishing videos that are taking off: more 
 
 The website may show them (embedded). For the TV channel you need permission first: see `planning/toestemming-vragen.md`.
 
+## Checking videos before they appear
+
+Every video is checked before it reaches the site. It is rejected when:
+
+- it is on the block list (`finder/blokkeerlijst.txt`: words, channel names or video links, one per line);
+- YouTube labels it as music, gaming or news, or its topics are games, music, film, TV, politics or religion;
+- it is a live stream, or its title has a forbidden word (`BLOCKED_WORDS`);
+- it is about food and not also a hobby or sports video;
+- its title has no fishing word in any language (`FISHING_WORDS`);
+- it has fewer than 20 views.
+
+What was rejected, and why, is written to `planning/afgewezen-<date>.csv` on every run.
+
 ## The bite score
 
 A rule of thumb for predator fishing (pike, zander, perch), from 0 to 10: falling air pressure, a light wind (2 to 4 Bft), cloud cover and new or full moon raise it. Strong wind and fast-rising pressure lower it. It is meant as a fun guide, not a guarantee.

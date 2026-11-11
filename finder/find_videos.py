@@ -213,17 +213,77 @@ def is_viral(v):
     return v["views"] >= VIRAL_MIN_VIEWS and v["views_per_hour"] >= VIRAL_VIEWS_PER_HOUR
 
 
-def is_fishing_video(v):
-    """False for games, music, live streams and other things that only mention fish."""
+# YouTube labels every video with broad topics. These mean: not about fishing.
+BAD_TOPICS = ["game", "music", "film", "television", "politic", "religion", "military"]
+GOOD_TOPICS = ["hobby", "sport", "lifestyle", "pet", "tourism", "vehicle"]
+MIN_VIEWS = 20            # hardly watched videos are usually tests or spam
+REJECTED = []             # filled during a run, written to planning/afgewezen-<date>.csv
+
+
+def load_blocklist():
+    """Words, channel names and video ids from finder/blokkeerlijst.txt."""
+    words, channels, ids = [], [], set()
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "blokkeerlijst.txt")
+    try:
+        lines = open(path, encoding="utf-8").read().splitlines()
+    except OSError:
+        return words, channels, ids
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        low = line.lower()
+        m = re.search(r"(?:v=|youtu\.be/|shorts/)([\w-]{11})", line)
+        if m:
+            ids.add(m.group(1))
+        elif low.startswith("kanaal:"):
+            channels.append(low.split(":", 1)[1].strip())
+        elif re.fullmatch(r"[\w-]{11}", line) and re.search(r"[A-Z0-9_-]", line):
+            ids.add(line)
+        else:
+            words.append(low)
+    return words, channels, ids
+
+
+BLOCK_WORDS, BLOCK_CHANNELS, BLOCK_IDS = load_blocklist()
+
+
+def check_video(v):
+    """Return None when the video is a real fishing video, else the reason it is rejected."""
     sn = v["snippet"]
+    title = sn.get("title", "")
+    low_title = " " + title.lower() + " "
+    tags = " ".join(sn.get("tags", [])[:25]).lower()
+    channel = sn.get("channelTitle", "").lower()
+    topics = " ".join(v.get("topicDetails", {}).get("topicCategories", [])).lower()
+
+    if v["id"] in BLOCK_IDS:
+        return "blokkeerlijst: video"
+    if any(c and c in channel for c in BLOCK_CHANNELS):
+        return "blokkeerlijst: kanaal"
+    hit = next((w for w in BLOCK_WORDS if w in low_title or w in tags), None)
+    if hit:
+        return f"blokkeerlijst: {hit}"
     if sn.get("categoryId") in BLOCKED_CATEGORIES:
-        return False
+        return "categorie muziek, games of nieuws"
     if sn.get("liveBroadcastContent", "none") != "none":
-        return False
-    text = (sn.get("title", "") + " " + " ".join(sn.get("tags", [])[:25])).lower()
-    if any(w in text for w in BLOCKED_WORDS):
-        return False
-    return any(w in text for w in FISHING_WORDS)
+        return "livestream"
+    hit = next((w for w in BLOCKED_WORDS if w in low_title or w in tags), None)
+    if hit:
+        return f"verboden woord: {hit.strip()}"
+    bad = next((b for b in BAD_TOPICS if b in topics), None)
+    if bad:
+        return f"YouTube-onderwerp: {bad}"
+    good = any(g in topics for g in GOOD_TOPICS)
+    if "food" in topics and not good:
+        return "YouTube-onderwerp: eten"
+    in_title = any(w in low_title for w in FISHING_WORDS)
+    in_tags = any(w in tags for w in FISHING_WORDS)
+    if not in_title and not (in_tags and good):
+        return "geen viswoord in de titel"
+    if int(v.get("statistics", {}).get("viewCount", 0)) < MIN_VIEWS:
+        return f"minder dan {MIN_VIEWS} views"
+    return None
 
 
 def region_from_script(title):
@@ -263,14 +323,20 @@ def video_details(ids, key, now, min_seconds):
     out = []
     for part in chunks(ids):
         details = get_json(YT + "videos", {
-            "part": "snippet,statistics,contentDetails,status",
+            "part": "snippet,statistics,contentDetails,status,topicDetails",
             "id": ",".join(part), "key": key,
         })
         for v in details.get("items", []):
             secs = iso_duration_seconds(v["contentDetails"].get("duration"))
             if not (min_seconds <= secs <= MAX_SECONDS):
                 continue
-            if not v["status"].get("embeddable", False) or not is_fishing_video(v):
+            if not v["status"].get("embeddable", False):
+                continue
+            reason = check_video(v)
+            if reason:
+                REJECTED.append({"title": v["snippet"].get("title", ""), "channel": v["snippet"].get("channelTitle", ""),
+                                 "url": f"https://www.youtube.com/watch?v={v['id']}", "reason": reason,
+                                 "views": int(v.get("statistics", {}).get("viewCount", 0))})
                 continue
             sn, st = v["snippet"], v.get("statistics", {})
             published = dt.datetime.fromisoformat(sn["publishedAt"].replace("Z", "+00:00"))
@@ -578,6 +644,13 @@ def main():
                   ensure_ascii=False, indent=1)
 
     csv_path = write_planning_csv(regions, viral, now)
+    if REJECTED:
+        with open(os.path.join(PLAN_DIR, f"afgewezen-{now:%Y-%m-%d}.csv"), "w", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow(["reden", "titel", "kanaal", "views", "link"])
+            for r in sorted(REJECTED, key=lambda r: r["reason"]):
+                w.writerow([r["reason"], r["title"], r["channel"], r["views"], r["url"]])
+        print(f"  Afgewezen: {len(REJECTED)} video's (zie planning/afgewezen-{now:%Y-%m-%d}.csv)")
     total = sum(len(r["videos"]) for r in regions)
     print(f"Done: {total} videos{' (example data)' if demo else ''}. Planning list: {csv_path}")
 

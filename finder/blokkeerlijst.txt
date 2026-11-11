@@ -1,0 +1,13 @@
+# Blokkeerlijst voor Vangst24
+#
+# Alles wat hier staat, komt nooit op de website. Zet per regel één ding:
+#   - een woord of stukje tekst uit een titel     voorbeeld:  roblox
+#   - de naam van een kanaal                      voorbeeld:  kanaal: Naam Van Het Kanaal
+#   - de link of ID van één video                 voorbeeld:  https://www.youtube.com/watch?v=XXXXXXXXXXX
+#
+# Hoofdletters maken niet uit. Regels die met # beginnen worden overgeslagen.
+# Na het opslaan werkt het bij de volgende verversing (elke 4 uur).
+
+debug play
+food scene
+fish market
