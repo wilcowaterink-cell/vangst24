@@ -1,6 +1,6 @@
 {
- "moon": "Nieuwe maan",
- "moon_phase": 0.055,
+ "moon": "Wassende sikkel",
+ "moon_phase": 0.063,
  "spots": [
   {
    "name": "IJsselmeer (Urk)",
@@ -53,6 +53,6 @@
    "score": 9.5
   }
  ],
- "generated_at": "2026-11-11T12:49:09Z",
+ "generated_at": "2026-11-11T18:49:20Z",
  "demo": true
 }

@@ -59,6 +59,17 @@ SPOTS = [
     {"name": "Friese meren (Sneek)", "lat": 53.03, "lon": 5.66},
 ]
 
+# Worldwide searches for videos that are taking off, in several languages.
+# Two extra searches per run: 8 runs x 10 searches x 100 units = 8,000 of 10,000.
+VIRAL_QUERIES = [
+    {"q": "fishing|big fish|monster fish|pesca|angeln|pêche|vissen|釣り", "lang": None},
+    {"q": "giant fish caught|record fish|shark fishing|catfish monster|fish attack lure", "lang": "en"},
+]
+VIRAL_HOURS = 48              # look back a bit further for viral videos
+VIRAL_VIEWS_PER_HOUR = 2000   # faster than this = marked as viral
+VIRAL_MIN_VIEWS = 50000
+VIRAL_KEEP = 12
+
 MIN_SECONDS = 60          # skip very short clips
 PER_REGION = 12           # videos kept per region
 SEARCH_RESULTS = 25       # candidates fetched per region
@@ -82,13 +93,24 @@ def iso_duration_seconds(s):
 
 # ---------------------------------------------------------------- videos
 
+def is_viral(v):
+    return v["views"] >= VIRAL_MIN_VIEWS and v["views_per_hour"] >= VIRAL_VIEWS_PER_HOUR
+
+
 def search_region(region, key, since):
-    found = get_json(YT + "search", {
-        "part": "snippet", "type": "video", "q": region["q"],
+    return search_videos(region["q"], region["lang"], key, since)[:PER_REGION]
+
+
+def search_videos(q, lang, key, since):
+    params = {
+        "part": "snippet", "type": "video", "q": q,
         "publishedAfter": since, "order": "viewCount",
-        "maxResults": SEARCH_RESULTS, "relevanceLanguage": region["lang"],
-        "safeSearch": "strict", "videoEmbeddable": "true", "key": key,
-    })
+        "maxResults": SEARCH_RESULTS, "safeSearch": "strict",
+        "videoEmbeddable": "true", "key": key,
+    }
+    if lang:
+        params["relevanceLanguage"] = lang
+    found = get_json(YT + "search", params)
     ids = [it["id"]["videoId"] for it in found.get("items", [])]
     if not ids:
         return []
@@ -113,11 +135,26 @@ def search_region(region, key, since):
             "channelId": sn["channelId"], "published": sn["publishedAt"],
             "views": views, "likes": likes, "seconds": secs, "thumb": thumb,
             "url": f"https://www.youtube.com/watch?v={v['id']}",
+            "views_per_hour": round(views / hours),
             # Views per hour since upload, with a bonus for likes.
             "score": round(views / hours + likes * 2 / hours, 1),
         })
+        out[-1]["viral"] = is_viral(out[-1])
     out.sort(key=lambda x: x["score"], reverse=True)
-    return out[:PER_REGION]
+    return out
+
+
+def find_viral(key, now, region_videos):
+    since = (now - dt.timedelta(hours=VIRAL_HOURS)).isoformat().replace("+00:00", "Z")
+    pool = {v["id"]: v for vids in region_videos.values() for v in vids if v.get("viral")}
+    for vq in VIRAL_QUERIES:
+        try:
+            for v in search_videos(vq["q"], vq["lang"], key, since):
+                if v["viral"]:
+                    pool.setdefault(v["id"], v)
+        except Exception as e:
+            print(f"  viral search failed ({e})", file=sys.stderr)
+    return sorted(pool.values(), key=lambda v: v["views_per_hour"], reverse=True)[:VIRAL_KEEP]
 
 
 def demo_videos():
@@ -149,9 +186,26 @@ def demo_videos():
             vids.append({"id": "", "title": title, "channel": ch, "channelId": "",
                          "published": published.isoformat().replace("+00:00", "Z"),
                          "views": views, "likes": views // 20, "seconds": 600 + i * 120,
-                         "thumb": "", "url": "", "score": round(views / hours, 1)})
+                         "thumb": "", "url": "", "score": round(views / hours, 1),
+                         "views_per_hour": round(views / hours), "viral": False})
         result[rid] = vids
     return result
+
+
+def demo_viral():
+    now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
+    rows = [("Giant catfish pulls kayak across the river", "Example Channel ES", 2400000, 20),
+            ("Shark steals tuna right at the boat", "Example Channel ZA", 1300000, 30),
+            ("Kid lands a 1 m pike from the shore", "Voorbeeldkanaal NL", 640000, 26),
+            ("Marlin jumps INTO the boat", "Example Channel CR", 980000, 40)]
+    out = []
+    for title, ch, views, h in rows:
+        published = now - dt.timedelta(hours=h)
+        out.append({"id": "", "title": title, "channel": ch, "channelId": "",
+                    "published": published.isoformat().replace("+00:00", "Z"),
+                    "views": views, "likes": views // 25, "seconds": 75, "thumb": "", "url": "",
+                    "score": round(views / h, 1), "views_per_hour": round(views / h), "viral": True})
+    return out
 
 
 # ---------------------------------------------------------------- forecast
@@ -235,17 +289,19 @@ def compass(deg):
 
 # ---------------------------------------------------------------- output
 
-def write_planning_csv(regions, stamp):
+def write_planning_csv(regions, viral, stamp):
     os.makedirs(PLAN_DIR, exist_ok=True)
     path = os.path.join(PLAN_DIR, f"kandidaten-{stamp:%Y-%m-%d}.csv")
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["datum", "regio", "rang", "titel", "kanaal", "link", "views",
-                    "geupload", "score", "gekozen", "toestemming"])
-        for r in regions:
-            for n, v in enumerate(r["videos"], 1):
-                w.writerow([f"{stamp:%Y-%m-%d}", r["name"], n, v["title"], v["channel"],
-                            v["url"], v["views"], v["published"], v["score"], "", "onbekend"])
+                    "geupload", "score", "viraal", "gekozen", "toestemming"])
+        groups = [("Viraal", viral)] + [(r["name"], r["videos"]) for r in regions]
+        for name, vids in groups:
+            for n, v in enumerate(vids, 1):
+                w.writerow([f"{stamp:%Y-%m-%d}", name, n, v["title"], v["channel"],
+                            v["url"], v["views"], v["published"], v["score"],
+                            "ja" if v.get("viral") else "", "", "onbekend"])
     return path
 
 
@@ -262,6 +318,7 @@ def main():
 
     if demo:
         by_region = demo_videos()
+        viral = demo_viral()
     else:
         since = (now - dt.timedelta(hours=24)).isoformat().replace("+00:00", "Z")
         by_region = {}
@@ -272,13 +329,15 @@ def main():
             except Exception as e:
                 print(f"  {r['name']}: failed ({e})", file=sys.stderr)
                 by_region[r["id"]] = []
+        viral = find_viral(key, now, by_region)
+        print(f"  Viraal: {len(viral)} videos")
 
     regions = [{"id": r["id"], "name": r["name"], "videos": by_region.get(r["id"], [])}
                for r in REGIONS]
     os.makedirs(DATA_DIR, exist_ok=True)
     stamp = now.isoformat().replace("+00:00", "Z")
     with open(os.path.join(DATA_DIR, "videos.json"), "w", encoding="utf-8") as f:
-        json.dump({"generated_at": stamp, "demo": demo, "regions": regions}, f,
+        json.dump({"generated_at": stamp, "demo": demo, "viral": viral, "regions": regions}, f,
                   ensure_ascii=False, indent=1)
 
     fc = demo_forecast() if args.demo else forecast()
@@ -289,7 +348,7 @@ def main():
         with open(os.path.join(DATA_DIR, "forecast.json"), "w", encoding="utf-8") as f:
             json.dump(fc, f, ensure_ascii=False, indent=1)
 
-    csv_path = write_planning_csv(regions, now)
+    csv_path = write_planning_csv(regions, viral, now)
     total = sum(len(r["videos"]) for r in regions)
     print(f"Done: {total} videos{' (example data)' if demo else ''}. Planning list: {csv_path}")
 

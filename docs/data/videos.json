@@ -1,6 +1,68 @@
 {
- "generated_at": "2026-11-11T12:49:09Z",
+ "generated_at": "2026-11-11T18:49:20Z",
  "demo": true,
+ "viral": [
+  {
+   "id": "",
+   "title": "Giant catfish pulls kayak across the river",
+   "channel": "Example Channel ES",
+   "channelId": "",
+   "published": "2026-11-10T22:49:20Z",
+   "views": 2400000,
+   "likes": 96000,
+   "seconds": 75,
+   "thumb": "",
+   "url": "",
+   "score": 120000.0,
+   "views_per_hour": 120000,
+   "viral": true
+  },
+  {
+   "id": "",
+   "title": "Shark steals tuna right at the boat",
+   "channel": "Example Channel ZA",
+   "channelId": "",
+   "published": "2026-11-10T12:49:20Z",
+   "views": 1300000,
+   "likes": 52000,
+   "seconds": 75,
+   "thumb": "",
+   "url": "",
+   "score": 43333.3,
+   "views_per_hour": 43333,
+   "viral": true
+  },
+  {
+   "id": "",
+   "title": "Kid lands a 1 m pike from the shore",
+   "channel": "Voorbeeldkanaal NL",
+   "channelId": "",
+   "published": "2026-11-10T16:49:20Z",
+   "views": 640000,
+   "likes": 25600,
+   "seconds": 75,
+   "thumb": "",
+   "url": "",
+   "score": 24615.4,
+   "views_per_hour": 24615,
+   "viral": true
+  },
+  {
+   "id": "",
+   "title": "Marlin jumps INTO the boat",
+   "channel": "Example Channel CR",
+   "channelId": "",
+   "published": "2026-11-10T02:49:20Z",
+   "views": 980000,
+   "likes": 39200,
+   "seconds": 75,
+   "thumb": "",
+   "url": "",
+   "score": 24500.0,
+   "views_per_hour": 24500,
+   "viral": true
+  }
+ ],
  "regions": [
   {
    "id": "nl",
@@ -11,39 +73,45 @@
      "title": "Snoek van 118 cm op shad in het Haringvliet",
      "channel": "Voorbeeldkanaal NL",
      "channelId": "",
-     "published": "2026-11-11T09:49:09Z",
+     "published": "2026-11-11T15:49:20Z",
      "views": 8400,
      "likes": 420,
      "seconds": 600,
      "thumb": "",
      "url": "",
-     "score": 2800.0
+     "score": 2800.0,
+     "views_per_hour": 2800,
+     "viral": false
     },
     {
      "id": "",
      "title": "Snoekbaars op 5 m bij Urk: dropshot uitgelegd",
      "channel": "Voorbeeldkanaal NL",
      "channelId": "",
-     "published": "2026-11-11T04:49:09Z",
+     "published": "2026-11-11T10:49:20Z",
      "views": 5100,
      "likes": 255,
      "seconds": 720,
      "thumb": "",
      "url": "",
-     "score": 637.5
+     "score": 637.5,
+     "views_per_hour": 638,
+     "viral": false
     },
     {
      "id": "",
      "title": "Polderbaars op topwater in november",
      "channel": "Voorbeeldkanaal NL",
      "channelId": "",
-     "published": "2026-11-10T23:49:09Z",
+     "published": "2026-11-11T05:49:20Z",
      "views": 2300,
      "likes": 115,
      "seconds": 840,
      "thumb": "",
      "url": "",
-     "score": 176.9
+     "score": 176.9,
+     "views_per_hour": 177,
+     "viral": false
     }
    ]
   },
@@ -56,26 +124,30 @@
      "title": "Heilbot van 2,1 m bij Senja",
      "channel": "Example Channel NO",
      "channelId": "",
-     "published": "2026-11-11T09:49:09Z",
+     "published": "2026-11-11T15:49:20Z",
      "views": 21000,
      "likes": 1050,
      "seconds": 600,
      "thumb": "",
      "url": "",
-     "score": 7000.0
+     "score": 7000.0,
+     "views_per_hour": 7000,
+     "viral": false
     },
     {
      "id": "",
      "title": "Wintersnoek op de Ierse meren",
      "channel": "Example Channel IE",
      "channelId": "",
-     "published": "2026-11-11T04:49:09Z",
+     "published": "2026-11-11T10:49:20Z",
      "views": 6300,
      "likes": 315,
      "seconds": 720,
      "thumb": "",
      "url": "",
-     "score": 787.5
+     "score": 787.5,
+     "views_per_hour": 788,
+     "viral": false
     }
    ]
   },
@@ -88,26 +160,30 @@
      "title": "Tarpon run begins in Boca Grande",
      "channel": "Example Channel US",
      "channelId": "",
-     "published": "2026-11-11T09:49:09Z",
+     "published": "2026-11-11T15:49:20Z",
      "views": 34000,
      "likes": 1700,
      "seconds": 600,
      "thumb": "",
      "url": "",
-     "score": 11333.3
+     "score": 11333.3,
+     "views_per_hour": 11333,
+     "viral": false
     },
     {
      "id": "",
      "title": "Late fall musky on the St. Lawrence",
      "channel": "Example Channel CA",
      "channelId": "",
-     "published": "2026-11-11T04:49:09Z",
+     "published": "2026-11-11T10:49:20Z",
      "views": 12000,
      "likes": 600,
      "seconds": 720,
      "thumb": "",
      "url": "",
-     "score": 1500.0
+     "score": 1500.0,
+     "views_per_hour": 1500,
+     "viral": false
     }
    ]
   },
@@ -120,26 +196,30 @@
      "title": "Tucunaré gigante no Rio Negro",
      "channel": "Canal de Exemplo BR",
      "channelId": "",
-     "published": "2026-11-11T09:49:09Z",
+     "published": "2026-11-11T15:49:20Z",
      "views": 15000,
      "likes": 750,
      "seconds": 600,
      "thumb": "",
      "url": "",
-     "score": 5000.0
+     "score": 5000.0,
+     "views_per_hour": 5000,
+     "viral": false
     },
     {
      "id": "",
      "title": "Dorado en el Paraná con mosca",
      "channel": "Canal de Ejemplo AR",
      "channelId": "",
-     "published": "2026-11-11T04:49:09Z",
+     "published": "2026-11-11T10:49:20Z",
      "views": 7000,
      "likes": 350,
      "seconds": 720,
      "thumb": "",
      "url": "",
-     "score": 875.0
+     "score": 875.0,
+     "views_per_hour": 875,
+     "viral": false
     }
    ]
   },
@@ -152,13 +232,15 @@
      "title": "Tigerfish on the Zambezi at sunrise",
      "channel": "Example Channel ZA",
      "channelId": "",
-     "published": "2026-11-11T09:49:09Z",
+     "published": "2026-11-11T15:49:20Z",
      "views": 9100,
      "likes": 455,
      "seconds": 600,
      "thumb": "",
      "url": "",
-     "score": 3033.3
+     "score": 3033.3,
+     "views_per_hour": 3033,
+     "viral": false
     }
    ]
   },
@@ -171,13 +253,15 @@
      "title": "Golden mahseer in the Cauvery",
      "channel": "Example Channel IN",
      "channelId": "",
-     "published": "2026-11-11T09:49:09Z",
+     "published": "2026-11-11T15:49:20Z",
      "views": 4800,
      "likes": 240,
      "seconds": 600,
      "thumb": "",
      "url": "",
-     "score": 1600.0
+     "score": 1600.0,
+     "views_per_hour": 1600,
+     "viral": false
     }
    ]
   },
@@ -190,26 +274,30 @@
      "title": "Giant snakehead in a Thai reservoir",
      "channel": "Example Channel TH",
      "channelId": "",
-     "published": "2026-11-11T09:49:09Z",
+     "published": "2026-11-11T15:49:20Z",
      "views": 11000,
      "likes": 550,
      "seconds": 600,
      "thumb": "",
      "url": "",
-     "score": 3666.7
+     "score": 3666.7,
+     "views_per_hour": 3667,
+     "viral": false
     },
     {
      "id": "",
      "title": "シーバス 80cm 東京湾",
      "channel": "Example Channel JP",
      "channelId": "",
-     "published": "2026-11-11T04:49:09Z",
+     "published": "2026-11-11T10:49:20Z",
      "views": 8800,
      "likes": 440,
      "seconds": 720,
      "thumb": "",
      "url": "",
-     "score": 1100.0
+     "score": 1100.0,
+     "views_per_hour": 1100,
+     "viral": false
     }
    ]
   },
@@ -222,26 +310,30 @@
      "title": "Murray cod season opener, 1.1 m",
      "channel": "Example Channel AU",
      "channelId": "",
-     "published": "2026-11-11T09:49:09Z",
+     "published": "2026-11-11T15:49:20Z",
      "views": 18000,
      "likes": 900,
      "seconds": 600,
      "thumb": "",
      "url": "",
-     "score": 6000.0
+     "score": 6000.0,
+     "views_per_hour": 6000,
+     "viral": false
     },
     {
      "id": "",
      "title": "Black marlin off Cairns",
      "channel": "Example Channel AU",
      "channelId": "",
-     "published": "2026-11-11T04:49:09Z",
+     "published": "2026-11-11T10:49:20Z",
      "views": 13500,
      "likes": 675,
      "seconds": 720,
      "thumb": "",
      "url": "",
-     "score": 1687.5
+     "score": 1687.5,
+     "views_per_hour": 1688,
+     "viral": false
     }
    ]
   }

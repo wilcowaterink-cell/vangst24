@@ -80,6 +80,10 @@ section{padding-block:32px}
 .body h3{text-wrap:pretty;font-family:var(--f-body);font-size:16px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
 .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px;font-variant-numeric:tabular-nums}
 .region-tag{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-ink)}
+.viral-badge{position:absolute;top:8px;right:8px;z-index:1;background:#d7263d;color:#fff;font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.08em;padding:3px 7px;border-radius:3px}
+.speed{color:#d7263d;font-weight:700}
+@media (prefers-color-scheme: dark){.speed{color:#ff6b7d}}
+.viral-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(270px,1fr);gap:16px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
 .empty{padding:28px;background:var(--surface);border:1px dashed var(--line);border-radius:6px;color:var(--muted)}
 
 footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px}
@@ -97,6 +101,11 @@ footer .wrap{padding-block:24px 40px}
 <div class="demo" id="demo" hidden><div class="wrap">Dit zijn <b>voorbeeldgegevens</b>. Zodra er een YouTube-sleutel is ingesteld, verschijnen hier echte video's van de laatste 24 uur.</div></div>
 
 <main>
+  <section class="wrap" aria-labelledby="h-viral">
+    <div class="head"><h2 id="h-viral">Viraal</h2><p>Visvideo's die wereldwijd hard gaan: meer dan 2.000 views per uur. Bekijk ze hier, de rechten blijven bij de maker.</p></div>
+    <div class="viral-row" id="viral"></div>
+  </section>
+
   <section class="wrap" aria-labelledby="h-fc">
     <div class="head"><h2 id="h-fc">Visweer Nederland</h2><p>Bijtscore is een vuistregel voor roofvis: dalende luchtdruk, wat wind en bewolking helpen.</p></div>
     <div class="spots" id="spots"></div>
@@ -125,13 +134,13 @@ const nlTime = d => new Date(d).toLocaleString('nl-NL', {timeZone:'Europe/Amster
 
 function card(v, rank, regionName) {
   const media = v.id
-    ? `<button class="media" data-id="${esc(v.id)}" aria-label="Speel ${esc(v.title)}">${rank ? `<span class="rank">${rank}</span>` : ''}<img src="${esc(v.thumb)}" alt="" loading="lazy"><span class="play"></span><span class="dur">${dur(v.seconds)}</span></button>`
-    : `<div class="media">${rank ? `<span class="rank">${rank}</span>` : ''}<span class="ph">Voorbeeld</span><span class="dur">${dur(v.seconds)}</span></div>`;
+    ? `<button class="media" data-id="${esc(v.id)}" aria-label="Speel ${esc(v.title)}">${rank ? `<span class="rank">${rank}</span>` : ''}${v.viral ? '<span class="viral-badge">VIRAAL</span>' : ''}<img src="${esc(v.thumb)}" alt="" loading="lazy"><span class="play"></span><span class="dur">${dur(v.seconds)}</span></button>`
+    : `<div class="media">${rank ? `<span class="rank">${rank}</span>` : ''}${v.viral ? '<span class="viral-badge">VIRAAL</span>' : ''}<span class="ph">Voorbeeld</span><span class="dur">${dur(v.seconds)}</span></div>`;
   const ch = v.channelId ? `<a href="https://www.youtube.com/channel/${esc(v.channelId)}" target="_blank" rel="noopener">${esc(v.channel)}</a>` : esc(v.channel);
   return `<article class="card">${media}<div class="body">
     ${regionName ? `<span class="region-tag">${esc(regionName)}</span>` : ''}
     <h3>${v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a>` : esc(v.title)}</h3>
-    <div class="meta"><span>${ch}</span><span>${fmt.format(v.views)} views</span><span>${ago(v.published)}</span></div>
+    <div class="meta"><span>${ch}</span><span>${fmt.format(v.views)} views</span>${v.viral ? `<span class="speed">${fmt.format(v.views_per_hour)}/uur</span>` : ''}<span>${ago(v.published)}</span></div>
   </div></article>`;
 }
 
@@ -150,6 +159,10 @@ document.addEventListener('click', e => {
 function renderVideos(data) {
   document.getElementById('updated').textContent = nlTime(data.generated_at);
   document.getElementById('demo').hidden = !data.demo;
+  const viral = data.viral || [];
+  document.getElementById('viral').innerHTML = viral.length
+    ? viral.map(v => card(v, 0, '')).join('')
+    : '<p class="empty">Op dit moment gaat er geen visvideo viraal.</p>';
   const all = data.regions.flatMap(r => r.videos.map(v => ({...v, region: r.name})));
   const top = [...all].sort((a, b) => b.score - a.score).slice(0, 10);
   document.getElementById('top').innerHTML = top.length
@@ -186,8 +199,8 @@ function renderForecast(fc) {
   return fc;
 }
 
-function renderTicker(top, fc) {
-  const items = top.slice(0, 6).map(v => `${v.region}: ${v.title}`);
+function renderTicker(top, fc, viral) {
+  const items = (viral || []).slice(0, 2).map(v => `Viraal: ${v.title}`).concat(top.slice(0, 6).map(v => `${v.region}: ${v.title}`));
   if (fc && fc.spots.length) {
     const best = [...fc.spots].sort((a, b) => b.score - a.score)[0];
     items.push(`Beste stek nu: ${best.name}, bijtscore ${best.score.toFixed(1)}`);
@@ -206,7 +219,7 @@ Promise.all([
 ]).then(([videos, fc]) => {
   const top = renderVideos(videos);
   if (fc) renderForecast(fc);
-  renderTicker(top, fc);
+  renderTicker(top, fc, videos.viral);
 }).catch(err => {
   document.getElementById('top').innerHTML = `<p class="empty">Kon de gegevens niet laden (${esc(err.message)}). Draai eerst finder/find_videos.py.</p>`;
 });

@@ -18,7 +18,7 @@ planning/kandidaten-*.csv    daily list of candidate clips for the episode
 4. Open **APIs & Services → Credentials → Create credentials → API key**.
 5. Copy the key. Keep it secret: never paste it into the website or a public file.
 
-The free quota is 10,000 units a day. One run searches 8 regions (about 800 units), so every 3 hours fits comfortably.
+The free quota is 10,000 units a day. One run does 8 region searches plus 2 worldwide "viral" searches (about 1,000 units), so every 3 hours (8,000 units a day) fits.
 
 ## Step 2: Put it on GitHub (free hosting + automatic updates)
 
@@ -46,6 +46,12 @@ Edit the `REGIONS` list at the top of `finder/find_videos.py`. Each region has a
 ## About rights
 
 The website plays videos through YouTube's own player, which YouTube allows. The views count for the creator and their name and channel are shown. For the TV channel or a 24/7 stream you need the creator's permission before you use their clip. Track that in the planning sheet.
+
+## Viral videos
+
+The finder also searches worldwide for fishing videos that are taking off: more than 50,000 views and over 2,000 views per hour, uploaded in the last 48 hours. They appear in the "Viraal" section and are marked "ja" in the `viraal` column of the planning list. Change the limits at the top of `finder/find_videos.py` (`VIRAL_...`).
+
+The website may show them (embedded). For the TV channel you need permission first: see `planning/toestemming-vragen.md`.
 
 ## The bite score
 

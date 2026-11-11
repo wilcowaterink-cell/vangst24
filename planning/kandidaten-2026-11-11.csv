@@ -1,16 +1,20 @@
-datum,regio,rang,titel,kanaal,link,views,geupload,score,gekozen,toestemming
-2026-11-11,Nederland & België,1,Snoek van 118 cm op shad in het Haringvliet,Voorbeeldkanaal NL,,8400,2026-11-11T09:49:09Z,2800.0,,onbekend
-2026-11-11,Nederland & België,2,Snoekbaars op 5 m bij Urk: dropshot uitgelegd,Voorbeeldkanaal NL,,5100,2026-11-11T04:49:09Z,637.5,,onbekend
-2026-11-11,Nederland & België,3,Polderbaars op topwater in november,Voorbeeldkanaal NL,,2300,2026-11-10T23:49:09Z,176.9,,onbekend
-2026-11-11,Europa & Scandinavië,1,"Heilbot van 2,1 m bij Senja",Example Channel NO,,21000,2026-11-11T09:49:09Z,7000.0,,onbekend
-2026-11-11,Europa & Scandinavië,2,Wintersnoek op de Ierse meren,Example Channel IE,,6300,2026-11-11T04:49:09Z,787.5,,onbekend
-2026-11-11,Noord-Amerika,1,Tarpon run begins in Boca Grande,Example Channel US,,34000,2026-11-11T09:49:09Z,11333.3,,onbekend
-2026-11-11,Noord-Amerika,2,Late fall musky on the St. Lawrence,Example Channel CA,,12000,2026-11-11T04:49:09Z,1500.0,,onbekend
-2026-11-11,Zuid- & Midden-Amerika,1,Tucunaré gigante no Rio Negro,Canal de Exemplo BR,,15000,2026-11-11T09:49:09Z,5000.0,,onbekend
-2026-11-11,Zuid- & Midden-Amerika,2,Dorado en el Paraná con mosca,Canal de Ejemplo AR,,7000,2026-11-11T04:49:09Z,875.0,,onbekend
-2026-11-11,Afrika,1,Tigerfish on the Zambezi at sunrise,Example Channel ZA,,9100,2026-11-11T09:49:09Z,3033.3,,onbekend
-2026-11-11,Midden-Oosten & India,1,Golden mahseer in the Cauvery,Example Channel IN,,4800,2026-11-11T09:49:09Z,1600.0,,onbekend
-2026-11-11,Azië,1,Giant snakehead in a Thai reservoir,Example Channel TH,,11000,2026-11-11T09:49:09Z,3666.7,,onbekend
-2026-11-11,Azië,2,シーバス 80cm 東京湾,Example Channel JP,,8800,2026-11-11T04:49:09Z,1100.0,,onbekend
-2026-11-11,Australië & Nieuw-Zeeland,1,"Murray cod season opener, 1.1 m",Example Channel AU,,18000,2026-11-11T09:49:09Z,6000.0,,onbekend
-2026-11-11,Australië & Nieuw-Zeeland,2,Black marlin off Cairns,Example Channel AU,,13500,2026-11-11T04:49:09Z,1687.5,,onbekend
+datum,regio,rang,titel,kanaal,link,views,geupload,score,viraal,gekozen,toestemming
+2026-11-11,Viraal,1,Giant catfish pulls kayak across the river,Example Channel ES,,2400000,2026-11-10T22:49:20Z,120000.0,ja,,onbekend
+2026-11-11,Viraal,2,Shark steals tuna right at the boat,Example Channel ZA,,1300000,2026-11-10T12:49:20Z,43333.3,ja,,onbekend
+2026-11-11,Viraal,3,Kid lands a 1 m pike from the shore,Voorbeeldkanaal NL,,640000,2026-11-10T16:49:20Z,24615.4,ja,,onbekend
+2026-11-11,Viraal,4,Marlin jumps INTO the boat,Example Channel CR,,980000,2026-11-10T02:49:20Z,24500.0,ja,,onbekend
+2026-11-11,Nederland & België,1,Snoek van 118 cm op shad in het Haringvliet,Voorbeeldkanaal NL,,8400,2026-11-11T15:49:20Z,2800.0,,,onbekend
+2026-11-11,Nederland & België,2,Snoekbaars op 5 m bij Urk: dropshot uitgelegd,Voorbeeldkanaal NL,,5100,2026-11-11T10:49:20Z,637.5,,,onbekend
+2026-11-11,Nederland & België,3,Polderbaars op topwater in november,Voorbeeldkanaal NL,,2300,2026-11-11T05:49:20Z,176.9,,,onbekend
+2026-11-11,Europa & Scandinavië,1,"Heilbot van 2,1 m bij Senja",Example Channel NO,,21000,2026-11-11T15:49:20Z,7000.0,,,onbekend
+2026-11-11,Europa & Scandinavië,2,Wintersnoek op de Ierse meren,Example Channel IE,,6300,2026-11-11T10:49:20Z,787.5,,,onbekend
+2026-11-11,Noord-Amerika,1,Tarpon run begins in Boca Grande,Example Channel US,,34000,2026-11-11T15:49:20Z,11333.3,,,onbekend
+2026-11-11,Noord-Amerika,2,Late fall musky on the St. Lawrence,Example Channel CA,,12000,2026-11-11T10:49:20Z,1500.0,,,onbekend
+2026-11-11,Zuid- & Midden-Amerika,1,Tucunaré gigante no Rio Negro,Canal de Exemplo BR,,15000,2026-11-11T15:49:20Z,5000.0,,,onbekend
+2026-11-11,Zuid- & Midden-Amerika,2,Dorado en el Paraná con mosca,Canal de Ejemplo AR,,7000,2026-11-11T10:49:20Z,875.0,,,onbekend
+2026-11-11,Afrika,1,Tigerfish on the Zambezi at sunrise,Example Channel ZA,,9100,2026-11-11T15:49:20Z,3033.3,,,onbekend
+2026-11-11,Midden-Oosten & India,1,Golden mahseer in the Cauvery,Example Channel IN,,4800,2026-11-11T15:49:20Z,1600.0,,,onbekend
+2026-11-11,Azië,1,Giant snakehead in a Thai reservoir,Example Channel TH,,11000,2026-11-11T15:49:20Z,3666.7,,,onbekend
+2026-11-11,Azië,2,シーバス 80cm 東京湾,Example Channel JP,,8800,2026-11-11T10:49:20Z,1100.0,,,onbekend
+2026-11-11,Australië & Nieuw-Zeeland,1,"Murray cod season opener, 1.1 m",Example Channel AU,,18000,2026-11-11T15:49:20Z,6000.0,,,onbekend
+2026-11-11,Australië & Nieuw-Zeeland,2,Black marlin off Cairns,Example Channel AU,,13500,2026-11-11T10:49:20Z,1687.5,,,onbekend
