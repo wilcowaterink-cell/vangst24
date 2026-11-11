@@ -48,7 +48,13 @@ button{font:inherit;color:inherit}
 .demo{background:color-mix(in srgb,var(--mid) 20%,var(--bg));border-bottom:1px solid var(--line)}
 .demo .wrap{padding-block:10px;font-size:15px}
 
-section{padding-block:32px}
+section{padding-block:32px;scroll-margin-top:52px}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.menu{position:sticky;top:0;z-index:20;background:var(--deep);border-top:1px solid #1d3b4b;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.menu .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.menu a{flex:none;color:#d6e3e8;text-decoration:none;font-family:var(--f-display);font-weight:700;font-size:19px;text-transform:uppercase;letter-spacing:.03em;padding:11px 14px;border-bottom:3px solid transparent}
+.menu a:hover,.menu a.on{color:#fff;border-bottom-color:var(--accent)}
 .head{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;justify-content:space-between;margin-bottom:16px}
 .head p{margin:0;color:var(--muted);font-size:15px}
 
@@ -101,26 +107,32 @@ footer .wrap{padding-block:24px 40px}
   </div>
 </header>
 <div class="ticker" aria-label="Nieuws"><div class="lab" data-i18n="world">Wereld</div><div class="run" id="ticker">Laden…</div></div>
+<nav class="menu" aria-label="Menu"><div class="wrap">
+  <a href="#viraal" data-i18n="viral">Viraal</a>
+  <a href="#visweer" data-i18n="weather">Visweer</a>
+  <a href="#top10" data-i18n="top">Wereld Top 10</a>
+  <a href="#regio" data-i18n="regions">Per regio</a>
+</div></nav>
 <div class="demo" id="demo" hidden><div class="wrap" data-i18n="demo">Dit zijn voorbeeldgegevens. Zodra er een YouTube-sleutel is ingesteld, verschijnen hier echte video's van de laatste 24 uur.</div></div>
 
 <main>
-  <section class="wrap" aria-labelledby="h-viral">
+  <section class="wrap" id="viraal" aria-labelledby="h-viral">
     <div class="head"><h2 id="h-viral" data-i18n="viral">Viraal</h2><p data-i18n="viralSub">Visvideo's die wereldwijd hard gaan: meer dan 2.000 views per uur. Bekijk ze hier, de rechten blijven bij de maker.</p></div>
     <div class="viral-row" id="viral"></div>
   </section>
 
-  <section class="wrap" aria-labelledby="h-fc">
+  <section class="wrap" id="visweer" aria-labelledby="h-fc">
     <div class="head"><h2 id="h-fc" data-i18n="weather">Visweer</h2><p data-i18n="weatherSub">Bijtscore is een vuistregel: dalende luchtdruk, wat wind en bewolking helpen. N, O, Z en W geven de windstreek binnen het gebied aan.</p></div>
     <div class="tabs" role="tablist" id="fctabs" aria-label="Kies een gebied"></div>
     <div class="spots" id="spots" role="tabpanel"></div>
   </section>
 
-  <section class="wrap" aria-labelledby="h-top">
+  <section class="wrap" id="top10" aria-labelledby="h-top">
     <div class="head"><h2 id="h-top" data-i18n="top">Wereld Top 10</h2><p data-i18n="topSub">Meest bekeken nieuwe visvideo's van de laatste 24 uur, per uur sinds upload.</p></div>
     <div class="grid" id="top"></div>
   </section>
 
-  <section class="wrap" aria-labelledby="h-reg">
+  <section class="wrap" id="regio" aria-labelledby="h-reg">
     <div class="head"><h2 id="h-reg" data-i18n="regions">Per regio</h2><p data-i18n="regionsSub">Van de polder tot de Stille Oceaan.</p></div>
     <div class="tabs" role="tablist" id="tabs"></div>
     <div class="grid" id="regiongrid" role="tabpanel"></div>
@@ -308,6 +320,14 @@ function renderAll() {
   const top = renderVideos(DATA.videos);
   if (DATA.fc) renderForecast(DATA.fc);
   renderTicker(top, DATA.fc, DATA.videos.viral);
+}
+// Highlight the menu item of the section you are looking at.
+const links = [...document.querySelectorAll('.menu a')];
+if ('IntersectionObserver' in window) {
+  const seen = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+  }), {rootMargin: '-40% 0px -55% 0px'});
+  document.querySelectorAll('main section[id]').forEach(sec => seen.observe(sec));
 }
 const picker = document.getElementById('lang');
 picker.value = lang;
