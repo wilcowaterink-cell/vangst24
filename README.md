@@ -18,7 +18,7 @@ planning/kandidaten-*.csv    daily list of candidate clips for the episode
 4. Open **APIs & Services → Credentials → Create credentials → API key**.
 5. Copy the key. Keep it secret: never paste it into the website or a public file.
 
-The free quota is 10,000 units a day. One run does 9 searches plus 1 worldwide "viral" search (about 1,000 units), so every 3 hours (8,000 units a day) fits.
+The free quota is 10,000 units a day. One run does 10 searches plus 1 worldwide "viral" search (about 1,100 units), so every 3 hours (8,800 units a day) fits.
 
 ## Step 2: Put it on GitHub (free hosting + automatic updates)
 

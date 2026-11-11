@@ -31,7 +31,10 @@ YT = "https://www.googleapis.com/youtube/v3/"
 # Regions shown on the site.
 REGIONS = [
     {"id": "nl", "name": "Nederland & België"},
-    {"id": "europa", "name": "Europa & Scandinavië"},
+    {"id": "west-europa", "name": "West-Europa"},
+    {"id": "scandinavie", "name": "Scandinavië"},
+    {"id": "zuid-europa", "name": "Zuid-Europa"},
+    {"id": "oost-europa", "name": "Oost-Europa"},
     {"id": "noord-amerika", "name": "Noord-Amerika"},
     {"id": "zuid-amerika", "name": "Zuid- & Midden-Amerika"},
     {"id": "afrika", "name": "Afrika"},
@@ -42,14 +45,15 @@ REGIONS = [
 
 # The searches. In a YouTube search "|" means OR and only joins the words right
 # next to it, so "fishing bass|pike" means: fishing AND (bass OR pike).
-# Each search costs 100 of the 10,000 free daily units: 10 searches x 8 runs
-# a day (every 3 hours) = 8,000 units.
+# Each search costs 100 of the 10,000 free daily units: 11 searches x 8 runs
+# a day (every 3 hours) = 8,800 units.
 # "region" is where a video goes when the maker's country is unknown.
 SEARCHES = [
     {"q": "vissen|snoek|snoekbaars|karper|hengelsport|roofvissen|karpervissen|zeevissen", "lang": "nl", "region": "nl"},
     {"q": "fishing bass|pike|carp|trout|salmon|walleye|musky|catfish", "lang": "en", "region": "noord-amerika"},
     {"q": "fishing tuna|marlin|shark|tarpon|snapper|halibut|kingfish|trevally", "lang": "en", "region": "noord-amerika"},
-    {"q": "angeln|pêche|fiske|wędkarstwo|pescuit|rybolov|kalastus|рыбалка", "lang": None, "region": "europa"},
+    {"q": "angeln|pêche|fiske|kalastus|sportfiske|havfiske|lystfiskeri|carpfishing", "lang": None, "region": "west-europa"},
+    {"q": "wędkarstwo|pescuit|rybolov|рыбалка|horgászat|ribolov|риболов|žvejyba", "lang": None, "region": "oost-europa"},
     {"q": "pesca tucunaré|dourado|robalo|dorado|pargo|atún|trucha|tilapia", "lang": None, "region": "zuid-amerika"},
     {"q": "釣り|낚시|ตกปลา|mancing|钓鱼|memancing", "lang": None, "region": "azie"},
     {"q": "fishing mahseer|india|kerala|oman|dubai|pakistan|bangladesh", "lang": None, "region": "midden-oosten-india"},
@@ -63,7 +67,10 @@ VIRAL_SEARCH = {"q": "fishing|pesca|angeln|pêche|vissen|釣り|рыбалка",
 COUNTRY_REGION = {}
 for _rid, _codes in {
     "nl": "NL BE",
-    "europa": "GB IE FR DE ES PT IT CH AT LU DK SE NO FI IS PL CZ SK HU RO BG GR HR SI RS BA ME MK AL EE LV LT UA BY MD RU MT CY",
+    "west-europa": "GB IE FR DE CH AT LU",
+    "scandinavie": "DK SE NO FI IS",
+    "zuid-europa": "ES PT IT GR MT CY",
+    "oost-europa": "PL CZ SK HU RO BG HR SI RS BA ME MK AL EE LV LT UA BY MD RU",
     "noord-amerika": "US CA",
     "zuid-amerika": "MX BR AR CL CO PE CR PA EC VE UY PY BO GT CU DO PR HN NI SV BZ JM TT BS",
     "afrika": "ZA NA KE NG GH TZ MZ ZM ZW EG MA DZ TN UG ET SN CI CM AO BW MG MU SC RW",
@@ -97,6 +104,9 @@ SPOTS = [
     {"name": "Maas (Roermond)", "lat": 51.19, "lon": 5.99},
     {"name": "Noordzeekust (Scheveningen)", "lat": 52.11, "lon": 4.27},
     {"name": "Friese meren (Sneek)", "lat": 53.03, "lon": 5.66},
+    {"name": "IJssel (Deventer)", "lat": 52.25, "lon": 6.16},
+    {"name": "Twentekanaal (Hengelo)", "lat": 52.26, "lon": 6.79},
+    {"name": "Vecht (Ommen)", "lat": 52.52, "lon": 6.42},
 ]
 
 VIRAL_HOURS = 48              # look back a bit further for viral videos
@@ -156,7 +166,7 @@ def region_from_script(title):
         if 0x0900 <= o <= 0x0DFF or 0x0600 <= o <= 0x06FF:
             return "midden-oosten-india"       # Indian scripts, Arabic
         if 0x0400 <= o <= 0x04FF:
-            return "europa"                    # Cyrillic
+            return "oost-europa"               # Cyrillic
     return None
 
 
@@ -268,8 +278,10 @@ def demo_videos():
         "nl": [("Snoek van 118 cm op shad in het Haringvliet", "Voorbeeldkanaal NL", 8400),
                ("Snoekbaars op 5 m bij Urk: dropshot uitgelegd", "Voorbeeldkanaal NL", 5100),
                ("Polderbaars op topwater in november", "Voorbeeldkanaal NL", 2300)],
-        "europa": [("Heilbot van 2,1 m bij Senja", "Example Channel NO", 21000),
-                   ("Wintersnoek op de Ierse meren", "Example Channel IE", 6300)],
+        "scandinavie": [("Heilbot van 2,1 m bij Senja", "Example Channel NO", 21000)],
+        "west-europa": [("Wintersnoek op de Ierse meren", "Example Channel IE", 6300)],
+        "oost-europa": [("Szczupak 105 cm z Mazur", "Przykładowy kanał PL", 5200)],
+        "zuid-europa": [("Siluro gigante en el Ebro", "Canal de Ejemplo ES", 7400)],
         "noord-amerika": [("Tarpon run begins in Boca Grande", "Example Channel US", 34000),
                           ("Late fall musky on the St. Lawrence", "Example Channel CA", 12000)],
         "zuid-amerika": [("Tucunaré gigante no Rio Negro", "Canal de Exemplo BR", 15000),
@@ -381,7 +393,10 @@ def demo_forecast():
             ("Haringvliet", 9.8, 1007, -2.6, 4, "ZW", 70),
             ("Maas (Roermond)", 8.2, 1009, -1.4, 2, "Z", 90),
             ("Noordzeekust (Scheveningen)", 10.4, 1006, -3.0, 5, "ZW", 60),
-            ("Friese meren (Sneek)", 8.7, 1005, -3.5, 3, "W", 80)]
+            ("Friese meren (Sneek)", 8.7, 1005, -3.5, 3, "W", 80),
+            ("IJssel (Deventer)", 8.4, 1008, -2.2, 2, "ZW", 85),
+            ("Twentekanaal (Hengelo)", 8.0, 1009, -1.9, 2, "Z", 90),
+            ("Vecht (Ommen)", 8.3, 1008, -2.4, 3, "ZW", 80)]
     spots = [{"name": n, "temp": t, "pressure": p, "pressure_change": c, "bft": b,
               "wind_dir": wd, "cloud": cl, "score": bite_score(c, b, cl, moon)}
              for n, t, p, c, b, wd, cl in rows]
