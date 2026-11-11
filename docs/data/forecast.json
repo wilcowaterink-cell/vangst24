@@ -6,7 +6,7 @@
    "name": "IJsselmeer (Urk)",
    "temp": 2.3,
    "pressure": 1003,
-   "pressure_change": -7.2,
+   "pressure_change": -7.3,
    "bft": 1,
    "wind_dir": "NO",
    "cloud": 100,
@@ -16,7 +16,7 @@
    "name": "Haringvliet",
    "temp": 4.5,
    "pressure": 1003,
-   "pressure_change": -5.4,
+   "pressure_change": -5.2,
    "bft": 2,
    "wind_dir": "NO",
    "cloud": 100,
@@ -45,8 +45,8 @@
   {
    "name": "Friese meren (Sneek)",
    "temp": 1.6,
-   "pressure": 1004,
-   "pressure_change": -7.4,
+   "pressure": 1003,
+   "pressure_change": -7.6,
    "bft": 2,
    "wind_dir": "ZW",
    "cloud": 98,
@@ -83,6 +83,6 @@
    "score": 8.5
   }
  ],
- "generated_at": "2026-11-11T19:47:28Z",
+ "generated_at": "2026-11-11T19:48:18Z",
  "demo": false
 }
