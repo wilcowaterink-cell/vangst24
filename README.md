@@ -1,0 +1,52 @@
+# Vangst24
+
+A website that shows the newest fishing videos from all over the world (last 24 hours) plus a fishing forecast for Dutch waters. It updates itself every 3 hours, for free.
+
+```
+finder/find_videos.py        finds new videos per region + makes the forecast
+docs/index.html              the website (Dutch)
+docs/data/*.json             the data the website shows (written by the finder)
+planning/kandidaten-*.csv    daily list of candidate clips for the episode
+.github/workflows/update.yml runs the finder every 3 hours on GitHub
+```
+
+## Step 1: Get a free YouTube API key (10 minutes)
+
+1. Go to https://console.cloud.google.com and sign in with a Google account.
+2. Create a new project, for example "Vangst24".
+3. Open **APIs & Services → Library**, search for **YouTube Data API v3** and click **Enable**.
+4. Open **APIs & Services → Credentials → Create credentials → API key**.
+5. Copy the key. Keep it secret: never paste it into the website or a public file.
+
+The free quota is 10,000 units a day. One run searches 8 regions (about 800 units), so every 3 hours fits comfortably.
+
+## Step 2: Put it on GitHub (free hosting + automatic updates)
+
+1. Create a free account at https://github.com and make a new repository called `vangst24`.
+2. Upload all the files in this folder (keep the folder structure, including `.github`).
+3. In the repository: **Settings → Secrets and variables → Actions → New repository secret**.
+   Name: `YOUTUBE_API_KEY`, value: your key.
+4. **Settings → Pages**: Source "Deploy from a branch", branch `main`, folder `/docs`. Save.
+5. **Actions** tab → "Update Vangst24" → **Run workflow** to fill it the first time.
+
+After a minute the site is live at `https://<your-username>.github.io/vangst24/`, and it refreshes every 3 hours by itself.
+
+## Running it on your own computer
+
+```bash
+python finder/find_videos.py --demo        # example data, no key needed
+YOUTUBE_API_KEY=your-key python finder/find_videos.py
+cd docs && python -m http.server 8000      # then open http://localhost:8000
+```
+
+## Changing what it searches for
+
+Edit the `REGIONS` list at the top of `finder/find_videos.py`. Each region has a search text where `|` means "or", for example `"snoek gevangen|snoekbaars vissen"`. Add or change fish species and places there. The Dutch fishing spots for the forecast are in `SPOTS`.
+
+## About rights
+
+The website plays videos through YouTube's own player, which YouTube allows. The views count for the creator and their name and channel are shown. For the TV channel or a 24/7 stream you need the creator's permission before you use their clip. Track that in the planning sheet.
+
+## The bite score
+
+A rule of thumb for predator fishing (pike, zander, perch), from 0 to 10: falling air pressure, a light wind (2 to 4 Bft), cloud cover and new or full moon raise it. Strong wind and fast-rising pressure lower it. It is meant as a fun guide, not a guarantee.

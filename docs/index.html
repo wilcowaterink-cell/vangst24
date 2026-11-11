@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vangst24</title>
+<meta name="description" content="De laatste 24 uur vissen, wereldwijd. Elke paar uur bijgewerkt.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: broadcast header + ticker, forecast strip, world top 10, then region tabs with video grids. */
+:root{
+  --bg:#eef2f3; --surface:#fff; --fg:#0f2430; --muted:#506773; --line:#cfdbe0;
+  --deep:#0b2a3a; --accent:#e8571c; --accent-ink:#b8400d; --good:#2f8a4a; --mid:#c99a2e; --bad:#b9433a;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#08161d; --surface:#0f222c; --fg:#e4edf0; --muted:#94aab4; --line:#1f3946;
+  --deep:#06141b; --accent:#ff7a3d; --accent-ink:#ff8f5a; --good:#5cc27a; --mid:#e0b54a; --bad:#e2706a;
+  color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.05;text-wrap:balance}
+h2{font-size:32px;text-transform:uppercase;font-weight:700}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.top{background:var(--deep);color:#f3f7f8}
+.top .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between;padding-block:14px}
+.logo{font-family:var(--f-display);font-weight:800;font-size:34px;letter-spacing:.01em;display:flex;align-items:center;gap:6px}
+.logo span{background:var(--accent);color:#fff;padding:0 7px;border-radius:3px}
+.status{font-family:var(--f-mono);font-size:12px;display:flex;gap:16px;flex-wrap:wrap;color:#b9ccd4}
+.status b{color:#fff;font-weight:600}
+.ticker{display:flex;align-items:center;background:#f3f7f8;color:#06161f;overflow:hidden;height:38px}
+.ticker .lab{flex:none;height:100%;display:flex;align-items:center;padding:0 12px;background:var(--accent);color:#fff;font-family:var(--f-display);font-weight:800;text-transform:uppercase;z-index:1}
+.ticker .run{white-space:nowrap;font-weight:600;animation:tick 90s linear infinite;padding-left:100%}
+@keyframes tick{to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.ticker .run{animation:none;padding-left:12px}}
+
+.demo{background:color-mix(in srgb,var(--mid) 20%,var(--bg));border-bottom:1px solid var(--line)}
+.demo .wrap{padding-block:10px;font-size:15px}
+
+section{padding-block:32px}
+.head{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+.head p{margin:0;color:var(--muted);font-size:15px}
+
+/* Forecast */
+.spots{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.spot{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.spot h3{font-size:20px}
+.spot .row{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.meter{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%}
+.score{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1}
+.score small{font-size:14px;color:var(--muted);font-weight:600}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:thin}
+.tab{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 14px;cursor:pointer;font-weight:600;font-size:15px}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab .n{font-family:var(--f-mono);font-size:11px;opacity:.75;margin-left:4px}
+
+/* Video cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.media{position:relative;aspect-ratio:16/9;max-width:100%;background:#0b2a3a;border:0;padding:0;width:100%;cursor:pointer;display:block}
+.media img,.media iframe{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0}
+.media .play{position:absolute;inset:0;margin:auto;width:58px;height:40px;border-radius:10px;background:rgba(232,87,28,.92);display:grid;place-items:center}
+.media .play::after{content:"";border-left:16px solid #fff;border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:4px}
+.media .ph{position:absolute;inset:0;display:grid;place-items:center;color:#9fc0cc;font-family:var(--f-display);font-size:22px;text-transform:uppercase;letter-spacing:.04em;background:linear-gradient(160deg,#16465a,#06161f)}
+.rank{position:absolute;top:8px;left:8px;background:var(--accent);color:#fff;font-family:var(--f-display);font-weight:800;font-size:20px;padding:0 8px;border-radius:3px;z-index:1}
+.dur{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.75);color:#fff;font-family:var(--f-mono);font-size:11px;padding:1px 5px;border-radius:2px}
+.body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.body h3{text-wrap:pretty;font-family:var(--f-body);font-size:16px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px;font-variant-numeric:tabular-nums}
+.region-tag{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-ink)}
+.empty{padding:28px;background:var(--surface);border:1px dashed var(--line);border-radius:6px;color:var(--muted)}
+
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+footer .wrap{padding-block:24px 40px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="logo">VANGST<span>24</span></div>
+    <div class="status"><span>Bijgewerkt: <b id="updated">…</b></span><span>Maan: <b id="moon">…</b></span><span>NL <b id="clock">--:--</b></span></div>
+  </div>
+</header>
+<div class="ticker" aria-label="Nieuws"><div class="lab">Wereld</div><div class="run" id="ticker">Laden…</div></div>
+<div class="demo" id="demo" hidden><div class="wrap">Dit zijn <b>voorbeeldgegevens</b>. Zodra er een YouTube-sleutel is ingesteld, verschijnen hier echte video's van de laatste 24 uur.</div></div>
+
+<main>
+  <section class="wrap" aria-labelledby="h-fc">
+    <div class="head"><h2 id="h-fc">Visweer Nederland</h2><p>Bijtscore is een vuistregel voor roofvis: dalende luchtdruk, wat wind en bewolking helpen.</p></div>
+    <div class="spots" id="spots"></div>
+  </section>
+
+  <section class="wrap" aria-labelledby="h-top">
+    <div class="head"><h2 id="h-top">Wereld Top 10</h2><p>Meest bekeken nieuwe visvideo's van de laatste 24 uur, per uur sinds upload.</p></div>
+    <div class="grid" id="top"></div>
+  </section>
+
+  <section class="wrap" aria-labelledby="h-reg">
+    <div class="head"><h2 id="h-reg">Per regio</h2><p>Van de polder tot de Stille Oceaan.</p></div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="grid" id="regiongrid" role="tabpanel"></div>
+  </section>
+</main>
+
+<footer><div class="wrap">Video's worden getoond via de speler van YouTube. Alle rechten blijven bij de makers; klik op de kanaalnaam om hun kanaal te bezoeken. Weerdata: Open-Meteo.</div></footer>
+
+<script>
+const fmt = new Intl.NumberFormat('nl-NL');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ago = iso => { const h = Math.max(0, (Date.now() - new Date(iso)) / 36e5); return h < 1 ? 'net geüpload' : `${Math.round(h)} uur geleden`; };
+const dur = s => { const m = Math.floor(s / 60), r = s % 60, h = Math.floor(m / 60); return h ? `${h}:${String(m % 60).padStart(2,'0')}:${String(r).padStart(2,'0')}` : `${m}:${String(r).padStart(2,'0')}`; };
+const nlTime = d => new Date(d).toLocaleString('nl-NL', {timeZone:'Europe/Amsterdam', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+
+function card(v, rank, regionName) {
+  const media = v.id
+    ? `<button class="media" data-id="${esc(v.id)}" aria-label="Speel ${esc(v.title)}">${rank ? `<span class="rank">${rank}</span>` : ''}<img src="${esc(v.thumb)}" alt="" loading="lazy"><span class="play"></span><span class="dur">${dur(v.seconds)}</span></button>`
+    : `<div class="media">${rank ? `<span class="rank">${rank}</span>` : ''}<span class="ph">Voorbeeld</span><span class="dur">${dur(v.seconds)}</span></div>`;
+  const ch = v.channelId ? `<a href="https://www.youtube.com/channel/${esc(v.channelId)}" target="_blank" rel="noopener">${esc(v.channel)}</a>` : esc(v.channel);
+  return `<article class="card">${media}<div class="body">
+    ${regionName ? `<span class="region-tag">${esc(regionName)}</span>` : ''}
+    <h3>${v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a>` : esc(v.title)}</h3>
+    <div class="meta"><span>${ch}</span><span>${fmt.format(v.views)} views</span><span>${ago(v.published)}</span></div>
+  </div></article>`;
+}
+
+// Click a thumbnail to load the player (keeps the page fast).
+document.addEventListener('click', e => {
+  const b = e.target.closest('button.media[data-id]');
+  if (!b) return;
+  const f = document.createElement('iframe');
+  f.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(b.dataset.id)}?autoplay=1&rel=0`;
+  f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+  f.allowFullscreen = true; f.title = b.getAttribute('aria-label');
+  const div = document.createElement('div'); div.className = 'media'; div.appendChild(f);
+  b.replaceWith(div);
+});
+
+function renderVideos(data) {
+  document.getElementById('updated').textContent = nlTime(data.generated_at);
+  document.getElementById('demo').hidden = !data.demo;
+  const all = data.regions.flatMap(r => r.videos.map(v => ({...v, region: r.name})));
+  const top = [...all].sort((a, b) => b.score - a.score).slice(0, 10);
+  document.getElementById('top').innerHTML = top.length
+    ? top.map((v, i) => card(v, i + 1, v.region)).join('')
+    : '<p class="empty">Nog geen video\'s gevonden. Kom over een paar uur terug.</p>';
+
+  const tabs = document.getElementById('tabs');
+  let saved = null; try { saved = localStorage.getItem('v24-region'); } catch (e) {}
+  const start = data.regions.find(r => r.id === saved) || data.regions[0];
+  tabs.innerHTML = data.regions.map(r => `<button class="tab" role="tab" data-r="${r.id}" aria-selected="${r === start}">${esc(r.name)}<span class="n">${r.videos.length}</span></button>`).join('');
+  const show = id => {
+    const r = data.regions.find(x => x.id === id);
+    tabs.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.r === id));
+    document.getElementById('regiongrid').innerHTML = r.videos.length
+      ? r.videos.map(v => card(v, 0, '')).join('')
+      : '<p class="empty">Geen nieuwe video\'s uit deze regio in de laatste 24 uur.</p>';
+    try { localStorage.setItem('v24-region', id); } catch (e) {}
+  };
+  tabs.addEventListener('click', e => { const t = e.target.closest('.tab'); if (t) show(t.dataset.r); });
+  show(start.id);
+  return top;
+}
+
+function renderForecast(fc) {
+  document.getElementById('moon').textContent = fc.moon;
+  const color = s => s >= 7 ? 'var(--good)' : s >= 4.5 ? 'var(--mid)' : 'var(--bad)';
+  document.getElementById('spots').innerHTML = fc.spots.map(s => `<div class="spot">
+    <h3>${esc(s.name)}</h3>
+    <div class="score" style="color:${color(s.score)}">${s.score.toFixed(1)}<small> / 10</small></div>
+    <div class="meter"><i style="width:${s.score * 10}%;background:${color(s.score)}"></i></div>
+    <div class="row"><span>${s.temp} °C</span><span>${s.wind_dir} ${s.bft} Bft</span></div>
+    <div class="row"><span>${s.pressure} hPa</span><span>${s.pressure_change > 0 ? '+' : ''}${s.pressure_change} in 24u</span></div>
+  </div>`).join('');
+  return fc;
+}
+
+function renderTicker(top, fc) {
+  const items = top.slice(0, 6).map(v => `${v.region}: ${v.title}`);
+  if (fc && fc.spots.length) {
+    const best = [...fc.spots].sort((a, b) => b.score - a.score)[0];
+    items.push(`Beste stek nu: ${best.name}, bijtscore ${best.score.toFixed(1)}`);
+  }
+  document.getElementById('ticker').textContent = items.join('  ·  ') || 'Geen nieuws.';
+}
+
+function tickClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('nl-NL', {timeZone:'Europe/Amsterdam', hour:'2-digit', minute:'2-digit'});
+}
+tickClock(); setInterval(tickClock, 30000);
+
+Promise.all([
+  fetch('data/videos.json', {cache:'no-cache'}).then(r => r.json()),
+  fetch('data/forecast.json', {cache:'no-cache'}).then(r => r.json()).catch(() => null),
+]).then(([videos, fc]) => {
+  const top = renderVideos(videos);
+  if (fc) renderForecast(fc);
+  renderTicker(top, fc);
+}).catch(err => {
+  document.getElementById('top').innerHTML = `<p class="empty">Kon de gegevens niet laden (${esc(err.message)}). Draai eerst finder/find_videos.py.</p>`;
+});
+</script>
+</body>
+</html>

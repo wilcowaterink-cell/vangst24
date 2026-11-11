@@ -1,0 +1,58 @@
+{
+ "moon": "Nieuwe maan",
+ "moon_phase": 0.055,
+ "spots": [
+  {
+   "name": "IJsselmeer (Urk)",
+   "temp": 9.1,
+   "pressure": 1006,
+   "pressure_change": -3.2,
+   "bft": 3,
+   "wind_dir": "ZW",
+   "cloud": 85,
+   "score": 9.5
+  },
+  {
+   "name": "Haringvliet",
+   "temp": 9.8,
+   "pressure": 1007,
+   "pressure_change": -2.6,
+   "bft": 4,
+   "wind_dir": "ZW",
+   "cloud": 70,
+   "score": 9.5
+  },
+  {
+   "name": "Maas (Roermond)",
+   "temp": 8.2,
+   "pressure": 1009,
+   "pressure_change": -1.4,
+   "bft": 2,
+   "wind_dir": "Z",
+   "cloud": 90,
+   "score": 7.5
+  },
+  {
+   "name": "Noordzeekust (Scheveningen)",
+   "temp": 10.4,
+   "pressure": 1006,
+   "pressure_change": -3.0,
+   "bft": 5,
+   "wind_dir": "ZW",
+   "cloud": 60,
+   "score": 8.5
+  },
+  {
+   "name": "Friese meren (Sneek)",
+   "temp": 8.7,
+   "pressure": 1005,
+   "pressure_change": -3.5,
+   "bft": 3,
+   "wind_dir": "W",
+   "cloud": 80,
+   "score": 9.5
+  }
+ ],
+ "generated_at": "2026-11-11T12:49:09Z",
+ "demo": true
+}
