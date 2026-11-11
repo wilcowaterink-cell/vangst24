@@ -45,14 +45,16 @@ REGIONS = [
 
 # The searches. In a YouTube search "|" means OR and only joins the words right
 # next to it, so "fishing bass|pike" means: fishing AND (bass OR pike).
-# Each search costs 100 of the 10,000 free daily units: 11 searches x 8 runs
-# a day (every 3 hours) = 8,800 units.
+# Each search costs 100 of the 10,000 free daily units: 13 searches x 6 runs
+# a day (every 4 hours) = 7,800 units.
 # "region" is where a video goes when the maker's country is unknown.
 SEARCHES = [
     {"q": "vissen|snoek|snoekbaars|karper|hengelsport|roofvissen|karpervissen|zeevissen", "lang": "nl", "region": "nl"},
     {"q": "fishing bass|pike|carp|trout|salmon|walleye|musky|catfish", "lang": "en", "region": "noord-amerika"},
     {"q": "fishing tuna|marlin|shark|tarpon|snapper|halibut|kingfish|trevally", "lang": "en", "region": "noord-amerika"},
-    {"q": "angeln|pêche|fiske|kalastus|sportfiske|havfiske|lystfiskeri|carpfishing", "lang": None, "region": "west-europa"},
+    {"q": "angeln|pêche|hechtangeln|zanderangeln|karpfenangeln|carpfishing|raubfisch|carnassier", "lang": None, "region": "west-europa"},
+    {"q": "fiske|sportfiske|havfiske|lystfiskeri|kalastus|gäddfiske|laksefiske|pilkning", "lang": None, "region": "scandinavie"},
+    {"q": "pesca siluro|lubina|spinning|surfcasting|lucio|spigola|dorada|carpa", "lang": None, "region": "zuid-europa"},
     {"q": "wędkarstwo|pescuit|rybolov|рыбалка|horgászat|ribolov|риболов|žvejyba", "lang": None, "region": "oost-europa"},
     {"q": "pesca tucunaré|dourado|robalo|dorado|pargo|atún|trucha|tilapia", "lang": None, "region": "zuid-amerika"},
     {"q": "釣り|낚시|ตกปลา|mancing|钓鱼|memancing", "lang": None, "region": "azie"},
@@ -447,6 +449,11 @@ def main():
 
     regions = [{"id": r["id"], "name": r["name"], "videos": by_region.get(r["id"], [])}
                for r in REGIONS]
+    if not demo and not any(r["videos"] for r in regions):
+        # Nothing found at all (for example the daily YouTube limit is used up):
+        # keep what the site already shows instead of emptying it.
+        print("No videos found; keeping the existing videos.json.", file=sys.stderr)
+        return
     os.makedirs(DATA_DIR, exist_ok=True)
     stamp = now.isoformat().replace("+00:00", "Z")
     with open(os.path.join(DATA_DIR, "videos.json"), "w", encoding="utf-8") as f:

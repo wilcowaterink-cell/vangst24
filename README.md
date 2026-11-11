@@ -1,13 +1,13 @@
 # Vangst24
 
-A website that shows the newest fishing videos from all over the world (last 24 hours) plus a fishing forecast for Dutch waters. It updates itself every 3 hours, for free.
+A website that shows the newest fishing videos from all over the world (last 24 hours) plus a fishing forecast for Dutch waters. It updates itself every 4 hours, for free.
 
 ```
 finder/find_videos.py        finds new videos per region + makes the forecast
 docs/index.html              the website (Dutch)
 docs/data/*.json             the data the website shows (written by the finder)
 planning/kandidaten-*.csv    daily list of candidate clips for the episode
-.github/workflows/update.yml runs the finder every 3 hours on GitHub
+.github/workflows/update.yml runs the finder every 4 hours on GitHub
 ```
 
 ## Step 1: Get a free YouTube API key (10 minutes)
@@ -18,7 +18,7 @@ planning/kandidaten-*.csv    daily list of candidate clips for the episode
 4. Open **APIs & Services → Credentials → Create credentials → API key**.
 5. Copy the key. Keep it secret: never paste it into the website or a public file.
 
-The free quota is 10,000 units a day. One run does 10 searches plus 1 worldwide "viral" search (about 1,100 units), so every 3 hours (8,800 units a day) fits.
+The free quota is 10,000 units a day. One run does 12 searches plus 1 worldwide "viral" search (about 1,300 units), so every 4 hours (7,800 units a day) fits.
 
 ## Step 2: Put it on GitHub (free hosting + automatic updates)
 
@@ -29,7 +29,7 @@ The free quota is 10,000 units a day. One run does 10 searches plus 1 worldwide 
 4. **Settings → Pages**: Source "Deploy from a branch", branch `main`, folder `/docs`. Save.
 5. **Actions** tab → "Update Vangst24" → **Run workflow** to fill it the first time.
 
-After a minute the site is live at `https://<your-username>.github.io/vangst24/`, and it refreshes every 3 hours by itself.
+After a minute the site is live at `https://<your-username>.github.io/vangst24/`, and it refreshes every 4 hours by itself.
 
 ## Running it on your own computer
 
