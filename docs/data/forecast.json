@@ -1,58 +1,58 @@
 {
  "moon": "Wassende sikkel",
- "moon_phase": 0.063,
+ "moon_phase": 0.065,
  "spots": [
   {
    "name": "IJsselmeer (Urk)",
-   "temp": 9.1,
-   "pressure": 1006,
-   "pressure_change": -3.2,
-   "bft": 3,
-   "wind_dir": "ZW",
-   "cloud": 85,
-   "score": 9.5
+   "temp": 2.3,
+   "pressure": 1003,
+   "pressure_change": -7.2,
+   "bft": 1,
+   "wind_dir": "NO",
+   "cloud": 100,
+   "score": 8.5
   },
   {
    "name": "Haringvliet",
-   "temp": 9.8,
-   "pressure": 1007,
-   "pressure_change": -2.6,
-   "bft": 4,
-   "wind_dir": "ZW",
-   "cloud": 70,
+   "temp": 4.5,
+   "pressure": 1003,
+   "pressure_change": -5.2,
+   "bft": 2,
+   "wind_dir": "NO",
+   "cloud": 100,
    "score": 9.5
   },
   {
    "name": "Maas (Roermond)",
-   "temp": 8.2,
-   "pressure": 1009,
-   "pressure_change": -1.4,
+   "temp": 5.2,
+   "pressure": 1002,
+   "pressure_change": -6.1,
    "bft": 2,
-   "wind_dir": "Z",
-   "cloud": 90,
-   "score": 7.5
+   "wind_dir": "N",
+   "cloud": 100,
+   "score": 9.5
   },
   {
    "name": "Noordzeekust (Scheveningen)",
-   "temp": 10.4,
-   "pressure": 1006,
-   "pressure_change": -3.0,
-   "bft": 5,
-   "wind_dir": "ZW",
-   "cloud": 60,
-   "score": 8.5
+   "temp": 5.3,
+   "pressure": 1003,
+   "pressure_change": -5.6,
+   "bft": 2,
+   "wind_dir": "O",
+   "cloud": 88,
+   "score": 9.5
   },
   {
    "name": "Friese meren (Sneek)",
-   "temp": 8.7,
-   "pressure": 1005,
-   "pressure_change": -3.5,
-   "bft": 3,
-   "wind_dir": "W",
-   "cloud": 80,
+   "temp": 1.6,
+   "pressure": 1004,
+   "pressure_change": -7.4,
+   "bft": 2,
+   "wind_dir": "ZW",
+   "cloud": 98,
    "score": 9.5
   }
  ],
- "generated_at": "2026-11-11T18:49:20Z",
- "demo": true
+ "generated_at": "2026-11-11T19:43:45Z",
+ "demo": false
 }
