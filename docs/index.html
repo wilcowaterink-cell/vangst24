@@ -159,6 +159,20 @@ html{scroll-behavior:smooth}
 .logo.small{font-size:24px;color:var(--fg)}
 footer p{margin:0}
 @media (max-width:760px){.pillars{grid-template-columns:1fr}.wheel{flex-direction:column}.wheel div{border-right:0;border-bottom:2px solid var(--bg);flex-direction:row;justify-content:space-between;align-items:baseline}}
+.menu a.hot{color:#fff;background:var(--accent);border-radius:4px;margin:7px 0 7px 6px;padding:4px 12px;border-bottom:0}
+.menu a.hot:hover{filter:brightness(1.1)}
+.sendbox{background:var(--deep);color:#f3f7f8;border-radius:10px;padding:28px}
+.sendbox .head p{color:#b9ccd4}
+.steps{list-style:none;counter-reset:st;padding:0;margin:0 0 4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.steps li{counter-increment:st;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:16px}
+.steps li::before{content:counter(st);font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1;color:var(--accent)}
+.steps h3{font-size:22px;text-transform:uppercase;margin:4px 0}
+.steps p{margin:0;color:#b9ccd4;font-size:15px}
+.cta.big{font-size:24px;padding:12px 22px}
+.cta.off{background:#3a5361;cursor:default;pointer-events:none}
+.addr{display:inline-block;margin-left:14px;font-family:var(--f-mono);font-size:14px;color:#d6e3e8;user-select:all}
+.consent{margin:12px 0 0;font-size:14px;color:#94aab4;max-width:70ch}
+@media (max-width:760px){.steps{grid-template-columns:1fr}.sendbox{padding:20px}.addr{display:block;margin:10px 0 0}}
 .empty{padding:28px;background:var(--surface);border:1px dashed var(--line);border-radius:6px;color:var(--muted)}
 
 footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px}
@@ -180,6 +194,7 @@ footer .wrap{padding-block:24px 40px}
   <a href="#onderwerpen" data-i18n="topics">Onderwerpen</a>
   <a href="#regio" data-i18n="regions">Per regio</a>
   <a href="#over" data-i18n="about">Over</a>
+  <a href="#inzenden" class="hot" data-i18n="send">Stuur je vangst in</a>
   <a href="aflevering/" class="ext" data-i18n="episode">Voorbeeldaflevering</a>
 </div></nav>
 <section class="hero" aria-labelledby="h-hero">
@@ -226,6 +241,19 @@ footer .wrap{padding-block:24px 40px}
     <div class="grid" id="regiongrid" role="tabpanel"></div>
   </section>
 
+  <section class="wrap" id="inzenden" aria-labelledby="h-send">
+    <div class="sendbox">
+      <div class="head"><h2 id="h-send" data-i18n="send">Stuur je vangst in</h2><p data-i18n="sendSub"></p></div>
+      <ol class="steps">
+        <li><h3 data-i18n="s1"></h3><p data-i18n="s1t"></p></li>
+        <li><h3 data-i18n="s2"></h3><p data-i18n="s2t"></p></li>
+        <li><h3 data-i18n="s3"></h3><p data-i18n="s3t"></p></li>
+      </ol>
+      <p><a class="cta big" id="sendbtn" href="#inzenden" data-i18n="sendBtn">Mail je vangst</a><span class="addr" id="sendaddr"></span></p>
+      <p class="consent" data-i18n="consent"></p>
+    </div>
+  </section>
+
   <section class="wrap about" id="over" aria-labelledby="h-about">
     <div class="head"><h2 id="h-about" data-i18n="aboutTitle">Over Vangst24</h2></div>
     <p class="lead" data-i18n="aboutLead">Vangst24 is een idee voor een Nederlandse viszender die elke dag laat zien wat er de laatste 24 uur wereldwijd gevangen is.</p>
@@ -270,6 +298,10 @@ const I18N = {
     p3:'Omstandigheden', p3t:'Temperatuur, wind, luchtdruk en maan op 54 visplekken, met een bijtscore.',
     wheel:'Zo ziet een uur op de zender eruit', w1:'Wereld Top 10', w2:'Tactiek', w3:'Nederland & België', w4:'Zee & kust', w5:'Kijkers', w6:'Vooruitblik',
     watchEp:'Bekijk de voorbeeldaflevering', source:'Broncode op GitHub', toTop:'Naar boven',
+    send:'Stuur je vangst in', sendSub:'Mooie vis gevangen? Stuur hem in en maak kans op een plek op de site en in de uitzending.',
+    s1:'Foto of video', s1t:'Een duidelijke foto of korte video van je vangst.', s2:'De gegevens', s2t:'Vissoort, lengte, water of plaats, aas en datum.', s3:'Je naam', s3t:'De naam die we erbij mogen zetten.',
+    sendBtn:'Mail je vangst', sendSoon:'Binnenkort: inzenden per e-mail', consent:'Door in te sturen geef je toestemming om je foto of video op de website en in de uitzending te tonen.',
+    mailSubject:'Mijn vangst voor Vangst24', mailBody:'Vissoort:\nLengte (cm):\nWater / plaats:\nAas / methode:\nDatum:\nMijn naam:\n\nVoeg je foto of video toe als bijlage.\nIk geef toestemming om dit op de website en in de uitzending te tonen.',
     names:{}},
   en: {language:'Language', updated:'Updated', moon:'Moon', world:'World', viral:'Viral', weather:'Fishing weather', top:'World Top 10', regions:'By region',
     demo:'This is example data. Once a YouTube key is set, real videos from the last 24 hours appear here.',
@@ -290,6 +322,10 @@ const I18N = {
     p3:'Conditions', p3t:'Temperature, wind, air pressure and moon at 54 fishing spots, with a bite score.',
     wheel:'What one hour on the channel looks like', w1:'World Top 10', w2:'Tactics', w3:'Netherlands & Belgium', w4:'Sea & coast', w5:'Viewers', w6:'Outlook',
     watchEp:'Watch the sample episode', source:'Source code on GitHub', toTop:'Back to top',
+    send:'Send in your catch', sendSub:'Caught a great fish? Send it in for a chance to appear on the site and in the show.',
+    s1:'Photo or video', s1t:'A clear photo or short video of your catch.', s2:'The details', s2t:'Species, length, water or place, bait and date.', s3:'Your name', s3t:'The name we may show with it.',
+    sendBtn:'Email your catch', sendSoon:'Coming soon: send in by email', consent:'By sending it in you give permission to show your photo or video on the website and in the show.',
+    mailSubject:'My catch for Vangst24', mailBody:'Species:\nLength (cm):\nWater / place:\nBait / method:\nDate:\nMy name:\n\nAttach your photo or video.\nI give permission to show this on the website and in the show.',
     names:{nl:'Netherlands & Belgium','west-europa':'Western Europe',scandinavie:'Scandinavia','zuid-europa':'Southern Europe','oost-europa':'Eastern Europe','noord-europa':'Northern Europe','noord-amerika':'North America','zuid-amerika':'South & Central America',afrika:'Africa','midden-oosten-india':'Middle East & India',azie:'Asia',oceanie:'Australia & New Zealand','fc:nl':'Netherlands','fc:oceanie':'Oceania'}},
   de: {language:'Sprache', updated:'Aktualisiert', moon:'Mond', world:'Welt', viral:'Viral', weather:'Angelwetter', top:'Welt Top 10', regions:'Nach Region',
     demo:'Das sind Beispieldaten. Sobald ein YouTube-Schlüssel eingerichtet ist, erscheinen hier echte Videos der letzten 24 Stunden.',
@@ -310,6 +346,10 @@ const I18N = {
     p3:'Bedingungen', p3t:'Temperatur, Wind, Luftdruck und Mond an 54 Angelplätzen, mit Beißindex.',
     wheel:'So sieht eine Stunde auf dem Sender aus', w1:'Welt Top 10', w2:'Taktik', w3:'Niederlande & Belgien', w4:'Meer & Küste', w5:'Zuschauer', w6:'Ausblick',
     watchEp:'Beispielfolge ansehen', source:'Quellcode auf GitHub', toTop:'Nach oben',
+    send:'Fang einsenden', sendSub:'Einen tollen Fisch gefangen? Sende ihn ein, mit etwas Glück erscheint er auf der Website und in der Sendung.',
+    s1:'Foto oder Video', s1t:'Ein klares Foto oder kurzes Video deines Fangs.', s2:'Die Angaben', s2t:'Fischart, Länge, Gewässer oder Ort, Köder und Datum.', s3:'Dein Name', s3t:'Der Name, den wir dazu zeigen dürfen.',
+    sendBtn:'Fang mailen', sendSoon:'Demnächst: Einsenden per E-Mail', consent:'Mit dem Einsenden erlaubst du, dein Foto oder Video auf der Website und in der Sendung zu zeigen.',
+    mailSubject:'Mein Fang für Vangst24', mailBody:'Fischart:\nLänge (cm):\nGewässer / Ort:\nKöder / Methode:\nDatum:\nMein Name:\n\nFoto oder Video bitte anhängen.\nIch erlaube, dies auf der Website und in der Sendung zu zeigen.',
     names:{nl:'Niederlande & Belgien','west-europa':'Westeuropa',scandinavie:'Skandinavien','zuid-europa':'Südeuropa','oost-europa':'Osteuropa','noord-europa':'Nordeuropa','noord-amerika':'Nordamerika','zuid-amerika':'Süd- & Mittelamerika',afrika:'Afrika','midden-oosten-india':'Naher Osten & Indien',azie:'Asien',oceanie:'Australien & Neuseeland','fc:nl':'Niederlande','fc:oceanie':'Ozeanien'}},
   fr: {language:'Langue', updated:'Mis à jour', moon:'Lune', world:'Monde', viral:'Viral', weather:'Météo pêche', top:'Top 10 mondial', regions:'Par région',
     demo:"Ce sont des données d'exemple. Dès qu'une clé YouTube est configurée, les vraies vidéos des dernières 24 heures apparaissent ici.",
@@ -330,6 +370,10 @@ const I18N = {
     p3:'Conditions', p3t:'Température, vent, pression et lune sur 54 spots de pêche, avec un indice de touche.',
     wheel:'Une heure sur la chaîne', w1:'Top 10 mondial', w2:'Tactique', w3:'Pays-Bas & Belgique', w4:'Mer & côte', w5:'Spectateurs', w6:'Prévisions',
     watchEp:"Voir l'épisode d'exemple", source:'Code source sur GitHub', toTop:'Haut de page',
+    send:'Envoyez votre prise', sendSub:'Un beau poisson ? Envoyez-le pour avoir une chance de paraître sur le site et dans l\'émission.',
+    s1:'Photo ou vidéo', s1t:'Une photo nette ou une courte vidéo de votre prise.', s2:'Les détails', s2t:'Espèce, longueur, plan d\'eau ou lieu, appât et date.', s3:'Votre nom', s3t:'Le nom que nous pouvons afficher.',
+    sendBtn:'Envoyer par e-mail', sendSoon:'Bientôt : envoi par e-mail', consent:'En envoyant, vous autorisez la diffusion de votre photo ou vidéo sur le site et dans l\'émission.',
+    mailSubject:'Ma prise pour Vangst24', mailBody:'Espèce :\nLongueur (cm) :\nPlan d\'eau / lieu :\nAppât / méthode :\nDate :\nMon nom :\n\nJoignez votre photo ou vidéo.\nJ\'autorise sa diffusion sur le site et dans l\'émission.',
     names:{nl:'Pays-Bas & Belgique','west-europa':"Europe de l'Ouest",scandinavie:'Scandinavie','zuid-europa':'Europe du Sud','oost-europa':"Europe de l'Est",'noord-europa':'Europe du Nord','noord-amerika':'Amérique du Nord','zuid-amerika':'Amérique du Sud & centrale',afrika:'Afrique','midden-oosten-india':'Moyen-Orient & Inde',azie:'Asie',oceanie:'Australie & Nouvelle-Zélande','fc:nl':'Pays-Bas','fc:oceanie':'Océanie'}},
   es: {language:'Idioma', updated:'Actualizado', moon:'Luna', world:'Mundo', viral:'Viral', weather:'Tiempo de pesca', top:'Top 10 mundial', regions:'Por región',
     demo:'Estos son datos de ejemplo. Cuando se configure una clave de YouTube, aquí aparecerán vídeos reales de las últimas 24 horas.',
@@ -350,6 +394,10 @@ const I18N = {
     p3:'Condiciones', p3t:'Temperatura, viento, presión y luna en 54 sitios de pesca, con un índice de picada.',
     wheel:'Así es una hora en el canal', w1:'Top 10 mundial', w2:'Táctica', w3:'Países Bajos y Bélgica', w4:'Mar y costa', w5:'Espectadores', w6:'Previsión',
     watchEp:'Ver el episodio de ejemplo', source:'Código fuente en GitHub', toTop:'Volver arriba',
+    send:'Envía tu captura', sendSub:'¿Has pescado un buen pez? Envíalo y podrá salir en la web y en el programa.',
+    s1:'Foto o vídeo', s1t:'Una foto clara o un vídeo corto de tu captura.', s2:'Los datos', s2t:'Especie, longitud, agua o lugar, cebo y fecha.', s3:'Tu nombre', s3t:'El nombre que podemos mostrar.',
+    sendBtn:'Enviar por correo', sendSoon:'Próximamente: envío por correo', consent:'Al enviarlo das permiso para mostrar tu foto o vídeo en la web y en el programa.',
+    mailSubject:'Mi captura para Vangst24', mailBody:'Especie:\nLongitud (cm):\nAgua / lugar:\nCebo / método:\nFecha:\nMi nombre:\n\nAdjunta tu foto o vídeo.\nDoy permiso para mostrarlo en la web y en el programa.',
     names:{nl:'Países Bajos y Bélgica','west-europa':'Europa occidental',scandinavie:'Escandinavia','zuid-europa':'Europa del sur','oost-europa':'Europa del este','noord-europa':'Europa del norte','noord-amerika':'Norteamérica','zuid-amerika':'Sudamérica y Centroamérica',afrika:'África','midden-oosten-india':'Oriente Medio e India',azie:'Asia',oceanie:'Australia y Nueva Zelanda','fc:nl':'Países Bajos','fc:oceanie':'Oceanía'}},
 };
 const LOCALE = {nl:'nl-NL', en:'en-GB', de:'de-DE', fr:'fr-FR', es:'es-ES'};
@@ -541,12 +589,22 @@ function renderTopics(data) {
   draw();
 })();
 
+// The address catches are mailed to. Leave empty until there is one: the button then says "coming soon".
+const INZEND_ADRES = '';
+function renderSend() {
+  const b = document.getElementById('sendbtn'), a = document.getElementById('sendaddr');
+  if (INZEND_ADRES) {
+    b.classList.remove('off'); b.textContent = t('sendBtn'); a.textContent = INZEND_ADRES;
+    b.href = 'mailto:' + INZEND_ADRES + '?subject=' + encodeURIComponent(t('mailSubject')) + '&body=' + encodeURIComponent(t('mailBody'));
+  } else { b.classList.add('off'); b.textContent = t('sendSoon'); b.removeAttribute('href'); a.textContent = ''; }
+}
 let DATA = null, counted = false;
 function applyStatic() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   fmt = new Intl.NumberFormat(LOCALE[lang]);
   tickClock();
+  renderSend();
 }
 function renderAll() {
   applyStatic();
