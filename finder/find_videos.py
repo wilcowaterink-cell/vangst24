@@ -99,7 +99,8 @@ FISHING_WORDS = ["fishing", "fisher", "angler", "angling", "vissen", "visser", "
 
 MAX_SECONDS = 3 * 3600                     # longer is almost always a (former) live stream
 
-# Dutch fishing spots for the forecast.
+# Fishing spots for the forecast, per part of the world. "dir" is the compass
+# direction inside that part of the world (N, O, Z, W or M for the middle).
 SPOTS = [
     {"name": "IJsselmeer (Urk)", "lat": 52.66, "lon": 5.60},
     {"name": "Haringvliet", "lat": 51.78, "lon": 4.25},
@@ -115,6 +116,74 @@ VIRAL_HOURS = 48              # look back a bit further for viral videos
 VIRAL_VIEWS_PER_HOUR = 2000   # faster than this = marked as viral
 VIRAL_MIN_VIEWS = 50000
 VIRAL_KEEP = 12
+
+SPOT_GROUPS = [
+    {"id": "nl", "name": "Nederland", "spots": SPOTS},
+    {"id": "noord-europa", "name": "Noord-Europa", "spots": [
+        {"name": "Senja, Noorwegen", "dir": "N", "lat": 69.30, "lon": 17.50},
+        {"name": "Mörrum, Zweden", "dir": "Z", "lat": 56.19, "lon": 14.75},
+        {"name": "Saimaa, Finland", "dir": "O", "lat": 61.30, "lon": 28.20},
+        {"name": "Limfjord, Denemarken", "dir": "W", "lat": 56.90, "lon": 9.00},
+        {"name": "Þingvallavatn, IJsland", "dir": "W", "lat": 64.18, "lon": -21.13},
+    ]},
+    {"id": "west-europa", "name": "West-Europa", "spots": [
+        {"name": "River Tay, Schotland", "dir": "N", "lat": 56.40, "lon": -3.45},
+        {"name": "Lough Corrib, Ierland", "dir": "W", "lat": 53.45, "lon": -9.30},
+        {"name": "Müritz, Duitsland", "dir": "O", "lat": 53.42, "lon": 12.70},
+        {"name": "Bodensee, Duitsland", "dir": "Z", "lat": 47.60, "lon": 9.40},
+        {"name": "Lac du Der, Frankrijk", "dir": "M", "lat": 48.57, "lon": 4.76},
+    ]},
+    {"id": "zuid-europa", "name": "Zuid-Europa", "spots": [
+        {"name": "Ebro (Mequinenza), Spanje", "dir": "W", "lat": 41.37, "lon": 0.30},
+        {"name": "Sagres, Portugal", "dir": "W", "lat": 37.00, "lon": -8.94},
+        {"name": "Po-delta, Italië", "dir": "N", "lat": 44.95, "lon": 12.40},
+        {"name": "Sicilië, Italië", "dir": "Z", "lat": 37.07, "lon": 15.29},
+        {"name": "Kreta, Griekenland", "dir": "O", "lat": 35.34, "lon": 25.13},
+    ]},
+    {"id": "oost-europa", "name": "Oost-Europa", "spots": [
+        {"name": "Mazurië, Polen", "dir": "N", "lat": 53.80, "lon": 21.60},
+        {"name": "Balaton, Hongarije", "dir": "W", "lat": 46.85, "lon": 17.75},
+        {"name": "Donaudelta, Roemenië", "dir": "Z", "lat": 45.17, "lon": 29.30},
+        {"name": "Wolgadelta, Rusland", "dir": "O", "lat": 46.35, "lon": 48.04},
+        {"name": "Peipusmeer, Estland", "dir": "N", "lat": 58.60, "lon": 27.40},
+    ]},
+    {"id": "noord-amerika", "name": "Noord-Amerika", "spots": [
+        {"name": "Kenai River, Alaska", "dir": "N", "lat": 60.55, "lon": -151.26},
+        {"name": "California Delta, VS", "dir": "W", "lat": 38.05, "lon": -121.60},
+        {"name": "Lake of the Woods, Canada", "dir": "M", "lat": 49.30, "lon": -94.80},
+        {"name": "Lake Erie, VS", "dir": "O", "lat": 41.70, "lon": -82.60},
+        {"name": "Florida Keys, VS", "dir": "Z", "lat": 24.70, "lon": -81.10},
+    ]},
+    {"id": "zuid-amerika", "name": "Zuid- & Midden-Amerika", "spots": [
+        {"name": "Quepos, Costa Rica", "dir": "N", "lat": 9.43, "lon": -84.16},
+        {"name": "Rio Negro, Brazilië", "dir": "M", "lat": -0.97, "lon": -62.92},
+        {"name": "Cabo Frio, Brazilië", "dir": "O", "lat": -22.88, "lon": -42.02},
+        {"name": "Paraná, Argentinië", "dir": "M", "lat": -27.47, "lon": -58.83},
+        {"name": "Río Grande, Patagonië", "dir": "Z", "lat": -53.79, "lon": -67.70},
+        {"name": "Máncora, Peru", "dir": "W", "lat": -4.10, "lon": -81.05},
+    ]},
+    {"id": "afrika", "name": "Afrika", "spots": [
+        {"name": "Nassermeer, Egypte", "dir": "N", "lat": 23.30, "lon": 32.80},
+        {"name": "Dakar, Senegal", "dir": "W", "lat": 14.70, "lon": -17.50},
+        {"name": "Victoriameer, Oeganda", "dir": "O", "lat": 0.05, "lon": 32.46},
+        {"name": "Zambezi (Kariba)", "dir": "M", "lat": -16.52, "lon": 28.80},
+        {"name": "Kaapstad, Zuid-Afrika", "dir": "Z", "lat": -34.20, "lon": 18.40},
+    ]},
+    {"id": "azie", "name": "Azië", "spots": [
+        {"name": "Baikalmeer, Rusland", "dir": "N", "lat": 53.20, "lon": 107.30},
+        {"name": "Salalah, Oman", "dir": "W", "lat": 17.00, "lon": 54.10},
+        {"name": "Cauvery, India", "dir": "Z", "lat": 12.30, "lon": 77.20},
+        {"name": "Bangkok, Thailand", "dir": "M", "lat": 13.78, "lon": 100.68},
+        {"name": "Baai van Tokio, Japan", "dir": "O", "lat": 35.50, "lon": 139.90},
+    ]},
+    {"id": "oceanie", "name": "Oceanië", "spots": [
+        {"name": "Darwin, Australië", "dir": "N", "lat": -12.40, "lon": 130.80},
+        {"name": "Exmouth, Australië", "dir": "W", "lat": -21.93, "lon": 114.13},
+        {"name": "Cairns, Australië", "dir": "O", "lat": -16.90, "lon": 145.90},
+        {"name": "Murray (Mildura), Australië", "dir": "Z", "lat": -34.20, "lon": 142.15},
+        {"name": "Lake Taupo, Nieuw-Zeeland", "dir": "O", "lat": -38.80, "lon": 175.90},
+    ]},
+]
 
 MIN_SECONDS = 60          # skip very short clips
 PER_REGION = 12           # videos kept per region
@@ -359,34 +428,53 @@ def bite_score(pressure_change, bft, cloud, moon):
     return max(0, min(10, round(s, 1)))
 
 
+def spot_weather(spot, d, now, moon):
+    h = d["hourly"]
+    times = [dt.datetime.fromisoformat(t).replace(tzinfo=dt.timezone.utc) for t in h["time"]]
+    i = min(range(len(times)), key=lambda k: abs((times[k] - now).total_seconds()))
+    j = max(0, i - 24)
+    change = h["pressure_msl"][i] - h["pressure_msl"][j]
+    bft = beaufort(h["wind_speed_10m"][i])
+    out = {
+        "name": spot["name"], "temp": round(h["temperature_2m"][i], 1),
+        "pressure": round(h["pressure_msl"][i]), "pressure_change": round(change, 1),
+        "bft": bft, "wind_dir": compass(h["wind_direction_10m"][i]),
+        "cloud": h["cloud_cover"][i],
+        "score": bite_score(change, bft, h["cloud_cover"][i], moon),
+    }
+    if spot.get("dir"):
+        out["dir"] = spot["dir"]
+    return out
+
+
 def forecast():
+    """Weather for every group of spots: one request to Open-Meteo per group."""
     now = dt.datetime.now(dt.timezone.utc)
     moon = moon_phase(now)
-    spots = []
-    for spot in SPOTS:
+    groups = []
+    for g in SPOT_GROUPS:
         try:
             d = get_json("https://api.open-meteo.com/v1/forecast", {
-                "latitude": spot["lat"], "longitude": spot["lon"],
+                "latitude": ",".join(str(sp["lat"]) for sp in g["spots"]),
+                "longitude": ",".join(str(sp["lon"]) for sp in g["spots"]),
                 "hourly": "temperature_2m,pressure_msl,wind_speed_10m,wind_direction_10m,cloud_cover",
                 "past_days": 1, "forecast_days": 1, "timezone": "UTC",
-            })
-        except Exception as e:  # keep going if one spot fails
-            print(f"  forecast {spot['name']}: {e}", file=sys.stderr)
+            }, timeout=40)
+        except Exception as e:  # keep going if one group fails
+            print(f"  forecast {g['name']}: {e}", file=sys.stderr)
             continue
-        h = d["hourly"]
-        times = [dt.datetime.fromisoformat(t).replace(tzinfo=dt.timezone.utc) for t in h["time"]]
-        i = min(range(len(times)), key=lambda k: abs((times[k] - now).total_seconds()))
-        j = max(0, i - 24)
-        change = h["pressure_msl"][i] - h["pressure_msl"][j]
-        bft = beaufort(h["wind_speed_10m"][i])
-        spots.append({
-            "name": spot["name"], "temp": round(h["temperature_2m"][i], 1),
-            "pressure": round(h["pressure_msl"][i]), "pressure_change": round(change, 1),
-            "bft": bft, "wind_dir": compass(h["wind_direction_10m"][i]),
-            "cloud": h["cloud_cover"][i],
-            "score": bite_score(change, bft, h["cloud_cover"][i], moon),
-        })
-    return {"moon": moon_name(moon), "moon_phase": round(moon, 3), "spots": spots}
+        results = d if isinstance(d, list) else [d]
+        spots = []
+        for spot, res in zip(g["spots"], results):
+            try:
+                spots.append(spot_weather(spot, res, now, moon))
+            except Exception as e:
+                print(f"  forecast {spot['name']}: {e}", file=sys.stderr)
+        if spots:
+            groups.append({"id": g["id"], "name": g["name"], "spots": spots})
+        print(f"  visweer {g['name']}: {len(spots)} plekken")
+    nl = next((g["spots"] for g in groups if g["id"] == "nl"), [])
+    return {"moon": moon_name(moon), "moon_phase": round(moon, 3), "spots": nl, "groups": groups}
 
 
 def demo_forecast():
@@ -402,7 +490,23 @@ def demo_forecast():
     spots = [{"name": n, "temp": t, "pressure": p, "pressure_change": c, "bft": b,
               "wind_dir": wd, "cloud": cl, "score": bite_score(c, b, cl, moon)}
              for n, t, p, c, b, wd, cl in rows]
-    return {"moon": moon_name(moon), "moon_phase": round(moon, 3), "spots": spots}
+    groups = [{"id": "nl", "name": "Nederland", "spots": spots}]
+    for g in SPOT_GROUPS[1:]:
+        ex = []
+        for n, sp in enumerate(g["spots"]):
+            k = rand_like(sp["lat"] + sp["lon"])
+            temp = round(28 - abs(sp["lat"]) * 0.45 + k * 4, 1)
+            change, bft, cloud = round(k * 8 - 5, 1), 1 + int(k * 5), int(k * 100)
+            ex.append({"name": sp["name"], "dir": sp["dir"], "temp": temp, "pressure": 1000 + int(k * 20),
+                       "pressure_change": change, "bft": bft, "wind_dir": compass(k * 360), "cloud": cloud,
+                       "score": bite_score(change, bft, cloud, moon)})
+        groups.append({"id": g["id"], "name": g["name"], "spots": ex})
+    return {"moon": moon_name(moon), "moon_phase": round(moon, 3), "spots": spots, "groups": groups}
+
+
+def rand_like(x):
+    v = math.sin(x * 12.9898) * 43758.5453
+    return v - math.floor(v)
 
 
 def compass(deg):
@@ -430,9 +534,24 @@ def write_planning_csv(regions, viral, stamp):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--demo", action="store_true", help="write example data, no API key needed")
+    ap.add_argument("--forecast-only", action="store_true", help="only refresh the fishing weather")
     args = ap.parse_args()
 
     now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
+    stamp = now.isoformat().replace("+00:00", "Z")
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+    fc = demo_forecast() if args.demo else forecast()
+    if not fc["groups"]:
+        print("Forecast unavailable; keeping previous forecast.json.", file=sys.stderr)
+    else:
+        fc.update({"generated_at": stamp, "demo": args.demo})
+        with open(os.path.join(DATA_DIR, "forecast.json"), "w", encoding="utf-8") as f:
+            json.dump(fc, f, ensure_ascii=False, indent=1)
+    if args.forecast_only:
+        print(f"Done: forecast for {sum(len(g['spots']) for g in fc['groups'])} spots.")
+        return
+
     key = os.environ.get("YOUTUBE_API_KEY", "").strip()
     demo = args.demo or not key
     if demo and not args.demo:
@@ -454,19 +573,9 @@ def main():
         # keep what the site already shows instead of emptying it.
         print("No videos found; keeping the existing videos.json.", file=sys.stderr)
         return
-    os.makedirs(DATA_DIR, exist_ok=True)
-    stamp = now.isoformat().replace("+00:00", "Z")
     with open(os.path.join(DATA_DIR, "videos.json"), "w", encoding="utf-8") as f:
         json.dump({"generated_at": stamp, "demo": demo, "viral": viral, "regions": regions}, f,
                   ensure_ascii=False, indent=1)
-
-    fc = demo_forecast() if args.demo else forecast()
-    if not fc["spots"] and not args.demo:
-        print("Forecast unavailable; keeping previous forecast.json.", file=sys.stderr)
-    else:
-        fc.update({"generated_at": stamp, "demo": args.demo})
-        with open(os.path.join(DATA_DIR, "forecast.json"), "w", encoding="utf-8") as f:
-            json.dump(fc, f, ensure_ascii=False, indent=1)
 
     csv_path = write_planning_csv(regions, viral, now)
     total = sum(len(r["videos"]) for r in regions)

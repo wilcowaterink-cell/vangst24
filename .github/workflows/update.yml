@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "7 */4 * * *"   # every 4 hours (fits the free YouTube quota)
   workflow_dispatch:         # lets you run it by hand from the Actions tab
+    inputs:
+      forecast_only:
+        description: "Alleen het visweer verversen (kost geen YouTube-limiet)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -19,7 +24,7 @@ jobs:
       - name: Find new videos and forecast
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-        run: python finder/find_videos.py
+        run: python finder/find_videos.py ${{ inputs.forecast_only && '--forecast-only' || '' }}
       - name: Save the results
         run: |
           git config user.name "vangst24-bot"

@@ -37,6 +37,8 @@ button{font:inherit;color:inherit}
 .logo span{background:var(--accent);color:#fff;padding:0 7px;border-radius:3px}
 .status{font-family:var(--f-mono);font-size:12px;display:flex;gap:16px;flex-wrap:wrap;color:#b9ccd4}
 .status b{color:#fff;font-weight:600}
+.lang select{background:#12303f;color:#fff;border:1px solid #2c4a59;border-radius:4px;font:600 12px var(--f-mono);padding:3px 6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .ticker{display:flex;align-items:center;background:#f3f7f8;color:#06161f;overflow:hidden;height:38px}
 .ticker .lab{flex:none;height:100%;display:flex;align-items:center;padding:0 12px;background:var(--accent);color:#fff;font-family:var(--f-display);font-weight:800;text-transform:uppercase;z-index:1}
 .ticker .run{white-space:nowrap;font-weight:600;animation:tick 90s linear infinite;padding-left:100%}
@@ -54,6 +56,7 @@ section{padding-block:32px}
 .spots{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .spot{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:6px}
 .spot h3{font-size:20px}
+.dir{display:inline-block;min-width:24px;text-align:center;margin-right:8px;padding:0 5px;border-radius:3px;background:var(--accent);color:#fff;font-size:15px;vertical-align:2px}
 .spot .row{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .meter{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
 .meter i{display:block;height:100%}
@@ -94,53 +97,119 @@ footer .wrap{padding-block:24px 40px}
 <header class="top">
   <div class="wrap">
     <div class="logo">VANGST<span>24</span></div>
-    <div class="status"><span>Bijgewerkt: <b id="updated">…</b></span><span>Maan: <b id="moon">…</b></span><span>NL <b id="clock">--:--</b></span></div>
+    <div class="status"><span><span data-i18n="updated">Bijgewerkt</span>: <b id="updated">…</b></span><span><span data-i18n="moon">Maan</span>: <b id="moon">…</b></span><span>NL <b id="clock">--:--</b></span><label class="lang"><span class="sr" data-i18n="language">Taal</span><select id="lang"><option value="nl">Nederlands</option><option value="en">English</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option></select></label></div>
   </div>
 </header>
-<div class="ticker" aria-label="Nieuws"><div class="lab">Wereld</div><div class="run" id="ticker">Laden…</div></div>
-<div class="demo" id="demo" hidden><div class="wrap">Dit zijn <b>voorbeeldgegevens</b>. Zodra er een YouTube-sleutel is ingesteld, verschijnen hier echte video's van de laatste 24 uur.</div></div>
+<div class="ticker" aria-label="Nieuws"><div class="lab" data-i18n="world">Wereld</div><div class="run" id="ticker">Laden…</div></div>
+<div class="demo" id="demo" hidden><div class="wrap" data-i18n="demo">Dit zijn voorbeeldgegevens. Zodra er een YouTube-sleutel is ingesteld, verschijnen hier echte video's van de laatste 24 uur.</div></div>
 
 <main>
   <section class="wrap" aria-labelledby="h-viral">
-    <div class="head"><h2 id="h-viral">Viraal</h2><p>Visvideo's die wereldwijd hard gaan: meer dan 2.000 views per uur. Bekijk ze hier, de rechten blijven bij de maker.</p></div>
+    <div class="head"><h2 id="h-viral" data-i18n="viral">Viraal</h2><p data-i18n="viralSub">Visvideo's die wereldwijd hard gaan: meer dan 2.000 views per uur. Bekijk ze hier, de rechten blijven bij de maker.</p></div>
     <div class="viral-row" id="viral"></div>
   </section>
 
   <section class="wrap" aria-labelledby="h-fc">
-    <div class="head"><h2 id="h-fc">Visweer Nederland</h2><p>Bijtscore is een vuistregel voor roofvis: dalende luchtdruk, wat wind en bewolking helpen.</p></div>
-    <div class="spots" id="spots"></div>
+    <div class="head"><h2 id="h-fc" data-i18n="weather">Visweer</h2><p data-i18n="weatherSub">Bijtscore is een vuistregel: dalende luchtdruk, wat wind en bewolking helpen. N, O, Z en W geven de windstreek binnen het gebied aan.</p></div>
+    <div class="tabs" role="tablist" id="fctabs" aria-label="Kies een gebied"></div>
+    <div class="spots" id="spots" role="tabpanel"></div>
   </section>
 
   <section class="wrap" aria-labelledby="h-top">
-    <div class="head"><h2 id="h-top">Wereld Top 10</h2><p>Meest bekeken nieuwe visvideo's van de laatste 24 uur, per uur sinds upload.</p></div>
+    <div class="head"><h2 id="h-top" data-i18n="top">Wereld Top 10</h2><p data-i18n="topSub">Meest bekeken nieuwe visvideo's van de laatste 24 uur, per uur sinds upload.</p></div>
     <div class="grid" id="top"></div>
   </section>
 
   <section class="wrap" aria-labelledby="h-reg">
-    <div class="head"><h2 id="h-reg">Per regio</h2><p>Van de polder tot de Stille Oceaan.</p></div>
+    <div class="head"><h2 id="h-reg" data-i18n="regions">Per regio</h2><p data-i18n="regionsSub">Van de polder tot de Stille Oceaan.</p></div>
     <div class="tabs" role="tablist" id="tabs"></div>
     <div class="grid" id="regiongrid" role="tabpanel"></div>
   </section>
 </main>
 
-<footer><div class="wrap">Video's worden getoond via de speler van YouTube. Alle rechten blijven bij de makers; klik op de kanaalnaam om hun kanaal te bezoeken. Weerdata: Open-Meteo.</div></footer>
+<footer><div class="wrap" data-i18n="footer">Video's worden getoond via de speler van YouTube. Alle rechten blijven bij de makers; klik op de kanaalnaam om hun kanaal te bezoeken. Weerdata: Open-Meteo.</div></footer>
 
 <script>
-const fmt = new Intl.NumberFormat('nl-NL');
+const I18N = {
+  nl: {language:'Taal', updated:'Bijgewerkt', moon:'Maan', world:'Wereld', viral:'Viraal', weather:'Visweer', top:'Wereld Top 10', regions:'Per regio',
+    demo:"Dit zijn voorbeeldgegevens. Zodra er een YouTube-sleutel is ingesteld, verschijnen hier echte video's van de laatste 24 uur.",
+    viralSub:"Visvideo's die wereldwijd hard gaan: meer dan 2.000 views per uur. Bekijk ze hier, de rechten blijven bij de maker.",
+    weatherSub:'Bijtscore is een vuistregel: dalende luchtdruk, wat wind en bewolking helpen. N, O, Z en W geven de windstreek binnen het gebied aan.',
+    topSub:"Meest bekeken nieuwe visvideo's van de laatste 24 uur, per uur sinds upload.", regionsSub:'Van de polder tot de Stille Oceaan.',
+    footer:"Video's worden getoond via de speler van YouTube. Alle rechten blijven bij de makers; klik op de kanaalnaam om hun kanaal te bezoeken. Weerdata: Open-Meteo.",
+    views:'views', perHour:'/uur', justNow:'net geüpload', hoursAgo:'{n} uur geleden', example:'Voorbeeld', play:'Speel', viralBadge:'VIRAAL', in24:'in 24u',
+    noViral:'Op dit moment gaat er geen visvideo viraal.', noVideos:"Nog geen video's gevonden. Kom over een paar uur terug.", noRegion:"Geen nieuwe video's uit deze regio in de laatste 24 uur.",
+    bestSpot:'Beste stek nu: {name}, bijtscore {score}', noNews:'Geen nieuws.', loadError:'Kon de gegevens niet laden',
+    moons:['Nieuwe maan','Wassende sikkel','Eerste kwartier','Wassende maan','Volle maan','Afnemende maan','Laatste kwartier','Afnemende sikkel'],
+    names:{}},
+  en: {language:'Language', updated:'Updated', moon:'Moon', world:'World', viral:'Viral', weather:'Fishing weather', top:'World Top 10', regions:'By region',
+    demo:'This is example data. Once a YouTube key is set, real videos from the last 24 hours appear here.',
+    viralSub:'Fishing videos taking off worldwide: more than 2,000 views per hour. Watch them here; all rights stay with the maker.',
+    weatherSub:'The bite score is a rule of thumb: falling air pressure, some wind and cloud help. N, E, S and W show the compass direction within the area.',
+    topSub:'Most-watched new fishing videos of the last 24 hours, per hour since upload.', regionsSub:'From the Dutch polders to the Pacific.',
+    footer:"Videos are shown through YouTube's own player. All rights stay with the makers; click a channel name to visit their channel. Weather data: Open-Meteo.",
+    views:'views', perHour:'/hour', justNow:'just uploaded', hoursAgo:'{n} hours ago', example:'Example', play:'Play', viralBadge:'VIRAL', in24:'in 24h',
+    noViral:'No fishing video is going viral right now.', noVideos:'No videos found yet. Come back in a few hours.', noRegion:'No new videos from this region in the last 24 hours.',
+    bestSpot:'Best spot now: {name}, bite score {score}', noNews:'No news.', loadError:'Could not load the data',
+    moons:['New moon','Waxing crescent','First quarter','Waxing gibbous','Full moon','Waning gibbous','Last quarter','Waning crescent'],
+    names:{nl:'Netherlands & Belgium','west-europa':'Western Europe',scandinavie:'Scandinavia','zuid-europa':'Southern Europe','oost-europa':'Eastern Europe','noord-europa':'Northern Europe','noord-amerika':'North America','zuid-amerika':'South & Central America',afrika:'Africa','midden-oosten-india':'Middle East & India',azie:'Asia',oceanie:'Australia & New Zealand','fc:nl':'Netherlands','fc:oceanie':'Oceania'}},
+  de: {language:'Sprache', updated:'Aktualisiert', moon:'Mond', world:'Welt', viral:'Viral', weather:'Angelwetter', top:'Welt Top 10', regions:'Nach Region',
+    demo:'Das sind Beispieldaten. Sobald ein YouTube-Schlüssel eingerichtet ist, erscheinen hier echte Videos der letzten 24 Stunden.',
+    viralSub:'Angelvideos, die weltweit durchstarten: mehr als 2.000 Aufrufe pro Stunde. Hier ansehen; alle Rechte bleiben beim Urheber.',
+    weatherSub:'Der Beißindex ist eine Faustregel: fallender Luftdruck, etwas Wind und Bewölkung helfen. N, O, S und W zeigen die Himmelsrichtung innerhalb des Gebiets.',
+    topSub:'Meistgesehene neue Angelvideos der letzten 24 Stunden, pro Stunde seit dem Upload.', regionsSub:'Vom Polder bis zum Pazifik.',
+    footer:'Videos werden über den YouTube-Player gezeigt. Alle Rechte bleiben bei den Urhebern; ein Klick auf den Kanalnamen führt zu ihrem Kanal. Wetterdaten: Open-Meteo.',
+    views:'Aufrufe', perHour:'/Std.', justNow:'gerade hochgeladen', hoursAgo:'vor {n} Std.', example:'Beispiel', play:'Abspielen:', viralBadge:'VIRAL', in24:'in 24 Std.',
+    noViral:'Im Moment geht kein Angelvideo viral.', noVideos:'Noch keine Videos gefunden. Schau in ein paar Stunden wieder vorbei.', noRegion:'Keine neuen Videos aus dieser Region in den letzten 24 Stunden.',
+    bestSpot:'Bester Platz jetzt: {name}, Beißindex {score}', noNews:'Keine Neuigkeiten.', loadError:'Daten konnten nicht geladen werden',
+    moons:['Neumond','Zunehmende Sichel','Erstes Viertel','Zunehmender Mond','Vollmond','Abnehmender Mond','Letztes Viertel','Abnehmende Sichel'],
+    names:{nl:'Niederlande & Belgien','west-europa':'Westeuropa',scandinavie:'Skandinavien','zuid-europa':'Südeuropa','oost-europa':'Osteuropa','noord-europa':'Nordeuropa','noord-amerika':'Nordamerika','zuid-amerika':'Süd- & Mittelamerika',afrika:'Afrika','midden-oosten-india':'Naher Osten & Indien',azie:'Asien',oceanie:'Australien & Neuseeland','fc:nl':'Niederlande','fc:oceanie':'Ozeanien'}},
+  fr: {language:'Langue', updated:'Mis à jour', moon:'Lune', world:'Monde', viral:'Viral', weather:'Météo pêche', top:'Top 10 mondial', regions:'Par région',
+    demo:"Ce sont des données d'exemple. Dès qu'une clé YouTube est configurée, les vraies vidéos des dernières 24 heures apparaissent ici.",
+    viralSub:"Vidéos de pêche qui décollent dans le monde : plus de 2 000 vues par heure. Regardez-les ici ; tous les droits restent à l'auteur.",
+    weatherSub:"L'indice de touche est une règle empirique : pression en baisse, un peu de vent et des nuages aident. N, E, S et O indiquent la direction dans la zone.",
+    topSub:'Nouvelles vidéos de pêche les plus vues des dernières 24 heures, par heure depuis la mise en ligne.', regionsSub:'Des polders au Pacifique.',
+    footer:'Les vidéos sont affichées via le lecteur YouTube. Tous les droits restent aux auteurs ; cliquez sur le nom de la chaîne pour la visiter. Données météo : Open-Meteo.',
+    views:'vues', perHour:'/h', justNow:"à l'instant", hoursAgo:'il y a {n} h', example:'Exemple', play:'Lire', viralBadge:'VIRAL', in24:'en 24 h',
+    noViral:"Aucune vidéo de pêche n'est virale en ce moment.", noVideos:'Pas encore de vidéos. Revenez dans quelques heures.', noRegion:'Aucune nouvelle vidéo de cette région ces dernières 24 heures.',
+    bestSpot:'Meilleur spot : {name}, indice de touche {score}', noNews:'Pas de nouvelles.', loadError:'Impossible de charger les données',
+    moons:['Nouvelle lune','Premier croissant','Premier quartier','Lune gibbeuse croissante','Pleine lune','Lune gibbeuse décroissante','Dernier quartier','Dernier croissant'],
+    names:{nl:'Pays-Bas & Belgique','west-europa':"Europe de l'Ouest",scandinavie:'Scandinavie','zuid-europa':'Europe du Sud','oost-europa':"Europe de l'Est",'noord-europa':'Europe du Nord','noord-amerika':'Amérique du Nord','zuid-amerika':'Amérique du Sud & centrale',afrika:'Afrique','midden-oosten-india':'Moyen-Orient & Inde',azie:'Asie',oceanie:'Australie & Nouvelle-Zélande','fc:nl':'Pays-Bas','fc:oceanie':'Océanie'}},
+  es: {language:'Idioma', updated:'Actualizado', moon:'Luna', world:'Mundo', viral:'Viral', weather:'Tiempo de pesca', top:'Top 10 mundial', regions:'Por región',
+    demo:'Estos son datos de ejemplo. Cuando se configure una clave de YouTube, aquí aparecerán vídeos reales de las últimas 24 horas.',
+    viralSub:'Vídeos de pesca que arrasan en el mundo: más de 2.000 visualizaciones por hora. Míralos aquí; todos los derechos siguen siendo del autor.',
+    weatherSub:'El índice de picada es una regla práctica: presión en descenso, algo de viento y nubes ayudan. N, E, S y O indican la dirección dentro de la zona.',
+    topSub:'Los vídeos de pesca nuevos más vistos de las últimas 24 horas, por hora desde su publicación.', regionsSub:'De los pólderes al Pacífico.',
+    footer:'Los vídeos se muestran con el reproductor de YouTube. Todos los derechos siguen siendo de los autores; haz clic en el nombre del canal para visitarlo. Datos meteorológicos: Open-Meteo.',
+    views:'visualizaciones', perHour:'/h', justNow:'recién subido', hoursAgo:'hace {n} h', example:'Ejemplo', play:'Reproducir', viralBadge:'VIRAL', in24:'en 24 h',
+    noViral:'Ahora mismo no hay ningún vídeo de pesca viral.', noVideos:'Aún no hay vídeos. Vuelve en unas horas.', noRegion:'No hay vídeos nuevos de esta región en las últimas 24 horas.',
+    bestSpot:'Mejor sitio ahora: {name}, índice de picada {score}', noNews:'Sin noticias.', loadError:'No se pudieron cargar los datos',
+    moons:['Luna nueva','Luna creciente','Cuarto creciente','Gibosa creciente','Luna llena','Gibosa menguante','Cuarto menguante','Luna menguante'],
+    names:{nl:'Países Bajos y Bélgica','west-europa':'Europa occidental',scandinavie:'Escandinavia','zuid-europa':'Europa del sur','oost-europa':'Europa del este','noord-europa':'Europa del norte','noord-amerika':'Norteamérica','zuid-amerika':'Sudamérica y Centroamérica',afrika:'África','midden-oosten-india':'Oriente Medio e India',azie:'Asia',oceanie:'Australia y Nueva Zelanda','fc:nl':'Países Bajos','fc:oceanie':'Oceanía'}},
+};
+const LOCALE = {nl:'nl-NL', en:'en-GB', de:'de-DE', fr:'fr-FR', es:'es-ES'};
+const COMPASS = {en:{O:'E',Z:'S',NO:'NE',ZO:'SE',ZW:'SW'}, de:{Z:'S',ZO:'SO',ZW:'SW'}, fr:{O:'E',Z:'S',W:'O',NO:'NE',ZO:'SE',ZW:'SO',NW:'NO'}, es:{O:'E',Z:'S',W:'O',NO:'NE',ZO:'SE',ZW:'SO',NW:'NO'}};
+let lang = 'nl';
+try { lang = localStorage.getItem('v24-lang') || (navigator.language || 'nl').slice(0, 2); } catch (e) {}
+if (!I18N[lang]) lang = 'nl';
+const t = (k, vars) => { let x = (I18N[lang][k] ?? I18N.nl[k]); if (vars) for (const [a, b] of Object.entries(vars)) x = x.replace(`{${a}}`, b); return x; };
+const rname = (id, fallback, fc) => (fc && I18N[lang].names['fc:' + id]) || I18N[lang].names[id] || fallback;
+const wind = d => (COMPASS[lang] && COMPASS[lang][d]) || d;
+let fmt = new Intl.NumberFormat(LOCALE[lang]);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ago = iso => { const h = Math.max(0, (Date.now() - new Date(iso)) / 36e5); return h < 1 ? 'net geüpload' : `${Math.round(h)} uur geleden`; };
+const ago = iso => { const h = Math.max(0, (Date.now() - new Date(iso)) / 36e5); return h < 1 ? t('justNow') : t('hoursAgo', {n: Math.round(h)}); };
 const dur = s => { const m = Math.floor(s / 60), r = s % 60, h = Math.floor(m / 60); return h ? `${h}:${String(m % 60).padStart(2,'0')}:${String(r).padStart(2,'0')}` : `${m}:${String(r).padStart(2,'0')}`; };
-const nlTime = d => new Date(d).toLocaleString('nl-NL', {timeZone:'Europe/Amsterdam', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+const nlTime = d => new Date(d).toLocaleString(LOCALE[lang], {timeZone:'Europe/Amsterdam', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
 
 function card(v, rank, regionName) {
   const media = v.id
-    ? `<button class="media" data-id="${esc(v.id)}" aria-label="Speel ${esc(v.title)}">${rank ? `<span class="rank">${rank}</span>` : ''}${v.viral ? '<span class="viral-badge">VIRAAL</span>' : ''}<img src="${esc(v.thumb)}" alt="" loading="lazy"><span class="play"></span><span class="dur">${dur(v.seconds)}</span></button>`
-    : `<div class="media">${rank ? `<span class="rank">${rank}</span>` : ''}${v.viral ? '<span class="viral-badge">VIRAAL</span>' : ''}<span class="ph">Voorbeeld</span><span class="dur">${dur(v.seconds)}</span></div>`;
+    ? `<button class="media" data-id="${esc(v.id)}" aria-label="${t('play')} ${esc(v.title)}">${rank ? `<span class="rank">${rank}</span>` : ''}${v.viral ? `<span class="viral-badge">${t('viralBadge')}</span>` : ''}<img src="${esc(v.thumb)}" alt="" loading="lazy"><span class="play"></span><span class="dur">${dur(v.seconds)}</span></button>`
+    : `<div class="media">${rank ? `<span class="rank">${rank}</span>` : ''}${v.viral ? `<span class="viral-badge">${t('viralBadge')}</span>` : ''}<span class="ph">${t('example')}</span><span class="dur">${dur(v.seconds)}</span></div>`;
   const ch = v.channelId ? `<a href="https://www.youtube.com/channel/${esc(v.channelId)}" target="_blank" rel="noopener">${esc(v.channel)}</a>` : esc(v.channel);
   return `<article class="card">${media}<div class="body">
     ${regionName ? `<span class="region-tag">${esc(regionName)}</span>` : ''}
     <h3>${v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a>` : esc(v.title)}</h3>
-    <div class="meta"><span>${ch}</span><span>${fmt.format(v.views)} views</span>${v.viral ? `<span class="speed">${fmt.format(v.views_per_hour)}/uur</span>` : ''}<span>${ago(v.published)}</span></div>
+    <div class="meta"><span>${ch}</span><span>${fmt.format(v.views)} ${t('views')}</span>${v.viral ? `<span class="speed">${fmt.format(v.views_per_hour)}${t('perHour')}</span>` : ''}<span>${ago(v.published)}</span></div>
   </div></article>`;
 }
 
@@ -162,66 +231,94 @@ function renderVideos(data) {
   const viral = data.viral || [];
   document.getElementById('viral').innerHTML = viral.length
     ? viral.map(v => card(v, 0, '')).join('')
-    : '<p class="empty">Op dit moment gaat er geen visvideo viraal.</p>';
-  const all = data.regions.flatMap(r => r.videos.map(v => ({...v, region: r.name})));
+    : `<p class="empty">${t('noViral')}</p>`;
+  const all = data.regions.flatMap(r => r.videos.map(v => ({...v, region: rname(r.id, r.name)})));
   const top = [...all].sort((a, b) => b.score - a.score).slice(0, 10);
   document.getElementById('top').innerHTML = top.length
     ? top.map((v, i) => card(v, i + 1, v.region)).join('')
-    : '<p class="empty">Nog geen video\'s gevonden. Kom over een paar uur terug.</p>';
+    : `<p class="empty">${t('noVideos')}</p>`;
 
   const tabs = document.getElementById('tabs');
   let saved = null; try { saved = localStorage.getItem('v24-region'); } catch (e) {}
   const start = data.regions.find(r => r.id === saved) || data.regions[0];
-  tabs.innerHTML = data.regions.map(r => `<button class="tab" role="tab" data-r="${r.id}" aria-selected="${r === start}">${esc(r.name)}<span class="n">${r.videos.length}</span></button>`).join('');
+  tabs.innerHTML = data.regions.map(r => `<button class="tab" role="tab" data-r="${r.id}" aria-selected="${r === start}">${esc(rname(r.id, r.name))}<span class="n">${r.videos.length}</span></button>`).join('');
   const show = id => {
     const r = data.regions.find(x => x.id === id);
     tabs.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.r === id));
     document.getElementById('regiongrid').innerHTML = r.videos.length
       ? r.videos.map(v => card(v, 0, '')).join('')
-      : '<p class="empty">Geen nieuwe video\'s uit deze regio in de laatste 24 uur.</p>';
+      : `<p class="empty">${t('noRegion')}</p>`;
     try { localStorage.setItem('v24-region', id); } catch (e) {}
   };
-  tabs.addEventListener('click', e => { const t = e.target.closest('.tab'); if (t) show(t.dataset.r); });
+  tabs.onclick = e => { const b = e.target.closest('.tab'); if (b) show(b.dataset.r); };
   show(start.id);
   return top;
 }
 
 function renderForecast(fc) {
-  document.getElementById('moon').textContent = fc.moon;
+  document.getElementById('moon').textContent = t('moons')[Math.floor(fc.moon_phase * 8 + 0.5) % 8] || fc.moon;
+  const groups = fc.groups && fc.groups.length ? fc.groups : [{id: 'nl', name: 'Nederland', spots: fc.spots}];
   const color = s => s >= 7 ? 'var(--good)' : s >= 4.5 ? 'var(--mid)' : 'var(--bad)';
-  document.getElementById('spots').innerHTML = fc.spots.map(s => `<div class="spot">
-    <h3>${esc(s.name)}</h3>
+  const tabs = document.getElementById('fctabs');
+  let saved = null; try { saved = localStorage.getItem('v24-weer'); } catch (e) {}
+  const start = groups.find(g => g.id === saved) || groups[0];
+  tabs.hidden = groups.length < 2;
+  tabs.innerHTML = groups.map(g => `<button class="tab" role="tab" data-g="${esc(g.id)}" aria-selected="${g === start}">${esc(rname(g.id, g.name, true))}</button>`).join('');
+  const show = id => {
+    const g = groups.find(x => x.id === id) || groups[0];
+    tabs.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.g === g.id));
+    document.getElementById('spots').innerHTML = g.spots.map(s => `<div class="spot">
+    <h3>${s.dir ? `<span class="dir">${esc(wind(s.dir))}</span>` : ''}${esc(s.name)}</h3>
     <div class="score" style="color:${color(s.score)}">${s.score.toFixed(1)}<small> / 10</small></div>
     <div class="meter"><i style="width:${s.score * 10}%;background:${color(s.score)}"></i></div>
-    <div class="row"><span>${s.temp} °C</span><span>${s.wind_dir} ${s.bft} Bft</span></div>
-    <div class="row"><span>${s.pressure} hPa</span><span>${s.pressure_change > 0 ? '+' : ''}${s.pressure_change} in 24u</span></div>
+    <div class="row"><span>${s.temp} °C</span><span>${wind(s.wind_dir)} ${s.bft} Bft</span></div>
+    <div class="row"><span>${s.pressure} hPa</span><span>${s.pressure_change > 0 ? '+' : ''}${s.pressure_change} ${t('in24')}</span></div>
   </div>`).join('');
+    try { localStorage.setItem('v24-weer', g.id); } catch (e) {}
+  };
+  tabs.onclick = e => { const b = e.target.closest('.tab'); if (b) show(b.dataset.g); };
+  show(start.id);
   return fc;
 }
 
 function renderTicker(top, fc, viral) {
-  const items = (viral || []).slice(0, 2).map(v => `Viraal: ${v.title}`).concat(top.slice(0, 6).map(v => `${v.region}: ${v.title}`));
+  const items = (viral || []).slice(0, 2).map(v => `${t('viral')}: ${v.title}`).concat(top.slice(0, 6).map(v => `${v.region}: ${v.title}`));
   if (fc && fc.spots.length) {
     const best = [...fc.spots].sort((a, b) => b.score - a.score)[0];
-    items.push(`Beste stek nu: ${best.name}, bijtscore ${best.score.toFixed(1)}`);
+    items.push(t('bestSpot', {name: best.name, score: best.score.toFixed(1)}));
   }
-  document.getElementById('ticker').textContent = items.join('  ·  ') || 'Geen nieuws.';
+  document.getElementById('ticker').textContent = items.join('  ·  ') || t('noNews');
 }
 
 function tickClock() {
-  document.getElementById('clock').textContent = new Date().toLocaleTimeString('nl-NL', {timeZone:'Europe/Amsterdam', hour:'2-digit', minute:'2-digit'});
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString(LOCALE[lang], {timeZone:'Europe/Amsterdam', hour:'2-digit', minute:'2-digit'});
 }
 tickClock(); setInterval(tickClock, 30000);
+
+let DATA = null;
+function applyStatic() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  fmt = new Intl.NumberFormat(LOCALE[lang]);
+  tickClock();
+}
+function renderAll() {
+  applyStatic();
+  if (!DATA) return;
+  const top = renderVideos(DATA.videos);
+  if (DATA.fc) renderForecast(DATA.fc);
+  renderTicker(top, DATA.fc, DATA.videos.viral);
+}
+const picker = document.getElementById('lang');
+picker.value = lang;
+picker.onchange = () => { lang = picker.value; try { localStorage.setItem('v24-lang', lang); } catch (e) {} renderAll(); };
+applyStatic();
 
 Promise.all([
   fetch('data/videos.json', {cache:'no-cache'}).then(r => r.json()),
   fetch('data/forecast.json', {cache:'no-cache'}).then(r => r.json()).catch(() => null),
-]).then(([videos, fc]) => {
-  const top = renderVideos(videos);
-  if (fc) renderForecast(fc);
-  renderTicker(top, fc, videos.viral);
-}).catch(err => {
-  document.getElementById('top').innerHTML = `<p class="empty">Kon de gegevens niet laden (${esc(err.message)}). Draai eerst finder/find_videos.py.</p>`;
+]).then(([videos, fc]) => { DATA = {videos, fc}; renderAll(); }).catch(err => {
+  document.getElementById('top').innerHTML = `<p class="empty">${t('loadError')} (${esc(err.message)}).</p>`;
 });
 </script>
 </body>
