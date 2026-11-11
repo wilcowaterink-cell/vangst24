@@ -28,27 +28,59 @@ DATA_DIR = os.path.join(ROOT, "docs", "data")
 PLAN_DIR = os.path.join(ROOT, "planning")
 YT = "https://www.googleapis.com/youtube/v3/"
 
-# One search per region per run. A search costs 100 of the 10,000 free daily
-# quota units, so 8 regions x 8 runs a day (every 3 hours) = 6,400 units.
-# The "|" means OR in a YouTube search.
+# Regions shown on the site.
 REGIONS = [
-    {"id": "nl", "name": "Nederland & België", "lang": "nl",
-     "q": "snoek gevangen|snoekbaars vissen|karpervissen|roofvissen|zeevissen"},
-    {"id": "europa", "name": "Europa & Scandinavië", "lang": "en",
-     "q": "pike fishing|carp fishing|halibut norway|salmon fishing scotland|catfish ebro"},
-    {"id": "noord-amerika", "name": "Noord-Amerika", "lang": "en",
-     "q": "bass fishing|musky fishing|walleye fishing|tarpon fishing|salmon fishing alaska"},
-    {"id": "zuid-amerika", "name": "Zuid- & Midden-Amerika", "lang": "pt",
-     "q": "pesca tucunaré|pesca dourado|pesca dorado|marlin costa rica|peacock bass"},
-    {"id": "afrika", "name": "Afrika", "lang": "en",
-     "q": "tigerfish|nile perch fishing|fishing south africa|giant trevally fishing"},
-    {"id": "midden-oosten-india", "name": "Midden-Oosten & India", "lang": "en",
-     "q": "mahseer fishing|kingfish oman|fishing oman|fishing india river"},
-    {"id": "azie", "name": "Azië", "lang": "en",
-     "q": "snakehead fishing|mekong catfish|釣り 大物|mancing ikan|fishing thailand"},
-    {"id": "oceanie", "name": "Australië & Nieuw-Zeeland", "lang": "en",
-     "q": "murray cod|barramundi fishing|snapper fishing|trout fishing new zealand|marlin cairns"},
+    {"id": "nl", "name": "Nederland & België"},
+    {"id": "europa", "name": "Europa & Scandinavië"},
+    {"id": "noord-amerika", "name": "Noord-Amerika"},
+    {"id": "zuid-amerika", "name": "Zuid- & Midden-Amerika"},
+    {"id": "afrika", "name": "Afrika"},
+    {"id": "midden-oosten-india", "name": "Midden-Oosten & India"},
+    {"id": "azie", "name": "Azië"},
+    {"id": "oceanie", "name": "Australië & Nieuw-Zeeland"},
 ]
+
+# The searches. In a YouTube search "|" means OR and only joins the words right
+# next to it, so "fishing bass|pike" means: fishing AND (bass OR pike).
+# Each search costs 100 of the 10,000 free daily units: 10 searches x 8 runs
+# a day (every 3 hours) = 8,000 units.
+# "region" is where a video goes when the maker's country is unknown.
+SEARCHES = [
+    {"q": "vissen|snoek|snoekbaars|karper|hengelsport|roofvissen|karpervissen|zeevissen", "lang": "nl", "region": "nl"},
+    {"q": "fishing bass|pike|carp|trout|salmon|walleye|musky|catfish", "lang": "en", "region": "noord-amerika"},
+    {"q": "fishing tuna|marlin|shark|tarpon|snapper|halibut|kingfish|trevally", "lang": "en", "region": "noord-amerika"},
+    {"q": "angeln|pêche|fiske|wędkarstwo|pescuit|rybolov|kalastus|рыбалка", "lang": None, "region": "europa"},
+    {"q": "pesca tucunaré|dourado|robalo|dorado|pargo|atún|trucha|tilapia", "lang": None, "region": "zuid-amerika"},
+    {"q": "釣り|낚시|ตกปลา|mancing|钓鱼|câu", "lang": None, "region": "azie"},
+    {"q": "fishing mahseer|india|kerala|oman|dubai|pakistan|bangladesh", "lang": None, "region": "midden-oosten-india"},
+    {"q": "fishing africa|zambezi|tigerfish|namibia|kenya|nigeria|mozambique|tanzania", "lang": None, "region": "afrika"},
+    {"q": "fishing australia|queensland|barramundi|murray|zealand|tasmania|darwin", "lang": "en", "region": "oceanie"},
+]
+# One extra worldwide search over a longer period, for videos that are taking off.
+VIRAL_SEARCH = {"q": "fishing|pesca|angeln|pêche|vissen|釣り|рыбалка", "lang": None, "region": None}
+
+# Maker's country -> region.
+COUNTRY_REGION = {}
+for _rid, _codes in {
+    "nl": "NL BE",
+    "europa": "GB IE FR DE ES PT IT CH AT LU DK SE NO FI IS PL CZ SK HU RO BG GR HR SI RS BA ME MK AL EE LV LT UA BY MD RU MT CY",
+    "noord-amerika": "US CA",
+    "zuid-amerika": "MX BR AR CL CO PE CR PA EC VE UY PY BO GT CU DO PR HN NI SV BZ JM TT BS",
+    "afrika": "ZA NA KE NG GH TZ MZ ZM ZW EG MA DZ TN UG ET SN CI CM AO BW MG MU SC RW",
+    "midden-oosten-india": "IN PK BD LK NP MV AE OM SA QA KW BH IR IQ IL JO LB TR",
+    "azie": "JP KR CN TW HK TH VN ID MY PH SG KH LA MM MN KZ UZ",
+    "oceanie": "AU NZ FJ PG",
+}.items():
+    for _c in _codes.split():
+        COUNTRY_REGION[_c] = _rid
+
+# Keep out things that are not real fishing: games, music, live streams, cartoons.
+BLOCKED_CATEGORIES = {"10", "20"}          # Music, Gaming
+BLOCKED_WORDS = ["roblox", "minecraft", "fortnite", "gta", "gameplay", "simulator", "fisch ",
+                 "cartoon", "nursery", "lyrics", "asmr", "live stream", "livestream", "🔴",
+                 "aquarium", "mukbang", "recipe", "cooking", "anime", "lego", "playstation",
+                 "xbox", "nintendo", "pokemon", "pokémon", "stardew", "wow classic", "genshin"]
+MAX_SECONDS = 3 * 3600                     # longer is almost always a (former) live stream
 
 # Dutch fishing spots for the forecast.
 SPOTS = [
@@ -59,12 +91,6 @@ SPOTS = [
     {"name": "Friese meren (Sneek)", "lat": 53.03, "lon": 5.66},
 ]
 
-# Worldwide searches for videos that are taking off, in several languages.
-# Two extra searches per run: 8 runs x 10 searches x 100 units = 8,000 of 10,000.
-VIRAL_QUERIES = [
-    {"q": "fishing|big fish|monster fish|pesca|angeln|pêche|vissen|釣り", "lang": None},
-    {"q": "giant fish caught|record fish|shark fishing|catfish monster|fish attack lure", "lang": "en"},
-]
 VIRAL_HOURS = 48              # look back a bit further for viral videos
 VIRAL_VIEWS_PER_HOUR = 2000   # faster than this = marked as viral
 VIRAL_MIN_VIEWS = 50000
@@ -72,7 +98,8 @@ VIRAL_KEEP = 12
 
 MIN_SECONDS = 60          # skip very short clips
 PER_REGION = 12           # videos kept per region
-SEARCH_RESULTS = 25       # candidates fetched per region
+SEARCH_RESULTS = 50       # candidates fetched per search
+VIRAL_MIN_SECONDS = 20    # viral clips are often short
 
 
 def get_json(url, params=None, timeout=20):
@@ -97,64 +124,116 @@ def is_viral(v):
     return v["views"] >= VIRAL_MIN_VIEWS and v["views_per_hour"] >= VIRAL_VIEWS_PER_HOUR
 
 
-def search_region(region, key, since):
-    return search_videos(region["q"], region["lang"], key, since)[:PER_REGION]
+def is_fishing_video(v):
+    """False for games, music, live streams and other things that only mention fish."""
+    sn = v["snippet"]
+    if sn.get("categoryId") in BLOCKED_CATEGORIES:
+        return False
+    if sn.get("liveBroadcastContent", "none") != "none":
+        return False
+    text = (sn.get("title", "") + " " + " ".join(sn.get("tags", [])[:15])).lower()
+    return not any(w in text for w in BLOCKED_WORDS)
 
 
-def search_videos(q, lang, key, since):
+def chunks(items, n=50):
+    for i in range(0, len(items), n):
+        yield items[i:i + n]
+
+
+def search_ids(search, key, since):
     params = {
-        "part": "snippet", "type": "video", "q": q,
+        "part": "id", "type": "video", "q": search["q"],
         "publishedAfter": since, "order": "viewCount",
         "maxResults": SEARCH_RESULTS, "safeSearch": "strict",
         "videoEmbeddable": "true", "key": key,
     }
-    if lang:
-        params["relevanceLanguage"] = lang
+    if search.get("lang"):
+        params["relevanceLanguage"] = search["lang"]
     found = get_json(YT + "search", params)
-    ids = [it["id"]["videoId"] for it in found.get("items", [])]
-    if not ids:
-        return []
-    details = get_json(YT + "videos", {
-        "part": "snippet,statistics,contentDetails,status",
-        "id": ",".join(ids), "key": key,
-    })
-    now = dt.datetime.now(dt.timezone.utc)
+    return [it["id"]["videoId"] for it in found.get("items", [])]
+
+
+def video_details(ids, key, now, min_seconds):
     out = []
-    for v in details.get("items", []):
-        secs = iso_duration_seconds(v["contentDetails"].get("duration"))
-        if secs < MIN_SECONDS or not v["status"].get("embeddable", False):
-            continue
-        sn, st = v["snippet"], v.get("statistics", {})
-        published = dt.datetime.fromisoformat(sn["publishedAt"].replace("Z", "+00:00"))
-        hours = max(1.0, (now - published).total_seconds() / 3600)
-        views, likes = int(st.get("viewCount", 0)), int(st.get("likeCount", 0))
-        thumbs = sn.get("thumbnails", {})
-        thumb = (thumbs.get("high") or thumbs.get("medium") or thumbs.get("default") or {}).get("url", "")
-        out.append({
-            "id": v["id"], "title": sn["title"], "channel": sn["channelTitle"],
-            "channelId": sn["channelId"], "published": sn["publishedAt"],
-            "views": views, "likes": likes, "seconds": secs, "thumb": thumb,
-            "url": f"https://www.youtube.com/watch?v={v['id']}",
-            "views_per_hour": round(views / hours),
-            # Views per hour since upload, with a bonus for likes.
-            "score": round(views / hours + likes * 2 / hours, 1),
+    for part in chunks(ids):
+        details = get_json(YT + "videos", {
+            "part": "snippet,statistics,contentDetails,status",
+            "id": ",".join(part), "key": key,
         })
-        out[-1]["viral"] = is_viral(out[-1])
-    out.sort(key=lambda x: x["score"], reverse=True)
+        for v in details.get("items", []):
+            secs = iso_duration_seconds(v["contentDetails"].get("duration"))
+            if not (min_seconds <= secs <= MAX_SECONDS):
+                continue
+            if not v["status"].get("embeddable", False) or not is_fishing_video(v):
+                continue
+            sn, st = v["snippet"], v.get("statistics", {})
+            published = dt.datetime.fromisoformat(sn["publishedAt"].replace("Z", "+00:00"))
+            hours = max(1.0, (now - published).total_seconds() / 3600)
+            views, likes = int(st.get("viewCount", 0)), int(st.get("likeCount", 0))
+            thumbs = sn.get("thumbnails", {})
+            thumb = (thumbs.get("high") or thumbs.get("medium") or thumbs.get("default") or {}).get("url", "")
+            item = {
+                "id": v["id"], "title": sn["title"], "channel": sn["channelTitle"],
+                "channelId": sn["channelId"], "published": sn["publishedAt"],
+                "views": views, "likes": likes, "seconds": secs, "thumb": thumb,
+                "url": f"https://www.youtube.com/watch?v={v['id']}",
+                "views_per_hour": round(views / hours),
+                # Views per hour since upload, with a bonus for likes.
+                "score": round(views / hours + likes * 2 / hours, 1),
+            }
+            item["viral"] = is_viral(item)
+            out.append(item)
     return out
 
 
-def find_viral(key, now, region_videos):
-    since = (now - dt.timedelta(hours=VIRAL_HOURS)).isoformat().replace("+00:00", "Z")
-    pool = {v["id"]: v for vids in region_videos.values() for v in vids if v.get("viral")}
-    for vq in VIRAL_QUERIES:
+def channel_countries(channel_ids, key):
+    countries = {}
+    for part in chunks(sorted(set(channel_ids))):
         try:
-            for v in search_videos(vq["q"], vq["lang"], key, since):
-                if v["viral"]:
-                    pool.setdefault(v["id"], v)
+            data = get_json(YT + "channels", {"part": "snippet", "id": ",".join(part), "key": key})
         except Exception as e:
-            print(f"  viral search failed ({e})", file=sys.stderr)
-    return sorted(pool.values(), key=lambda v: v["views_per_hour"], reverse=True)[:VIRAL_KEEP]
+            print(f"  channel lookup failed ({e})", file=sys.stderr)
+            continue
+        for c in data.get("items", []):
+            if c["snippet"].get("country"):
+                countries[c["id"]] = c["snippet"]["country"].upper()
+    return countries
+
+
+def find_all(key, now):
+    """Run every search, then sort the videos into regions by the maker's country."""
+    since = (now - dt.timedelta(hours=24)).isoformat().replace("+00:00", "Z")
+    fallback = {}                                  # video id -> region of the search that found it
+    for s in SEARCHES:
+        try:
+            ids = search_ids(s, key, since)
+            print(f"  search '{s['q'][:40]}': {len(ids)} found")
+            for vid in ids:
+                fallback.setdefault(vid, s["region"])
+        except Exception as e:
+            print(f"  search '{s['q'][:40]}' failed ({e})", file=sys.stderr)
+    videos = video_details(list(fallback), key, now, MIN_SECONDS)
+
+    viral_ids = []
+    try:
+        viral_since = (now - dt.timedelta(hours=VIRAL_HOURS)).isoformat().replace("+00:00", "Z")
+        viral_ids = search_ids(VIRAL_SEARCH, key, viral_since)
+        print(f"  viral search: {len(viral_ids)} found")
+    except Exception as e:
+        print(f"  viral search failed ({e})", file=sys.stderr)
+    extra = video_details([i for i in viral_ids if i not in fallback], key, now, VIRAL_MIN_SECONDS)
+
+    countries = channel_countries([v["channelId"] for v in videos], key)
+    by_region = {r["id"]: [] for r in REGIONS}
+    for v in videos:
+        region = COUNTRY_REGION.get(countries.get(v["channelId"], ""), fallback[v["id"]])
+        by_region[region].append(v)
+    for rid in by_region:
+        by_region[rid] = sorted(by_region[rid], key=lambda v: v["score"], reverse=True)[:PER_REGION]
+
+    pool = {v["id"]: v for v in videos + extra if v["viral"]}
+    viral = sorted(pool.values(), key=lambda v: v["views_per_hour"], reverse=True)[:VIRAL_KEEP]
+    return by_region, viral
 
 
 def demo_videos():
@@ -320,16 +399,9 @@ def main():
         by_region = demo_videos()
         viral = demo_viral()
     else:
-        since = (now - dt.timedelta(hours=24)).isoformat().replace("+00:00", "Z")
-        by_region = {}
+        by_region, viral = find_all(key, now)
         for r in REGIONS:
-            try:
-                by_region[r["id"]] = search_region(r, key, since)
-                print(f"  {r['name']}: {len(by_region[r['id']])} videos")
-            except Exception as e:
-                print(f"  {r['name']}: failed ({e})", file=sys.stderr)
-                by_region[r["id"]] = []
-        viral = find_viral(key, now, by_region)
+            print(f"  {r['name']}: {len(by_region[r['id']])} videos")
         print(f"  Viraal: {len(viral)} videos")
 
     regions = [{"id": r["id"], "name": r["name"], "videos": by_region.get(r["id"], [])}

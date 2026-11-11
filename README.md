@@ -18,7 +18,7 @@ planning/kandidaten-*.csv    daily list of candidate clips for the episode
 4. Open **APIs & Services → Credentials → Create credentials → API key**.
 5. Copy the key. Keep it secret: never paste it into the website or a public file.
 
-The free quota is 10,000 units a day. One run does 8 region searches plus 2 worldwide "viral" searches (about 1,000 units), so every 3 hours (8,000 units a day) fits.
+The free quota is 10,000 units a day. One run does 9 searches plus 1 worldwide "viral" search (about 1,000 units), so every 3 hours (8,000 units a day) fits.
 
 ## Step 2: Put it on GitHub (free hosting + automatic updates)
 
@@ -41,7 +41,7 @@ cd docs && python -m http.server 8000      # then open http://localhost:8000
 
 ## Changing what it searches for
 
-Edit the `REGIONS` list at the top of `finder/find_videos.py`. Each region has a search text where `|` means "or", for example `"snoek gevangen|snoekbaars vissen"`. Add or change fish species and places there. The Dutch fishing spots for the forecast are in `SPOTS`.
+Edit the `SEARCHES` list at the top of `finder/find_videos.py`. In a search text `|` means "or" and only joins the words next to it: `fishing bass|pike` means fishing and (bass or pike). Videos are sorted into regions by the maker's country; if that is unknown, the search's own `region` is used. Words that should never appear (games, cartoons) are in `BLOCKED_WORDS`. The Dutch fishing spots for the forecast are in `SPOTS`.
 
 ## About rights
 
