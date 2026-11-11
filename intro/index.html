@@ -1,0 +1,724 @@
+<title>Vangst24 Intro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=JetBrains+Mono:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: a control-room monitor. One 16:9 program screen, transport controls under it, short notes below. Deliberately dark in both themes. */
+:root{
+  --bg:#071118; --panel:#0d1c25; --line:#1d3340; --fg:#e6eef1; --muted:#8fa6b1;
+  --accent:#e8571c; --accent-hi:#ff7a3d; --deep:#0b2a3a;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:6px 20px;align-items:baseline;justify-content:space-between}
+h1{font-family:var(--f-display);font-weight:800;font-size:34px;margin:0;letter-spacing:.01em;text-transform:uppercase}
+h1 b{color:var(--accent-hi)}
+header p{margin:0;color:var(--muted);font-size:15px}
+.monitor{background:#000;border:1px solid var(--line);border-radius:8px;padding:8px;box-shadow:0 18px 40px -20px #000}
+.screen{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;background:#04121a;border-radius:3px;overflow:hidden}
+.screen canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tc{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12px;color:var(--muted);padding:8px 4px 0;font-variant-numeric:tabular-nums}
+.tc .pgm{color:#ff5a4f}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:6px 4px 2px}
+.bar i{display:block;height:100%;width:0;background:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px;flex-wrap:wrap}
+.tab{border:0;background:transparent;color:var(--muted);font:600 15px var(--f-body);padding:7px 14px;border-radius:5px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--deep);color:var(--fg)}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--fg);font:600 15px var(--f-body);padding:8px 16px;border-radius:6px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn[aria-pressed="true"]{border-color:var(--accent-hi);color:var(--accent-hi)}
+select{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;font:600 15px var(--f-body);padding:8px 10px}
+:focus-visible{outline:3px solid var(--accent-hi);outline-offset:2px}
+.spacer{flex:1}
+.notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:6px}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.note h2{font-family:var(--f-display);font-size:22px;margin:0;text-transform:uppercase;font-weight:700}
+.note p{margin:0;color:var(--muted);font-size:15px}
+.note .k{font-family:var(--f-mono);font-size:12px;color:var(--accent-hi);letter-spacing:.08em;text-transform:uppercase}
+@media (max-width:760px){.notes{grid-template-columns:1fr}.spacer{display:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Vangst<b>24</b> · Intro &amp; beeld</h1>
+    <p>Voorbeeldaflevering en huisstijl. Druk op Afspelen; het geluid start pas na een klik.</p>
+  </header>
+
+  <div class="monitor">
+    <div class="screen"><canvas id="cv" aria-label="Programmabeeld Vangst24"></canvas></div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="tc"><span class="pgm">● PGM</span><span id="tcode">00:00:00:00</span><span id="tlabel">Aflevering · 59 s</span></div>
+  </div>
+
+  <div class="controls">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-scene="episode" aria-selected="true">Aflevering</button>
+      <button class="tab" role="tab" data-scene="intro" aria-selected="false">Intro</button>
+      <button class="tab" role="tab" data-scene="bumper" aria-selected="false">Overgangen</button>
+      <button class="tab" role="tab" data-scene="graphics" aria-selected="false">In beeld</button>
+    </div>
+    <select id="seg" aria-label="Kies onderdeel" hidden>
+      <option value="0">Wereld Top 10</option>
+      <option value="1">Tactiek van de dag</option>
+      <option value="2">Nederland &amp; België</option>
+      <option value="3">Zee &amp; kust</option>
+      <option value="4">Kijkersvangsten</option>
+      <option value="5">Vooruitblik</option>
+    </select>
+    <span class="spacer"></span>
+    <button class="btn" id="sound" aria-pressed="true">Geluid aan</button>
+    <button class="btn primary" id="play">▶ Afspelen</button>
+  </div>
+
+  <div class="notes">
+    <div class="note"><span class="k">Aflevering · 59 s</span><h2>Voorbeeldaflevering</h2><p>Intro, vangst #1 met vangstkaart, de tactiek uitgelegd onder water, het visweer en de afsluiting. De ondertiteling laat zien wat de presentator zegt.</p></div>
+    <div class="note"><span class="k">Intro · 10 s</span><h2>Opening</h2><p>Onder water komt een shad voorbij. Daarna draait de wereld rond terwijl de klok 24 uur doorloopt en de visplekken oplichten. Tot slot verschijnt het logo met een plons.</p></div>
+    <div class="note"><span class="k">Overgang · 3 s</span><h2>Tussen onderdelen</h2><p>Een korte overgang met eigen kleur per onderdeel van het uur, zodat kijkers meteen zien waar ze zitten.</p></div>
+    <div class="note"><span class="k">In beeld</span><h2>Tijdens een vangst</h2><p>Logo, naambalk, vangstkaart met de gegevens en de nieuwsbalk. De vangst en gegevens zijn voorbeelden.</p></div>
+  </div>
+</div>
+
+<script>
+(() => {
+const W = 1920, H = 1080;
+const C = { deep:'#04121a', mid:'#0b4f6c', orange:'#e8571c', white:'#f3f7f8', ink:'#06161f' };
+const DISPLAY = '"Barlow Condensed","Arial Narrow",Arial,sans-serif';
+const MONO = '"JetBrains Mono",ui-monospace,Menlo,monospace';
+const SEGMENTS = [
+  { title:'WERELD TOP 10', sub:'De beste vangsten van de laatste 24 uur', time:':00 – :10', color:'#0b6f96' },
+  { title:'TACTIEK VAN DE DAG', sub:'Zo werd hij gevangen', time:':10 – :22', color:'#e8571c' },
+  { title:'NEDERLAND & BELGIË', sub:'Wat bijt er in onze wateren', time:':22 – :32', color:'#4f8a35' },
+  { title:'ZEE & KUST', sub:'Van de Noordzee tot de oceaan', time:':32 – :42', color:'#2a7f9e' },
+  { title:'KIJKERSVANGSTEN', sub:'Jullie vangsten van vandaag', time:':42 – :50', color:'#6b5b95' },
+  { title:'VOORUITBLIK', sub:'Het visweer voor de komende 24 uur', time:':50 – :60', color:'#c99a2e' },
+];
+const DUR = { intro:10, bumper:3, graphics:10 };
+
+// ---------- helpers
+const clamp = (x,a=0,b=1) => Math.max(a, Math.min(b, x));
+const lerp = (a,b,t) => a + (b-a)*t;
+const prog = (t,a,b) => clamp((t-a)/(b-a));
+const easeOut = x => 1 - Math.pow(1-x, 3);
+const easeInOut = x => x<.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2,3)/2;
+const easeBack = x => { const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); };
+function rand(i){ const s = Math.sin(i*127.1 + 311.7)*43758.5453; return s - Math.floor(s); }
+const rad = d => d*Math.PI/180;
+
+// ---------- shared pieces
+function underwater(ctx, t, dark=0){
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0, '#0d5a78'); g.addColorStop(.45,'#083a4f'); g.addColorStop(1,'#020b10');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  // light rays
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (let i=0;i<7;i++){
+    const x = 200 + i*260 + Math.sin(t*.6 + i)*60;
+    const w = 70 + rand(i)*90;
+    const gr = ctx.createLinearGradient(0,0,0,H*.9);
+    gr.addColorStop(0, `rgba(160,220,240,${.10+.05*Math.sin(t*1.3+i*2)})`); gr.addColorStop(1,'rgba(160,220,240,0)');
+    ctx.fillStyle = gr; ctx.beginPath();
+    ctx.moveTo(x-w/2,0); ctx.lineTo(x+w/2,0); ctx.lineTo(x+w*1.6+180,H); ctx.lineTo(x-w*.4+180,H); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+  // drifting particles
+  for (let i=0;i<90;i++){
+    const x = (rand(i)*W + t*(8+rand(i+5)*14)) % W;
+    const y = (rand(i+40)*H + Math.sin(t*.7+i)*12);
+    ctx.fillStyle = `rgba(200,235,245,${.12+rand(i+9)*.25})`;
+    ctx.beginPath(); ctx.arc(x,y,1+rand(i+3)*2.2,0,7); ctx.fill();
+  }
+  // bubbles
+  for (let i=0;i<26;i++){
+    const sp = 90 + rand(i+70)*140, x0 = rand(i+20)*W;
+    const y = H + 40 - ((t*sp + rand(i+30)*H*1.4) % (H*1.4));
+    const x = x0 + Math.sin(t*3 + i)*10, r = 3 + rand(i+50)*9;
+    ctx.strokeStyle = 'rgba(220,245,255,.55)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.arc(x-r*.35,y-r*.35,r*.25,0,7); ctx.fill();
+  }
+  if (dark>0){ ctx.fillStyle = `rgba(2,10,14,${dark})`; ctx.fillRect(0,0,W,H); }
+  vignette(ctx, .55);
+}
+function vignette(ctx, a){
+  const v = ctx.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,H*.95);
+  v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,`rgba(0,0,0,${a})`);
+  ctx.fillStyle = v; ctx.fillRect(0,0,W,H);
+}
+function shad(ctx, x, y, s, t, ang=0){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(s,s);
+  const wag = Math.sin(t*14)*.35;
+  // tail (paddle tail)
+  ctx.save(); ctx.translate(-118,0); ctx.rotate(wag);
+  ctx.fillStyle = '#e8571c'; ctx.beginPath(); ctx.moveTo(10,0); ctx.lineTo(-30,-26); ctx.quadraticCurveTo(-44,0,-30,26); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  const g = ctx.createLinearGradient(0,-34,0,34);
+  g.addColorStop(0,'#3d5c66'); g.addColorStop(.45,'#cfe0e4'); g.addColorStop(.55,'#f6fbfc'); g.addColorStop(1,'#e8571c');
+  ctx.fillStyle = g; ctx.beginPath();
+  ctx.moveTo(70,0); ctx.bezierCurveTo(60,-36,-60,-36,-112,-8); ctx.lineTo(-112,8); ctx.bezierCurveTo(-60,36,60,36,70,0); ctx.fill();
+  // jig head
+  ctx.fillStyle = '#c9c9c9'; ctx.beginPath(); ctx.ellipse(66,0,22,20,0,0,7); ctx.fill();
+  ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.arc(70,-6,7,0,7); ctx.fill();
+  ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(72,-6,3.5,0,7); ctx.fill();
+  // hook
+  ctx.strokeStyle = '#bfc6c9'; ctx.lineWidth = 4; ctx.beginPath();
+  ctx.moveTo(40,-18); ctx.lineTo(-10,-30); ctx.quadraticCurveTo(-30,-34,-26,-14); ctx.stroke();
+  ctx.restore();
+}
+function logoMark(ctx, x, y, size, alpha=1){
+  ctx.save(); ctx.globalAlpha = alpha;
+  ctx.font = `800 ${size}px ${DISPLAY}`; ctx.textBaseline = 'alphabetic';
+  const w1 = ctx.measureText('VANGST').width, w2 = ctx.measureText('24').width, pad = size*.14;
+  ctx.fillStyle = C.white; ctx.fillText('VANGST', x, y);
+  ctx.fillStyle = C.orange; roundRect(ctx, x + w1 + size*.08, y - size*.84, w2 + pad*2, size*.98, size*.06); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText('24', x + w1 + size*.08 + pad, y);
+  ctx.restore();
+  return w1 + size*.08 + w2 + pad*2;
+}
+function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+// ---------- globe
+const PINS = [
+  { n:'BOCA GRANDE', lat:26.7, lon:-82.3 }, { n:'RIO NEGRO', lat:-1.0, lon:-62.0 },
+  { n:'HARINGVLIET', lat:51.8, lon:4.2 }, { n:'SENJA', lat:69.3, lon:17.5 },
+  { n:'ZAMBEZI', lat:-17.9, lon:25.8 }, { n:'CAUVERY', lat:12.3, lon:76.9 },
+  { n:'MEKONG', lat:15.1, lon:105.8 }, { n:'CAIRNS', lat:-16.9, lon:145.8 }, { n:'TAUPO', lat:-38.7, lon:176.0 },
+];
+const lon0At = t => lerp(-125, 200, easeInOut(prog(t, 3.0, 6.8)));
+function project(lat, lon, l0, p0, R, cx, cy){
+  const f = rad(lat), d = rad(lon - l0), f0 = rad(p0);
+  const cosc = Math.sin(f0)*Math.sin(f) + Math.cos(f0)*Math.cos(f)*Math.cos(d);
+  return { x: cx + R*Math.cos(f)*Math.sin(d), y: cy - R*(Math.cos(f0)*Math.sin(f) - Math.sin(f0)*Math.cos(f)*Math.cos(d)), v: cosc };
+}
+function actTime(lon){ // first time the pin comes into view
+  let a=3, b=6.8; if (lon0At(b) < lon-55) return 99; if (lon0At(a) >= lon-55) return 3;
+  for (let i=0;i<24;i++){ const m=(a+b)/2; if (lon0At(m) >= lon-55) b=m; else a=m; } return b;
+}
+const PIN_ACT = PINS.map(p => actTime(p.lon));
+function globe(ctx, t, cx, cy, R, alpha){
+  if (alpha <= 0) return;
+  const l0 = lon0At(t), p0 = 18;
+  ctx.save(); ctx.globalAlpha = alpha;
+  const halo = ctx.createRadialGradient(cx,cy,R*.9,cx,cy,R*1.35);
+  halo.addColorStop(0,'rgba(80,190,230,.35)'); halo.addColorStop(1,'rgba(80,190,230,0)');
+  ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(cx,cy,R*1.35,0,7); ctx.fill();
+  const body = ctx.createRadialGradient(cx-R*.35,cy-R*.4,R*.1,cx,cy,R);
+  body.addColorStop(0,'#1d7aa0'); body.addColorStop(.7,'#0a3a50'); body.addColorStop(1,'#041a24');
+  ctx.fillStyle = body; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fill();
+  ctx.strokeStyle = 'rgba(150,215,235,.28)'; ctx.lineWidth = 1.6;
+  const line = pts => { let on=false; ctx.beginPath(); for (const p of pts){ if (p.v>0){ on ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y); on=true; } else on=false; } ctx.stroke(); };
+  for (let lon=-180; lon<180; lon+=20){ const pts=[]; for (let lat=-90; lat<=90; lat+=3) pts.push(project(lat,lon,l0,p0,R,cx,cy)); line(pts); }
+  for (let lat=-60; lat<=75; lat+=15){ const pts=[]; for (let lon=-180; lon<=180; lon+=3) pts.push(project(lat,lon,l0,p0,R,cx,cy)); line(pts); }
+  ctx.strokeStyle = 'rgba(150,215,235,.6)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
+  PINS.forEach((p,i) => {
+    const q = project(p.lat,p.lon,l0,p0,R,cx,cy); const age = t - PIN_ACT[i];
+    if (q.v <= 0 || age < 0) return;
+    const a = clamp(q.v*2.2);
+    for (let k=0;k<2;k++){ const ra = (age - k*.18); if (ra>0 && ra<1){ ctx.strokeStyle = `rgba(255,122,61,${(1-ra)*a})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(q.x,q.y,8+ra*60,0,7); ctx.stroke(); } }
+    ctx.fillStyle = `rgba(255,122,61,${a})`; ctx.beginPath(); ctx.arc(q.x,q.y,9,0,7); ctx.fill();
+    ctx.fillStyle = `rgba(255,255,255,${a})`; ctx.beginPath(); ctx.arc(q.x,q.y,3.5,0,7); ctx.fill();
+    if (q.v > .3){
+      const la = clamp((q.v-.3)*3) * clamp(age*3);
+      ctx.globalAlpha = alpha*la; ctx.font = `700 26px ${MONO}`; const tw = ctx.measureText(p.n).width;
+      ctx.fillStyle = 'rgba(4,18,26,.8)'; ctx.fillRect(q.x+16, q.y-44, tw+20, 38);
+      ctx.fillStyle = C.white; ctx.fillText(p.n, q.x+26, q.y-16); ctx.globalAlpha = alpha;
+    }
+  });
+  ctx.restore();
+}
+
+// ---------- scenes
+function intro(ctx, t){
+  underwater(ctx, t, clamp((t-6.6)/0.8)*.55);
+  // lure on a line swims across
+  if (t < 3.6){
+    const k = prog(t, .3, 3.3), x = lerp(-260, W+260, easeInOut(k)), y = 560 + Math.sin(t*2.4)*60;
+    const ang = Math.cos(t*2.4)*.12;
+    ctx.strokeStyle = 'rgba(230,240,245,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x+90, y-10); ctx.lineTo(x+420, -20); ctx.stroke();
+    shad(ctx, x, y, 1.5, t, ang);
+  }
+  // globe + 24h clock
+  const ga = prog(t, 2.9, 3.4) * (1 - prog(t, 6.7, 7.3));
+  const gs = lerp(.75, 1, easeOut(prog(t,2.9,3.6))) * lerp(1, .2, easeInOut(prog(t,6.7,7.35)));
+  globe(ctx, t, W/2, 585, 360*gs, ga);
+  if (ga > 0){
+    ctx.save(); ctx.globalAlpha = ga; ctx.textAlign = 'center';
+    ctx.font = `700 30px ${MONO}`; ctx.fillStyle = C.orange; ctx.letterSpacing = '8px';
+    ctx.fillText('DE LAATSTE 24 UUR', W/2, 112); ctx.letterSpacing = '0px';
+    const mins = Math.round(easeInOut(prog(t,3.0,6.8)) * 24*60);
+    const hh = String(Math.floor(mins/60)).padStart(2,'0'), mm = String(mins%60).padStart(2,'0');
+    ctx.font = `800 120px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText(`${hh}:${mm}`, W/2, 220);
+    ctx.restore();
+  }
+  // flash
+  const fl = prog(t, 7.25, 7.45) * (1 - prog(t, 7.45, 8.0));
+  if (fl > 0){ const g = ctx.createRadialGradient(W/2,560,0,W/2,560,900); g.addColorStop(0,`rgba(255,200,160,${fl})`); g.addColorStop(1,'rgba(255,140,80,0)'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H); }
+  // splash rings
+  for (let k=0;k<4;k++){
+    const a = t - 7.4 - k*.16; if (a<0 || a>2.2) continue;
+    const rx = 120 + easeOut(a/2.2)*1100; ctx.strokeStyle = `rgba(220,240,248,${(1-a/2.2)*.45})`; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.ellipse(W/2, 620, rx, rx*.16, 0, 0, 7); ctx.stroke();
+  }
+  // logo
+  if (t > 7.35){
+    const size = 260; ctx.font = `800 ${size}px ${DISPLAY}`;
+    const letters = 'VANGST'.split(''), widths = letters.map(l => ctx.measureText(l).width);
+    const w1 = widths.reduce((a,b)=>a+b,0), w2 = ctx.measureText('24').width, pad = size*.14;
+    const total = w1 + size*.08 + w2 + pad*2; let x = (W - total)/2; const base = 610;
+    letters.forEach((l,i) => {
+      const k = prog(t, 7.4 + i*.05, 7.75 + i*.05); if (k<=0){ x += widths[i]; return; }
+      ctx.save(); ctx.globalAlpha = clamp(k*1.6); ctx.fillStyle = C.white;
+      ctx.fillText(l, x, base + (1-easeBack(k))*140); ctx.restore(); x += widths[i];
+    });
+    x += size*.08;
+    const kb = prog(t, 7.7, 8.15);
+    if (kb > 0){
+      const s = easeBack(kb), bw = w2+pad*2, bh = size*.98, bx = x + bw/2, by = base - size*.84 + bh/2;
+      ctx.save(); ctx.translate(bx,by); ctx.scale(s,s); ctx.rotate((1-kb)*-.25);
+      ctx.fillStyle = C.orange; roundRect(ctx,-bw/2,-bh/2,bw,bh,size*.06); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.fillText('24', -bw/2+pad, base - by); ctx.restore();
+    }
+    const ku = easeInOut(prog(t, 8.1, 8.6));
+    if (ku > 0){ ctx.fillStyle = C.orange; ctx.fillRect((W-total)/2, base+40, total*ku, 8); }
+    const kt = prog(t, 8.35, 8.9);
+    if (kt > 0){
+      ctx.save(); ctx.globalAlpha = kt; ctx.textAlign = 'center'; ctx.font = `500 36px ${MONO}`; ctx.letterSpacing = '6px';
+      ctx.fillStyle = 'rgba(230,240,245,.92)'; ctx.fillText('DE LAATSTE 24 UUR VISSEN · WERELDWIJD', W/2, base + 120 + (1-kt)*20);
+      ctx.restore();
+    }
+  }
+  const fade = prog(t, 0, .35); if (fade < 1){ ctx.fillStyle = `rgba(0,0,0,${1-fade})`; ctx.fillRect(0,0,W,H); }
+}
+
+function bumper(ctx, t, seg){
+  const s = SEGMENTS[seg];
+  underwater(ctx, t+seg*3, .5);
+  const kin = easeInOut(prog(t, 0, .45)), kout = easeInOut(prog(t, 2.45, 2.95));
+  // colour band
+  ctx.save(); ctx.fillStyle = s.color;
+  ctx.beginPath(); const bx = lerp(-W*1.3, 0, kin) + kout*W*1.4;
+  ctx.moveTo(bx, 300); ctx.lineTo(bx + W*1.05, 300); ctx.lineTo(bx + W*1.05 - 120, 780); ctx.lineTo(bx - 120, 780); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = C.orange; ctx.fillRect(bx, 780, W*.4, 14);
+  ctx.restore();
+  // text, masked into the band
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 300, W, 480); ctx.clip();
+  const kt = easeOut(prog(t, .35, .8));
+  ctx.globalAlpha = 1 - kout;
+  ctx.font = `700 34px ${MONO}`; ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.letterSpacing = '6px';
+  ctx.fillText('VANGST24 · ' + s.time.replace(/\s/g,''), 180 + kout*400, 400 + (1-kt)*120); ctx.letterSpacing = '0px';
+  ctx.font = `800 190px ${DISPLAY}`; ctx.fillStyle = '#fff';
+  ctx.fillText(s.title, 170 + kout*400, 590 + (1-kt)*260);
+  const ks = easeOut(prog(t, .55, 1));
+  ctx.font = `600 50px ${DISPLAY}`; ctx.fillStyle = 'rgba(255,255,255,.9)';
+  ctx.fillText(s.sub.toUpperCase(), 180 + kout*400, 690 + (1-ks)*160);
+  ctx.restore();
+  logoMark(ctx, 80, 120, 64, .95);
+}
+
+function lakeFootage(ctx, t){
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#33677a'); g.addColorStop(.40,'#e3a463'); g.addColorStop(.455,'#16465a'); g.addColorStop(1,'#04121a');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(255,214,150,.9)'; ctx.beginPath(); ctx.arc(1320, 410, 46, Math.PI, 0); ctx.fill();
+  // far bank: a low tree line, then reeds of uneven height that lean in the wind
+  ctx.fillStyle = '#123341'; ctx.beginPath(); ctx.moveTo(0, H*.44);
+  for (let x=0; x<=W; x+=40) ctx.lineTo(x, H*.44 - 18 - 26*Math.abs(Math.sin(x*.004)) - 14*rand(x));
+  ctx.lineTo(W, H*.44); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#0b2430'; ctx.lineCap = 'round';
+  for (let i=0;i<420;i++){
+    const x = rand(i+900)*W, cluster = .5 + .5*Math.sin(x*.006 + 1.3);
+    const hh = (14 + rand(i+300)*46) * cluster; if (hh < 6) continue;
+    const lean = Math.sin(t*1.1 + x*.01)*4 + 6;
+    ctx.lineWidth = 2 + rand(i+600)*2; ctx.beginPath(); ctx.moveTo(x, H*.44); ctx.quadraticCurveTo(x+lean*.3, H*.44-hh*.6, x+lean, H*.44-hh); ctx.stroke();
+  }
+  ctx.lineCap = 'butt';
+  for (let r=0;r<44;r++){
+    const y = H*.47 + r*H*.0125;
+    ctx.strokeStyle = `rgba(255,210,150,${.24 - r*.005})`; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i=0;i<=W;i+=W/80){ const yy = y + Math.sin(i*.012 + t*1.4 + r)*4; i ? ctx.lineTo(i,yy) : ctx.moveTo(i,yy); }
+    ctx.stroke();
+  }
+  const fx = 760, fy = 640 + Math.sin(t*1.6)*5;
+  ctx.fillStyle = C.orange; ctx.beginPath(); ctx.ellipse(fx,fy,10,30,0,0,7); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(fx,fy-30); ctx.lineTo(fx,fy-70); ctx.stroke();
+  vignette(ctx, .5);
+}
+
+function graphics(ctx, t){
+  lakeFootage(ctx, t);
+  logoMark(ctx, 80, 120, 64, 1);
+  // live chip
+  ctx.save(); ctx.font = `700 24px ${MONO}`; const lw = ctx.measureText('LAATSTE 24 UUR').width;
+  ctx.fillStyle = 'rgba(0,0,0,.5)'; roundRect(ctx, W-120-lw-46, 62, lw+66, 50, 4); ctx.fill();
+  ctx.fillStyle = `rgba(255,59,48,${.55+.45*Math.cos(t*4.5)})`; ctx.beginPath(); ctx.arc(W-120-lw-18, 87, 9, 0, 7); ctx.fill();
+  ctx.fillStyle = C.white; ctx.fillText('LAATSTE 24 UUR', W-120-lw+2, 96); ctx.restore();
+  // rank chip
+  const kr = easeOut(prog(t,.2,.6));
+  ctx.save(); ctx.globalAlpha = kr; ctx.font = `800 40px ${DISPLAY}`; const rw = ctx.measureText('WERELD TOP 10 · #1').width + 32;
+  ctx.fillStyle = C.orange; roundRect(ctx, 80, 160, rw, 58, 4); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText('WERELD TOP 10 · #1', 96, 204); ctx.restore();
+  // lower third
+  const x = 96, k1 = easeOut(prog(t,.3,.8)), k2 = easeOut(prog(t,.45,1.05)), k3 = easeOut(prog(t,.6,1.2));
+  ctx.save();
+  ctx.font = `700 30px ${DISPLAY}`; ctx.letterSpacing = '3px'; const tagW = ctx.measureText('VANGST VAN DE DAG').width + 36;
+  ctx.beginPath(); ctx.rect(x, 700, tagW*k1, 46); ctx.clip(); ctx.fillStyle = C.orange; ctx.fillRect(x,700,tagW,46);
+  ctx.fillStyle = '#fff'; ctx.fillText('VANGST VAN DE DAG', x+18, 734); ctx.restore();
+  ctx.save(); ctx.font = `800 76px ${DISPLAY}`; const nameW = ctx.measureText('SNOEK 118 CM · HARINGVLIET').width + 48;
+  ctx.beginPath(); ctx.rect(x, 746, nameW*k2, 96); ctx.clip(); ctx.fillStyle = 'rgba(6,22,31,.92)'; ctx.fillRect(x,746,nameW,96);
+  ctx.fillStyle = C.white; ctx.fillText('SNOEK 118 CM · HARINGVLIET', x+24, 820); ctx.restore();
+  ctx.save(); ctx.font = `500 26px ${MONO}`; const meta = 'Shad 23 cm · 6 m diep · water 9 °C · gisteren 16:20'; const metaW = ctx.measureText(meta).width + 40;
+  ctx.beginPath(); ctx.rect(x, 842, metaW*k3, 46); ctx.clip(); ctx.fillStyle = C.white; ctx.fillRect(x,842,metaW,46);
+  ctx.fillStyle = C.ink; ctx.fillText(meta, x+20, 874); ctx.restore();
+  // catch card
+  const kc = easeOut(prog(t, 1.0, 1.5)), cx = lerp(W+40, W-500, kc), cy = 196;
+  const rows = [['VIS','Snoek'],['LENGTE','118 cm'],['GEWICHT','± 14 kg'],['AAS','Shad 23 cm'],['DIEPTE','6 m'],['WATER','9 °C'],['LUCHTDRUK','1006 hPa ↓'],['TIJD','16:20']];
+  ctx.save(); ctx.fillStyle = 'rgba(6,22,31,.88)'; roundRect(ctx, cx, cy, 420, 96 + rows.length*54, 6); ctx.fill();
+  ctx.fillStyle = C.orange; ctx.fillRect(cx, cy, 420, 8);
+  ctx.font = `800 40px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('VANGSTKAART', cx+28, cy+66);
+  rows.forEach(([k,v],i) => {
+    const kk = prog(t, 1.25 + i*.07, 1.55 + i*.07); ctx.globalAlpha = kk; const ry = cy + 120 + i*54;
+    ctx.font = `500 22px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText(k, cx+28, ry);
+    ctx.font = `700 32px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.textAlign = 'right'; ctx.fillText(v, cx+392, ry+2); ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(cx+28, ry+16, 364, 1); ctx.globalAlpha = 1;
+  });
+  ctx.restore();
+  // ticker
+  const ty = H - 120, th = 72;
+  ctx.fillStyle = C.white; ctx.fillRect(0, ty, W, th);
+  const items = 'NOORWEGEN: heilbot 2,1 m bij Senja   •   FLORIDA: tarpon-trek gestart in Boca Grande   •   IJSSELMEER: snoekbaars bijt op 4–5 m bij Urk   •   ZAMBEZI: tigerfish actief bij zonsopkomst   •   AUSTRALIË: Murray cod-seizoen open   •   MORGEN NL: ZW 3, bewolkt, luchtdruk dalend   •   ';
+  ctx.save(); ctx.beginPath(); ctx.rect(0, ty, W, th); ctx.clip();
+  ctx.font = `600 36px ${DISPLAY}`; const iw = ctx.measureText(items).width; let off = 260 - ((t*170) % iw);
+  ctx.fillStyle = C.ink; for (let k=0;k<3;k++) ctx.fillText(items, off + k*iw, ty+48);
+  ctx.restore();
+  ctx.fillStyle = C.orange; ctx.fillRect(0, ty, 220, th);
+  ctx.font = `800 40px ${DISPLAY}`; ctx.fillStyle = '#fff'; ctx.fillText('WERELD', 48, ty+51);
+  // clock
+  ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(W-80-176, 124, 176, 50);
+  ctx.font = `700 26px ${MONO}`; ctx.fillStyle = C.white; ctx.fillText('NL 20:14', W-80-156, 158);
+}
+
+// ---------- tactic: cross-section of a drop-off
+const depthY = d => 330 + d*78;
+function bottomDepth(x){ const k = clamp((x-650)/550); return 2 + 5.6*(k*k*(3-2*k)) + Math.sin(x*.03)*.12; }
+const HOPS = 7, HOP_T = 1.05, HOP_START = 2.6, STRIKE = HOP_START + 5.55*HOP_T;
+function lureAt(tt){
+  const u = (tt - HOP_START)/HOP_T;
+  if (u <= 0){ const k = easeOut(clamp((tt-1.4)/1.2)); const x = 1640; return { x, d: lerp(0, bottomDepth(x)-.25, k) }; }
+  const i = Math.min(Math.floor(u), HOPS-1), f = Math.min(u - i, 1);
+  const x0 = 1640 - i*125, x = x0 - 125*f, lift = f < .28 ? easeOut(f/.28) : 1 - easeInOut((f-.28)/.72);
+  return { x, d: bottomDepth(x) - .25 - 1.4*lift };
+}
+function pike(ctx, x, y, s, t, ang){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(s,s);
+  const g = ctx.createLinearGradient(0,-30,0,30); g.addColorStop(0,'#2f4a2a'); g.addColorStop(.6,'#6f8a4a'); g.addColorStop(1,'#d9dcb8');
+  ctx.save(); ctx.translate(-150,0); ctx.rotate(Math.sin(t*6)*.15); ctx.fillStyle = '#4a5f34';
+  ctx.beginPath(); ctx.moveTo(8,0); ctx.lineTo(-40,-32); ctx.lineTo(-28,0); ctx.lineTo(-40,32); ctx.closePath(); ctx.fill(); ctx.restore();
+  ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(150,4); ctx.quadraticCurveTo(120,-30,0,-30); ctx.quadraticCurveTo(-110,-28,-152,-6); ctx.lineTo(-152,6); ctx.quadraticCurveTo(-110,28,0,30); ctx.quadraticCurveTo(120,26,150,4); ctx.fill();
+  ctx.fillStyle = 'rgba(230,235,190,.55)';
+  for (let i=0;i<9;i++){ ctx.beginPath(); ctx.ellipse(-110+i*24, -6 + (i%2)*10, 7, 3.5, 0, 0, 7); ctx.fill(); }
+  ctx.fillStyle = '#4a5f34'; ctx.beginPath(); ctx.moveTo(-90,-26); ctx.lineTo(-120,-50); ctx.lineTo(-130,-22); ctx.fill();
+  ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.arc(110,-8,7,0,7); ctx.fill(); ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(112,-8,3.5,0,7); ctx.fill();
+  ctx.restore();
+}
+function tactic(ctx, t){
+  // water
+  const g = ctx.createLinearGradient(0,depthY(0),0,H); g.addColorStop(0,'#0f5e7e'); g.addColorStop(1,'#03141c');
+  ctx.fillStyle = '#081820'; ctx.fillRect(0,0,W,H); ctx.fillStyle = g; ctx.fillRect(0,depthY(0),W,H);
+  ctx.strokeStyle = 'rgba(200,235,245,.5)'; ctx.lineWidth = 3; ctx.beginPath();
+  for (let x=0;x<=W;x+=20){ const y = depthY(0) + Math.sin(x*.02 + t*2)*3; x ? ctx.lineTo(x,y) : ctx.moveTo(x,y); } ctx.stroke();
+  // bottom
+  ctx.fillStyle = '#3a2f22'; ctx.beginPath(); ctx.moveTo(0,H);
+  for (let x=0;x<=W;x+=10) ctx.lineTo(x, depthY(bottomDepth(x))); ctx.lineTo(W,H); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#7a6545'; ctx.lineWidth = 4; ctx.beginPath();
+  for (let x=0;x<=W;x+=10){ const y = depthY(bottomDepth(x)); x ? ctx.lineTo(x,y) : ctx.moveTo(x,y); } ctx.stroke();
+  for (let i=0;i<60;i++){ const x = rand(i+40)*W, y = depthY(bottomDepth(x)) + 10 + rand(i+80)*60; ctx.fillStyle = 'rgba(150,125,90,.4)'; ctx.beginPath(); ctx.arc(x,y,2+rand(i)*4,0,7); ctx.fill(); }
+  // depth scale
+  ctx.font = `600 24px ${MONO}`; ctx.fillStyle = 'rgba(220,240,248,.75)'; ctx.strokeStyle = 'rgba(220,240,248,.25)'; ctx.lineWidth = 1;
+  for (let d=0; d<=8; d+=2){ const y = depthY(d); ctx.fillText(`${d} m`, 28, y+8); ctx.beginPath(); ctx.setLineDash([6,10]); ctx.moveTo(110,y); ctx.lineTo(W,y); ctx.stroke(); ctx.setLineDash([]); }
+  // drop-off label
+  const kl = prog(t, .6, 1.1);
+  ctx.save(); ctx.globalAlpha = kl; ctx.font = `700 30px ${DISPLAY}`; ctx.fillStyle = '#e8c48a'; ctx.fillText('TALUD (DROP-OFF)', 820, depthY(4.6)); ctx.restore();
+  // boat + rod at the surface
+  ctx.fillStyle = '#d8dee0'; ctx.beginPath(); ctx.moveTo(140, depthY(0)-10); ctx.lineTo(420, depthY(0)-10); ctx.lineTo(380, depthY(0)+30); ctx.lineTo(170, depthY(0)+30); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#222'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(330, depthY(0)-14); ctx.lineTo(470, depthY(0)-150); ctx.stroke();
+  // lure trail, lure, line
+  const struck = t >= STRIKE, tt = Math.min(t, STRIKE);
+  ctx.strokeStyle = 'rgba(255,170,120,.6)'; ctx.lineWidth = 3; ctx.setLineDash([10,8]); ctx.beginPath();
+  for (let s=HOP_START; s<=tt; s+=.03){ const p = lureAt(s); const y = depthY(p.d); s===HOP_START ? ctx.moveTo(p.x,y) : ctx.lineTo(p.x,y); } ctx.stroke(); ctx.setLineDash([]);
+  let L = lureAt(tt); let lx = L.x, ly = depthY(L.d);
+  if (struck){ const k = easeOut(prog(t, STRIKE, STRIKE+.8)); lx -= k*60; ly -= k*40 + Math.sin(t*14)*6; }
+  if (t > 1.2){
+    ctx.strokeStyle = struck ? 'rgba(255,255,255,.95)' : 'rgba(230,240,245,.55)'; ctx.lineWidth = struck ? 3 : 2; ctx.beginPath(); ctx.moveTo(470, depthY(0)-150);
+    if (struck) ctx.lineTo(lx, ly); else ctx.quadraticCurveTo((470+lx)/2, depthY(0)+40, lx, ly); ctx.stroke();
+    if (!struck || t < STRIKE + .15) shad(ctx, lx, ly, .55, t, Math.PI);
+  }
+  // pike waits at the foot of the drop-off, then strikes
+  const pa = prog(t, 5.0, 6.0);
+  if (pa > 0){
+    const home = { x: 1260, y: depthY(7.1) };
+    let px = home.x + Math.sin(t*.8)*14, py = home.y + Math.sin(t*1.3)*6, ang = Math.PI;
+    const ks = prog(t, STRIKE - .45, STRIKE);
+    if (ks > 0){ const k = easeInOut(ks); const L2 = lureAt(STRIKE - .01); px = lerp(home.x, L2.x + 150*.62, k); py = lerp(home.y, depthY(L2.d), k); ang = Math.PI + Math.atan2(depthY(L2.d)-home.y, -(L2.x-home.x))*k*.6; }
+    if (struck){ const k = easeOut(prog(t, STRIKE, STRIKE+.8)); const L2 = lureAt(STRIKE - .01); px = L2.x + 150*.62 - k*60; py = depthY(L2.d) - k*40 + Math.sin(t*14)*6; ang = Math.PI + Math.sin(t*10)*.15; }
+    ctx.save(); ctx.globalAlpha = pa; pike(ctx, px, py, .62, t, ang); ctx.restore();
+  }
+  if (struck){
+    const k = prog(t, STRIKE, STRIKE+.3), a = 1 - prog(t, STRIKE+1.6, STRIKE+2.2);
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(lx+40, ly-130); ctx.scale(easeBack(k), easeBack(k));
+    ctx.fillStyle = C.orange; roundRect(ctx, -120, -60, 240, 96, 8); ctx.fill();
+    ctx.font = `800 80px ${DISPLAY}`; ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText('AAN!', 0, 24); ctx.restore();
+  }
+  // header + steps
+  logoMark(ctx, 80, 110, 56, 1);
+  ctx.font = `800 64px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('TACTIEK: SHAD LANGS DE TALUD', 80, 200);
+  const steps = ['1  Werp over de rand, in het diepe', '2  Laat zakken tot de bodem', '3  Twee tikken omhoog', '4  Laat zakken: hier komt de aanbeet'];
+  const st = [1.2, 2.6, 3.3, 6.5];
+  ctx.fillStyle = 'rgba(6,22,31,.85)'; roundRect(ctx, W-640, 60, 580, 250, 6); ctx.fill();
+  ctx.font = `600 30px ${DISPLAY}`;
+  steps.forEach((s,i) => { const k = prog(t, st[i], st[i]+.4); ctx.globalAlpha = .25 + .75*k; ctx.fillStyle = k>0 ? C.white : '#8fa6b1'; ctx.fillText(s.toUpperCase(), W-610, 120 + i*54); ctx.globalAlpha = 1; });
+  ctx.font = `500 22px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText('Shad 23 cm · jigkop 21 g · gevlochten lijn 0,15 mm', 80, 246);
+}
+
+// ---------- forecast
+const SPOT_FC = [
+  { n:'IJsselmeer (Urk)', s:9.5, w:'ZW 3', p:'-3,2', tmp:'9 °C' }, { n:'Friese meren', s:9.5, w:'W 3', p:'-3,5', tmp:'9 °C' },
+  { n:'Haringvliet', s:9.5, w:'ZW 4', p:'-2,6', tmp:'10 °C' }, { n:'Noordzeekust', s:8.5, w:'ZW 5', p:'-3,0', tmp:'10 °C' },
+  { n:'Maas (Roermond)', s:7.5, w:'Z 2', p:'-1,4', tmp:'8 °C' },
+];
+function forecastScene(ctx, t){
+  underwater(ctx, t, .62);
+  logoMark(ctx, 80, 110, 56, 1);
+  const kh = easeOut(prog(t,.1,.6));
+  ctx.save(); ctx.globalAlpha = kh;
+  ctx.font = `800 84px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('VISWEER · KOMENDE 24 UUR', 80, 220);
+  ctx.font = `500 26px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText('BIJTSCORE ROOFVIS · VUISTREGEL', 84, 268); ctx.restore();
+  const x0 = 80, y0 = 330, rowH = 112;
+  SPOT_FC.forEach((s,i) => {
+    const k = easeOut(prog(t, .5 + i*.18, 1.0 + i*.18)), y = y0 + i*rowH;
+    ctx.save(); ctx.globalAlpha = k; ctx.translate((1-k)*-80, 0);
+    ctx.fillStyle = i === 0 ? 'rgba(232,87,28,.22)' : 'rgba(6,22,31,.8)'; roundRect(ctx, x0, y, 1260, rowH-16, 6); ctx.fill();
+    ctx.font = `700 44px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText(s.n.toUpperCase(), x0+28, y+62);
+    ctx.font = `500 26px ${MONO}`; ctx.fillStyle = '#b9ccd4'; ctx.fillText(`${s.tmp}   ${s.w} Bft   ${s.p} hPa`, x0+430, y+58);
+    const bw = 230, bx = x0+900, kb = easeInOut(prog(t, 1.0 + i*.18, 2.2 + i*.18));
+    ctx.fillStyle = 'rgba(255,255,255,.12)'; roundRect(ctx, bx, y+34, bw, 22, 11); ctx.fill();
+    ctx.fillStyle = s.s >= 9 ? '#5cc27a' : s.s >= 7 ? '#e0b54a' : '#e2706a'; roundRect(ctx, bx, y+34, Math.max(22, bw*s.s/10*kb), 22, 11); ctx.fill();
+    ctx.font = `800 48px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.textAlign = 'right'; ctx.fillText((s.s*kb).toFixed(1), x0+1240, y+64); ctx.textAlign = 'left';
+    ctx.restore();
+  });
+  // moon + summary panel
+  const km = easeOut(prog(t, 1.6, 2.2)), px = 1420, py = 330;
+  ctx.save(); ctx.globalAlpha = km;
+  ctx.fillStyle = 'rgba(6,22,31,.85)'; roundRect(ctx, px, py, 420, 544, 6); ctx.fill();
+  ctx.font = `500 24px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText('MAAN', px+30, py+50);
+  ctx.fillStyle = '#e8eef0'; ctx.beginPath(); ctx.arc(px+210, py+160, 80, 0, 7); ctx.fill();
+  ctx.fillStyle = '#0d1c25'; ctx.beginPath(); ctx.arc(px+210+18, py+160, 80, 0, 7); ctx.fill();
+  ctx.font = `700 40px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.textAlign = 'center'; ctx.fillText('NIEUWE MAAN', px+210, py+290);
+  ctx.font = `500 24px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText('LUCHTDRUK', px+210, py+370);
+  ctx.font = `800 64px ${DISPLAY}`; ctx.fillStyle = '#5cc27a'; ctx.fillText('DALEND ↓', px+210, py+440);
+  ctx.font = `600 30px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('GOED ROOFVISWEER', px+210, py+500);
+  ctx.textAlign = 'left'; ctx.restore();
+}
+
+// ---------- outro
+function outro(ctx, t){
+  underwater(ctx, t+20, .45);
+  const k = easeOut(prog(t, .1, .7));
+  ctx.save(); ctx.globalAlpha = k;
+  ctx.font = `800 200px ${DISPLAY}`;
+  const w = ctx.measureText('VANGST').width + 200*.08 + ctx.measureText('24').width + 200*.28;
+  logoMark(ctx, (W-w)/2, 430 + (1-k)*40, 200, 1);
+  ctx.textAlign = 'center';
+  ctx.font = `700 60px ${DISPLAY}`; ctx.fillStyle = C.orange; ctx.fillText('STUUR JE VANGST IN', W/2, 590);
+  ctx.font = `500 32px ${MONO}`; ctx.fillStyle = 'rgba(230,240,245,.9)'; ctx.fillText('Foto of video · soort · lengte · water · aas', W/2, 650);
+  const k2 = easeOut(prog(t, 1.2, 1.8)); ctx.globalAlpha = k2;
+  ctx.fillStyle = 'rgba(6,22,31,.85)'; roundRect(ctx, W/2-430, 730, 860, 110, 6); ctx.fill();
+  ctx.font = `700 50px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('MORGEN 20:00 · VANGST VAN DE DAG', W/2, 803);
+  ctx.textAlign = 'left'; ctx.restore();
+  const f = prog(t, 5.3, 6); if (f>0){ ctx.fillStyle = `rgba(0,0,0,${f})`; ctx.fillRect(0,0,W,H); }
+}
+
+// ---------- episode: the scenes in order, with subtitles
+const EPISODE = [
+  { s:'intro', d:10, name:'Intro' }, { s:'bumper', d:3, seg:0, name:'Overgang' }, { s:'graphics', d:12, name:'Vangst #1' },
+  { s:'bumper', d:3, seg:1, name:'Overgang' }, { s:'tactic', d:12, name:'Tactiek' }, { s:'bumper', d:3, seg:5, name:'Overgang' },
+  { s:'forecast', d:10, name:'Visweer' }, { s:'outro', d:6, name:'Afsluiting' },
+];
+DUR.episode = EPISODE.reduce((a,p) => a + p.d, 0);
+DUR.tactic = 12; DUR.forecast = 10; DUR.outro = 6;
+const SUBS = [
+  [13.6, 17.6, 'Nummer één komt uit eigen water: een snoek van 118 centimeter in het Haringvliet.'],
+  [17.9, 21.9, 'Gisteren om kwart over vier. Water van negen graden en een dalende luchtdruk.'],
+  [22.1, 24.8, 'Na de foto mocht ze meteen terug.'],
+  [28.6, 32.2, 'Hoe deed hij het? Een grote shad, langzaam langs de rand van de talud.'],
+  [32.5, 36.2, 'Optillen, laten zakken en wachten. De meeste aanbeten komen tijdens het zakken.'],
+  [36.5, 39.7, 'Dit weekend proberen? Vis de diepe randen en ga langzamer dan je denkt.'],
+  [43.6, 47.6, 'Morgen: zuidwestenwind, bewolkt en een dalende luchtdruk.'],
+  [47.9, 52.6, 'Goed roofvisweer. De beste kansen op het IJsselmeer en de Friese meren.'],
+  [53.6, 58.4, 'Ving jij vandaag iets moois? Stuur het in. Morgen om acht uur weer Vangst van de Dag.'],
+];
+function partAt(t){ let a = 0; for (const p of EPISODE){ if (t < a + p.d) return { p, lt: t - a }; a += p.d; } const p = EPISODE[EPISODE.length-1]; return { p, lt: p.d }; }
+function subtitle(ctx, t, y){
+  const s = SUBS.find(x => t >= x[0] && t < x[1]); if (!s) return;
+  const a = Math.min(prog(t, s[0], s[0]+.15), 1 - prog(t, s[1]-.15, s[1]));
+  ctx.save(); ctx.globalAlpha = a; ctx.font = `600 40px "Source Sans 3",Helvetica,Arial,sans-serif`; ctx.textAlign = 'center';
+  const w = ctx.measureText(s[2]).width + 48; ctx.fillStyle = 'rgba(0,0,0,.72)'; roundRect(ctx, W/2 - w/2, y - 46, w, 64, 6); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText(s[2], W/2, y); ctx.restore();
+}
+
+function render(ctx, scene, t, seg=0){
+  ctx.save(); ctx.clearRect(0,0,W,H);
+  if (scene === 'episode'){
+    const { p, lt } = partAt(t);
+    render(ctx, p.s, lt, p.seg || 0);
+    subtitle(ctx, t, p.s === 'graphics' ? 942 : 1010);
+  }
+  else if (scene === 'intro') intro(ctx, t); else if (scene === 'bumper') bumper(ctx, t, seg);
+  else if (scene === 'tactic') tactic(ctx, t); else if (scene === 'forecast') forecastScene(ctx, t);
+  else if (scene === 'outro') outro(ctx, t); else graphics(ctx, t);
+  ctx.restore();
+}
+
+// ---------- sound (synthesised, so no music rights needed)
+// quiet music bed under the talking parts: slow chords and a soft pulse
+function bed(dur, chordSet, sr){
+  const n = Math.floor(dur*sr), out = new Float32Array(n);
+  const NOTE = m => 440*Math.pow(2,(m-69)/12);
+  for (let i=0;i<n;i++){
+    const t = i/sr, bar = Math.floor(t/2), ch = chordSet[bar % chordSet.length];
+    const fade = Math.min(1, t/.4, (dur-t)/.4);
+    let s = 0;
+    for (const m of ch){ const f = NOTE(m); s += .028*(Math.sin(2*Math.PI*f*t) + .25*Math.sin(2*Math.PI*f*2*t)); }
+    const bt = t % .5; s += .10*Math.sin(2*Math.PI*NOTE(ch[0]-12)*t)*Math.exp(-bt*5);
+    out[i] = s*fade;
+  }
+  return out;
+}
+function synth(scene, seg=0, sr=44100){
+  if (scene === 'episode'){
+    const parts = EPISODE.map(p => {
+      if (p.s === 'intro') return synth('intro', 0, sr);
+      if (p.s === 'bumper') return synth('bumper', p.seg, sr);
+      const chords = p.s === 'forecast' ? [[57,64,69,72],[53,60,65,69],[55,62,67,71],[52,59,64,67]] : [[57,64,67,72],[53,60,64,69],[48,55,64,67],[55,62,67,71]];
+      const b = bed(p.d, chords, sr);
+      if (p.s === 'outro'){ const hit = synth('bumper', 0, sr); for (let i=0;i<hit.length && i<b.length;i++) b[i] += hit[i]*.8; }
+      return b;
+    });
+    const total = parts.reduce((a,p) => a + p.length, 0), out = new Float32Array(total); let o = 0;
+    for (const p of parts){ out.set(p, o); o += p.length; }
+    return out;
+  }
+  const dur = DUR[scene], n = Math.floor(dur*sr), out = new Float32Array(n);
+  if (scene !== 'intro' && scene !== 'bumper') return out;
+  let seed = 12345 + seg; const noise = () => { seed = (seed*1103515245 + 12345) & 0x7fffffff; return seed/0x3fffffff - 1; };
+  const tone = (f,t) => Math.sin(2*Math.PI*f*t);
+  const env = (t,a,d) => t<0 ? 0 : t<a ? t/a : Math.exp(-(t-a)/d);
+  let lp1=0, lp2=0, lp3=0, lp4=0;
+  const NOTE = m => 440*Math.pow(2,(m-69)/12);
+  if (scene === 'intro'){
+    const arp = [57,60,64,67,69,72,76,79,81,84,88,91,93,96,100];
+    const bubbles = [.4,.85,1.25,1.6,2.15,2.55,2.9];
+    for (let i=0;i<n;i++){
+      const t = i/sr; let s = 0;
+      // underwater drone
+      const dA = clamp(t/1.5) * (1-prog(t,6.6,7.4));
+      lp1 += .004*(noise()-lp1);
+      s += dA*(.20*tone(55,t) + .10*tone(82.5,t)*(.6+.4*Math.sin(t*1.3)) + 2.2*lp1);
+      // bubbles
+      for (const b of bubbles){ const a = t-b; if (a>=0 && a<.09) s += .16*Math.sin(2*Math.PI*(380*a + 7000*a*a))*(1-a/.09); }
+      // whoosh as the lure passes
+      lp2 += .08*(noise()-lp2); s += .35*Math.exp(-Math.pow((t-1.8)/.45,2))*(noise()-lp2);
+      // pulse while the globe spins
+      if (t>=3 && t<7.2){
+        const bt = (t-3)%.5, kick = Math.sin(2*Math.PI*(45*bt + 75*(1-Math.exp(-bt*30))/30))*Math.exp(-bt*9);
+        s += .45*kick;
+        const ht = (t-3)%.25; lp3 += .5*(noise()-lp3); s += .07*(noise()-lp3)*Math.exp(-ht*60);
+        const step = Math.floor((t-3)/.25), at = (t-3)%.25, m = arp[step % arp.length];
+        const g = .05 + .08*prog(t,3,6.8), f = NOTE(m);
+        s += g*(tone(f,t) + .3*tone(2*f,t) + .15*tone(3*f,t))*Math.exp(-at*9);
+      }
+      // riser
+      if (t>5.6 && t<7.45){ lp4 += (.01 + .25*prog(t,5.6,7.4))*(noise()-lp4); s += .5*prog(t,5.6,7.4)*lp4; }
+      // logo hit
+      const h = t-7.42;
+      if (h >= 0){
+        const bf = 41 + 70*Math.exp(-h*18);
+        s += .7*Math.sin(2*Math.PI*(41*h + 70*(1-Math.exp(-h*18))/18))*env(h,.005,1.6);
+        for (const m of [45,57,60,64,71,76]){ const f = NOTE(m); s += .06*(tone(f,t)+.5*tone(f*2.003,t)+.25*tone(f*3.01,t))*env(h,.01,2.2); }
+        s += .4*noise()*env(h,.002,.35);
+      }
+      s *= 1 - prog(t, 9.4, 10);
+      out[i] = Math.tanh(s*1.1)*.85;
+    }
+  } else {
+    for (let i=0;i<n;i++){
+      const t = i/sr; let s = 0;
+      lp1 += (.02 + .4*prog(t,0,.4))*(noise()-lp1); s += .6*Math.exp(-Math.pow((t-.3)/.18,2))*lp1;
+      const h = t-.42; if (h>=0){ s += .5*Math.sin(2*Math.PI*(55*h + 50*(1-Math.exp(-h*20))/20))*env(h,.004,.6);
+        const f = NOTE(69 + [0,3,5,7,10,12][seg]); s += .08*(tone(f,t)+.4*tone(f*1.5,t))*env(h,.01,.9); }
+      lp2 += (.3 - .25*prog(t,2.45,2.95))*(noise()-lp2); s += .35*Math.exp(-Math.pow((t-2.7)/.15,2))*lp2;
+      out[i] = Math.tanh(s)*.85;
+    }
+  }
+  return out;
+}
+
+// expose for the video export
+window.V24 = { W, H, DUR, SEGMENTS, render, synth };
+
+// ---------- player UI
+const cv = document.getElementById('cv'); if (!cv) return;
+const ctx = cv.getContext('2d');
+let scene = 'episode', seg = 0, playing = false, t0 = 0, cur = 0, soundOn = true, actx = null, src = null;
+const cache = {};
+function size(){ const r = cv.getBoundingClientRect(), d = Math.min(window.devicePixelRatio||1, 2); cv.width = Math.max(1, Math.round(r.width*d)); cv.height = Math.max(1, Math.round(r.height*d)); draw(); }
+function draw(){ ctx.setTransform(cv.width/W,0,0,cv.height/H,0,0); render(ctx, scene, cur, seg); ui(); }
+function ui(){
+  const d = DUR[scene]; document.getElementById('prog').style.width = `${clamp(cur/d)*100}%`;
+  const f = Math.floor((cur%1)*25), s = Math.floor(cur);
+  document.getElementById('tcode').textContent = `00:${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}:${String(f).padStart(2,'0')}`;
+  document.getElementById('tlabel').textContent = scene === 'episode' ? `Aflevering · ${partAt(cur).p.name}` : scene === 'intro' ? 'Intro · 10 s' : scene === 'bumper' ? `Overgang · ${SEGMENTS[seg].title.toLowerCase()}` : 'In beeld · voorbeeld';
+  document.getElementById('play').textContent = playing ? '■ Stop' : '▶ Afspelen';
+}
+function stopAudio(){ try { src && src.stop(); } catch(e){} src = null; }
+function startAudio(){
+  if (!soundOn || scene === 'graphics') return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const key = scene + seg; const data = cache[key] || (cache[key] = synth(scene, seg, actx.sampleRate));
+    const buf = actx.createBuffer(1, data.length, actx.sampleRate); buf.copyToChannel(data, 0);
+    src = actx.createBufferSource(); src.buffer = buf; src.connect(actx.destination); src.start();
+  } catch(e){}
+}
+function loop(now){
+  if (!playing) return;
+  cur = (now - t0)/1000;
+  if (cur >= DUR[scene]){
+    if (scene === 'graphics'){ t0 = now; cur = 0; }
+    else { cur = DUR[scene]; playing = false; draw(); return; }
+  }
+  draw(); requestAnimationFrame(loop);
+}
+function play(){ stopAudio(); playing = true; cur = 0; t0 = performance.now(); startAudio(); requestAnimationFrame(loop); }
+function stop(){ playing = false; stopAudio(); draw(); }
+document.getElementById('play').onclick = () => playing ? stop() : play();
+document.getElementById('sound').onclick = e => { soundOn = !soundOn; e.currentTarget.setAttribute('aria-pressed', soundOn); e.currentTarget.textContent = soundOn ? 'Geluid aan' : 'Geluid uit'; if (!soundOn) stopAudio(); };
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x === b));
+  scene = b.dataset.scene; document.getElementById('seg').hidden = scene !== 'bumper';
+  stop(); cur = scene === 'episode' ? 20 : scene === 'intro' ? 9.5 : scene === 'bumper' ? 1.4 : 3; draw();
+});
+document.getElementById('seg').onchange = e => { seg = +e.target.value; stop(); cur = 1.4; play(); };
+cur = 20;
+addEventListener('resize', size);
+(document.fonts ? Promise.all([
+  document.fonts.load(`800 100px ${DISPLAY}`), document.fonts.load(`700 30px ${DISPLAY}`), document.fonts.load(`600 30px ${DISPLAY}`),
+  document.fonts.load(`700 20px ${MONO}`), document.fonts.load(`500 20px ${MONO}`)
+]).catch(()=>{}) : Promise.resolve()).then(size);
+size();
+})();
+</script>
