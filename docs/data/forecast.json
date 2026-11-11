@@ -24,7 +24,7 @@
   },
   {
    "name": "Maas (Roermond)",
-   "temp": 5.2,
+   "temp": 5.4,
    "pressure": 1002,
    "pressure_change": -6.1,
    "bft": 2,
@@ -34,12 +34,12 @@
   },
   {
    "name": "Noordzeekust (Scheveningen)",
-   "temp": 5.3,
+   "temp": 4.4,
    "pressure": 1003,
    "pressure_change": -5.6,
    "bft": 2,
    "wind_dir": "O",
-   "cloud": 88,
+   "cloud": 100,
    "score": 9.5
   },
   {
@@ -53,6 +53,6 @@
    "score": 9.5
   }
  ],
- "generated_at": "2026-11-11T19:43:45Z",
+ "generated_at": "2026-11-11T19:45:32Z",
  "demo": false
 }
