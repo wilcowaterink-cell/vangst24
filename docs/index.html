@@ -93,6 +93,45 @@ html{scroll-behavior:smooth}
 .speed{color:#d7263d;font-weight:700}
 @media (prefers-color-scheme: dark){.speed{color:#ff6b7d}}
 .viral-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(270px,1fr);gap:16px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+/* Hero: always dark, like the broadcast */
+.hero{position:relative;overflow:hidden;background:#04121a;color:#f3f7f8;padding-block:44px 40px}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%}
+.hero .wrap{position:relative;display:flex;flex-direction:column;gap:14px}
+.hero h1{font-size:clamp(38px,6.5vw,76px);font-weight:800;text-transform:uppercase;letter-spacing:-.005em;max-width:16ch;animation:rise .7s .1s both}
+.kicker{margin:0;display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#ffb48f;animation:rise .6s both}
+.pulse{width:9px;height:9px;border-radius:50%;background:#ff3b30;box-shadow:0 0 0 0 rgba(255,59,48,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(255,59,48,0)}100%{box-shadow:0 0 0 0 rgba(255,59,48,0)}}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}}
+.stats{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:8px;animation:rise .7s .25s both}
+.stats div{background:rgba(6,22,31,.72);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:10px 16px;min-width:128px}
+.stats b{display:block;font-family:var(--f-display);font-weight:800;font-size:38px;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.stats span{font-size:13px;color:#b9ccd4}
+/* Motion */
+.card{transition:opacity .5s ease,transform .5s ease,box-shadow .25s ease,border-color .25s ease}
+.card.pre{opacity:0;transform:translateY(18px)}
+.card:hover{transform:translateY(-4px);box-shadow:0 14px 28px -16px rgba(0,0,0,.45);border-color:var(--accent)}
+.media img{transition:transform .5s ease}
+.card:hover .media img{transform:scale(1.06)}
+.media .play{transition:transform .2s ease,background .2s ease}
+.card:hover .media .play{transform:scale(1.12);background:var(--accent)}
+.meter i{animation:grow .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{width:0}}
+.spot{animation:rise .45s both}
+.spot:nth-child(2){animation-delay:.04s}.spot:nth-child(3){animation-delay:.08s}.spot:nth-child(4){animation-delay:.12s}.spot:nth-child(5){animation-delay:.16s}.spot:nth-child(n+6){animation-delay:.2s}
+.tab{transition:background .2s ease,color .2s ease,border-color .2s ease,transform .15s ease}
+.tab:hover{border-color:var(--accent)}
+.tab:active{transform:scale(.96)}
+.viral-badge{animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 4px rgba(215,38,61,.25)}}
+/* Topics */
+.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:18px}
+.topic{display:flex;justify-content:space-between;align-items:baseline;gap:8px;text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--tc,var(--accent));border-radius:6px;padding:12px 14px;font-family:var(--f-display);font-weight:700;font-size:20px;text-transform:uppercase;line-height:1.1;transition:transform .15s ease,background .2s ease,color .2s ease,border-color .2s ease}
+.topic small{font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--muted)}
+.topic:hover{transform:translateY(-2px);border-color:var(--tc,var(--accent))}
+.topic[aria-pressed="true"]{background:var(--tc,var(--accent));color:#fff;border-color:var(--tc,var(--accent))}
+.topic[aria-pressed="true"] small{color:#fff}
+.menu a.ext::after{content:" ↗";font-size:14px}
+@media (prefers-reduced-motion:reduce){.card,.card.pre,.media img,.media .play,.tab,.topic{transition:none;opacity:1;transform:none}.meter i,.spot,.hero h1,.kicker,.stats,.pulse,.viral-badge{animation:none}}
 .empty{padding:28px;background:var(--surface);border:1px dashed var(--line);border-radius:6px;color:var(--muted)}
 
 footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px}
@@ -111,8 +150,23 @@ footer .wrap{padding-block:24px 40px}
   <a href="#viraal" data-i18n="viral">Viraal</a>
   <a href="#visweer" data-i18n="weather">Visweer</a>
   <a href="#top10" data-i18n="top">Wereld Top 10</a>
+  <a href="#onderwerpen" data-i18n="topics">Onderwerpen</a>
   <a href="#regio" data-i18n="regions">Per regio</a>
+  <a href="aflevering/" class="ext" data-i18n="episode">Voorbeeldaflevering</a>
 </div></nav>
+<section class="hero" aria-labelledby="h-hero">
+  <canvas id="sea" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <p class="kicker"><i class="pulse"></i><span data-i18n="live">Elke 4 uur ververst</span></p>
+    <h1 id="h-hero" data-i18n="heroTitle">De laatste 24 uur vissen, wereldwijd</h1>
+    <div class="stats">
+      <div><b id="st-videos">0</b><span data-i18n="stVideos">nieuwe video's</span></div>
+      <div><b id="st-regions">0</b><span data-i18n="stRegions">regio's</span></div>
+      <div><b id="st-viral">0</b><span data-i18n="stViral">viraal</span></div>
+      <div><b id="st-spots">0</b><span data-i18n="stSpots">visplekken met weer</span></div>
+    </div>
+  </div>
+</section>
 <div class="demo" id="demo" hidden><div class="wrap" data-i18n="demo">Dit zijn voorbeeldgegevens. Zodra er een YouTube-sleutel is ingesteld, verschijnen hier echte video's van de laatste 24 uur.</div></div>
 
 <main>
@@ -130,6 +184,12 @@ footer .wrap{padding-block:24px 40px}
   <section class="wrap" id="top10" aria-labelledby="h-top">
     <div class="head"><h2 id="h-top" data-i18n="top">Wereld Top 10</h2><p data-i18n="topSub">Meest bekeken nieuwe visvideo's van de laatste 24 uur, per uur sinds upload.</p></div>
     <div class="grid" id="top"></div>
+  </section>
+
+  <section class="wrap" id="onderwerpen" aria-labelledby="h-topics">
+    <div class="head"><h2 id="h-topics" data-i18n="topics">Onderwerpen</h2><p data-i18n="topicsSub">Kies een onderwerp en bekijk de nieuwste video's daarover, uit alle regio's.</p></div>
+    <div class="topics" id="topicbtns"></div>
+    <div class="grid" id="topicgrid"></div>
   </section>
 
   <section class="wrap" id="regio" aria-labelledby="h-reg">
@@ -153,6 +213,9 @@ const I18N = {
     noViral:'Op dit moment gaat er geen visvideo viraal.', noVideos:"Nog geen video's gevonden. Kom over een paar uur terug.", noRegion:"Geen nieuwe video's uit deze regio in de laatste 24 uur.",
     bestSpot:'Beste stek nu: {name}, bijtscore {score}', noNews:'Geen nieuws.', loadError:'Kon de gegevens niet laden',
     moons:['Nieuwe maan','Wassende sikkel','Eerste kwartier','Wassende maan','Volle maan','Afnemende maan','Laatste kwartier','Afnemende sikkel'],
+    live:'Elke 4 uur ververst', heroTitle:'De laatste 24 uur vissen, wereldwijd', stVideos:"nieuwe video's", stRegions:"regio's", stViral:'viraal', stSpots:'visplekken met weer',
+    topics:'Onderwerpen', topicsSub:'Kies een onderwerp en bekijk de nieuwste video\'s daarover, uit alle regio\'s.', noTopic:"Vandaag geen video's over dit onderwerp.", episode:'Voorbeeldaflevering',
+    tp:{alles:'Alles', roofvis:'Roofvis', karper:'Karper', zee:'Zeevissen', vlieg:'Forel, zalm & vliegvissen', meerval:'Meerval & steur', tips:'Tips & tactiek', monsters:'Monsters & records'},
     names:{}},
   en: {language:'Language', updated:'Updated', moon:'Moon', world:'World', viral:'Viral', weather:'Fishing weather', top:'World Top 10', regions:'By region',
     demo:'This is example data. Once a YouTube key is set, real videos from the last 24 hours appear here.',
@@ -164,6 +227,9 @@ const I18N = {
     noViral:'No fishing video is going viral right now.', noVideos:'No videos found yet. Come back in a few hours.', noRegion:'No new videos from this region in the last 24 hours.',
     bestSpot:'Best spot now: {name}, bite score {score}', noNews:'No news.', loadError:'Could not load the data',
     moons:['New moon','Waxing crescent','First quarter','Waxing gibbous','Full moon','Waning gibbous','Last quarter','Waning crescent'],
+    live:'Refreshed every 4 hours', heroTitle:'The last 24 hours of fishing, worldwide', stVideos:'new videos', stRegions:'regions', stViral:'viral', stSpots:'spots with weather',
+    topics:'Topics', topicsSub:'Pick a topic and watch the newest videos about it, from every region.', noTopic:'No videos on this topic today.', episode:'Sample episode',
+    tp:{alles:'All', roofvis:'Predators', karper:'Carp', zee:'Sea fishing', vlieg:'Trout, salmon & fly fishing', meerval:'Catfish & sturgeon', tips:'Tips & tactics', monsters:'Monsters & records'},
     names:{nl:'Netherlands & Belgium','west-europa':'Western Europe',scandinavie:'Scandinavia','zuid-europa':'Southern Europe','oost-europa':'Eastern Europe','noord-europa':'Northern Europe','noord-amerika':'North America','zuid-amerika':'South & Central America',afrika:'Africa','midden-oosten-india':'Middle East & India',azie:'Asia',oceanie:'Australia & New Zealand','fc:nl':'Netherlands','fc:oceanie':'Oceania'}},
   de: {language:'Sprache', updated:'Aktualisiert', moon:'Mond', world:'Welt', viral:'Viral', weather:'Angelwetter', top:'Welt Top 10', regions:'Nach Region',
     demo:'Das sind Beispieldaten. Sobald ein YouTube-Schlüssel eingerichtet ist, erscheinen hier echte Videos der letzten 24 Stunden.',
@@ -175,6 +241,9 @@ const I18N = {
     noViral:'Im Moment geht kein Angelvideo viral.', noVideos:'Noch keine Videos gefunden. Schau in ein paar Stunden wieder vorbei.', noRegion:'Keine neuen Videos aus dieser Region in den letzten 24 Stunden.',
     bestSpot:'Bester Platz jetzt: {name}, Beißindex {score}', noNews:'Keine Neuigkeiten.', loadError:'Daten konnten nicht geladen werden',
     moons:['Neumond','Zunehmende Sichel','Erstes Viertel','Zunehmender Mond','Vollmond','Abnehmender Mond','Letztes Viertel','Abnehmende Sichel'],
+    live:'Alle 4 Stunden aktualisiert', heroTitle:'Die letzten 24 Stunden Angeln, weltweit', stVideos:'neue Videos', stRegions:'Regionen', stViral:'viral', stSpots:'Angelplätze mit Wetter',
+    topics:'Themen', topicsSub:'Wähle ein Thema und sieh dir die neuesten Videos dazu an, aus allen Regionen.', noTopic:'Heute keine Videos zu diesem Thema.', episode:'Beispielfolge',
+    tp:{alles:'Alle', roofvis:'Raubfisch', karper:'Karpfen', zee:'Meeresangeln', vlieg:'Forelle, Lachs & Fliegenfischen', meerval:'Wels & Stör', tips:'Tipps & Taktik', monsters:'Monster & Rekorde'},
     names:{nl:'Niederlande & Belgien','west-europa':'Westeuropa',scandinavie:'Skandinavien','zuid-europa':'Südeuropa','oost-europa':'Osteuropa','noord-europa':'Nordeuropa','noord-amerika':'Nordamerika','zuid-amerika':'Süd- & Mittelamerika',afrika:'Afrika','midden-oosten-india':'Naher Osten & Indien',azie:'Asien',oceanie:'Australien & Neuseeland','fc:nl':'Niederlande','fc:oceanie':'Ozeanien'}},
   fr: {language:'Langue', updated:'Mis à jour', moon:'Lune', world:'Monde', viral:'Viral', weather:'Météo pêche', top:'Top 10 mondial', regions:'Par région',
     demo:"Ce sont des données d'exemple. Dès qu'une clé YouTube est configurée, les vraies vidéos des dernières 24 heures apparaissent ici.",
@@ -186,6 +255,9 @@ const I18N = {
     noViral:"Aucune vidéo de pêche n'est virale en ce moment.", noVideos:'Pas encore de vidéos. Revenez dans quelques heures.', noRegion:'Aucune nouvelle vidéo de cette région ces dernières 24 heures.',
     bestSpot:'Meilleur spot : {name}, indice de touche {score}', noNews:'Pas de nouvelles.', loadError:'Impossible de charger les données',
     moons:['Nouvelle lune','Premier croissant','Premier quartier','Lune gibbeuse croissante','Pleine lune','Lune gibbeuse décroissante','Dernier quartier','Dernier croissant'],
+    live:'Mis à jour toutes les 4 heures', heroTitle:'Les dernières 24 heures de pêche, dans le monde', stVideos:'nouvelles vidéos', stRegions:'régions', stViral:'virales', stSpots:'spots avec météo',
+    topics:'Thèmes', topicsSub:'Choisissez un thème et regardez les dernières vidéos, de toutes les régions.', noTopic:"Pas de vidéo sur ce thème aujourd'hui.", episode:"Épisode d'exemple",
+    tp:{alles:'Tout', roofvis:'Carnassiers', karper:'Carpe', zee:'Pêche en mer', vlieg:'Truite, saumon & mouche', meerval:'Silure & esturgeon', tips:'Conseils & tactiques', monsters:'Monstres & records'},
     names:{nl:'Pays-Bas & Belgique','west-europa':"Europe de l'Ouest",scandinavie:'Scandinavie','zuid-europa':'Europe du Sud','oost-europa':"Europe de l'Est",'noord-europa':'Europe du Nord','noord-amerika':'Amérique du Nord','zuid-amerika':'Amérique du Sud & centrale',afrika:'Afrique','midden-oosten-india':'Moyen-Orient & Inde',azie:'Asie',oceanie:'Australie & Nouvelle-Zélande','fc:nl':'Pays-Bas','fc:oceanie':'Océanie'}},
   es: {language:'Idioma', updated:'Actualizado', moon:'Luna', world:'Mundo', viral:'Viral', weather:'Tiempo de pesca', top:'Top 10 mundial', regions:'Por región',
     demo:'Estos son datos de ejemplo. Cuando se configure una clave de YouTube, aquí aparecerán vídeos reales de las últimas 24 horas.',
@@ -197,6 +269,9 @@ const I18N = {
     noViral:'Ahora mismo no hay ningún vídeo de pesca viral.', noVideos:'Aún no hay vídeos. Vuelve en unas horas.', noRegion:'No hay vídeos nuevos de esta región en las últimas 24 horas.',
     bestSpot:'Mejor sitio ahora: {name}, índice de picada {score}', noNews:'Sin noticias.', loadError:'No se pudieron cargar los datos',
     moons:['Luna nueva','Luna creciente','Cuarto creciente','Gibosa creciente','Luna llena','Gibosa menguante','Cuarto menguante','Luna menguante'],
+    live:'Actualizado cada 4 horas', heroTitle:'Las últimas 24 horas de pesca, en todo el mundo', stVideos:'vídeos nuevos', stRegions:'regiones', stViral:'virales', stSpots:'sitios con tiempo',
+    topics:'Temas', topicsSub:'Elige un tema y mira los vídeos más nuevos, de todas las regiones.', noTopic:'Hoy no hay vídeos sobre este tema.', episode:'Episodio de ejemplo',
+    tp:{alles:'Todo', roofvis:'Depredadores', karper:'Carpa', zee:'Pesca en el mar', vlieg:'Trucha, salmón y mosca', meerval:'Siluro y esturión', tips:'Consejos y táctica', monsters:'Monstruos y récords'},
     names:{nl:'Países Bajos y Bélgica','west-europa':'Europa occidental',scandinavie:'Escandinavia','zuid-europa':'Europa del sur','oost-europa':'Europa del este','noord-europa':'Europa del norte','noord-amerika':'Norteamérica','zuid-amerika':'Sudamérica y Centroamérica',afrika:'África','midden-oosten-india':'Oriente Medio e India',azie:'Asia',oceanie:'Australia y Nueva Zelanda','fc:nl':'Países Bajos','fc:oceanie':'Oceanía'}},
 };
 const LOCALE = {nl:'nl-NL', en:'en-GB', de:'de-DE', fr:'fr-FR', es:'es-ES'};
@@ -244,11 +319,13 @@ function renderVideos(data) {
   document.getElementById('viral').innerHTML = viral.length
     ? viral.map(v => card(v, 0, '')).join('')
     : `<p class="empty">${t('noViral')}</p>`;
+  animateIn(document.getElementById('viral'));
   const all = data.regions.flatMap(r => r.videos.map(v => ({...v, region: rname(r.id, r.name)})));
   const top = [...all].sort((a, b) => b.score - a.score).slice(0, 10);
   document.getElementById('top').innerHTML = top.length
     ? top.map((v, i) => card(v, i + 1, v.region)).join('')
     : `<p class="empty">${t('noVideos')}</p>`;
+  animateIn(document.getElementById('top'));
 
   const tabs = document.getElementById('tabs');
   let saved = null; try { saved = localStorage.getItem('v24-region'); } catch (e) {}
@@ -260,6 +337,7 @@ function renderVideos(data) {
     document.getElementById('regiongrid').innerHTML = r.videos.length
       ? r.videos.map(v => card(v, 0, '')).join('')
       : `<p class="empty">${t('noRegion')}</p>`;
+    animateIn(document.getElementById('regiongrid'));
     try { localStorage.setItem('v24-region', id); } catch (e) {}
   };
   tabs.onclick = e => { const b = e.target.closest('.tab'); if (b) show(b.dataset.r); };
@@ -307,7 +385,85 @@ function tickClock() {
 }
 tickClock(); setInterval(tickClock, 30000);
 
-let DATA = null;
+const calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reveal = ('IntersectionObserver' in window && !calm) ? new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.remove('pre'); reveal.unobserve(e.target); }
+}), {rootMargin: '0px 0px -8% 0px'}) : null;
+// Cards slide in the first time they scroll into view.
+function animateIn(el) {
+  if (!reveal) return;
+  el.querySelectorAll('.card').forEach((c, i) => { c.classList.add('pre'); c.style.transitionDelay = Math.min(i, 6) * 50 + 'ms'; reveal.observe(c); });
+}
+function countUp(id, to) {
+  const el = document.getElementById(id); if (!el) return;
+  if (calm) { el.textContent = fmt.format(to); return; }
+  const t0 = performance.now(), dur = 900;
+  const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt.format(Math.round(to * e)); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+
+// Topics: sorted by words in the title, so it works in many languages.
+const TOPICS = [
+  {id:'roofvis', color:'#2f8a4a', words:['snoek','snoekbaars','baars','roofvis','pike','zander','perch','bass','musky','muskie','walleye','hecht','barsch','raubfisch','brochet','sandre','carnassier','lucio','щук','судак','окун','gädda','abborre','gös','snakehead','gabus','toman','predator','szczupak','sandacz']},
+  {id:'karper', color:'#c99a2e', words:['karper','carp','karpfen','carpe','carpa','карп','карас','boilie','brasem','bream','feeder']},
+  {id:'zee', color:'#2a7f9e', words:['zee','sea ','sea-','seabass','zeebaars','tuna','tonijn','atún','marlin','shark','haai','tarpon','snapper','halibut','heilbot','cod ','kabeljauw','offshore','surfcasting','kingfish','trevally','deep sea','ocean','laut','mar ','meer ','havfiske','boat','lubina','dorada','mackerel','makreel']},
+  {id:'vlieg', color:'#6b5b95', words:['fly fishing','flyfishing','vliegvis','trout','forel','salmon','zalm','lachs','forelle','truite','trucha','mosca','fliegenfisch','laks','lax','öring','форел']},
+  {id:'meerval', color:'#8a5a2b', words:['meerval','catfish','wels','siluro','silure','сом','steur','sturgeon','stör','lele','patin']},
+  {id:'tips', color:'#e8571c', words:['how to','tips','tutorial','uitgelegd','uitleg','trucos','truco','cómo','como ','rig','montage','knot','knoop','lure','kunstaas','bait','review','test','anleitung','tipp','astuce','dica','techni','tactic','method','metode']},
+  {id:'monsters', color:'#d7263d', words:['monster','giant','gigant','record','huge','biggest','xxl','dikke','enorme','géant','riesen','reuzen','巨','raksasa','babon','jumbo']},
+];
+let topicNow = 'alles';
+function renderTopics(data) {
+  const seen = new Set(), all = [];
+  [...data.regions.flatMap(r => r.videos), ...(data.viral || [])].forEach(v => { const k = v.id || v.title; if (!seen.has(k)) { seen.add(k); all.push(v); } });
+  all.sort((a, b) => b.score - a.score);
+  const inTopic = (v, tp) => { const x = ' ' + v.title.toLowerCase() + ' '; return tp.words.some(w => x.includes(w)); };
+  const lists = {alles: all}; TOPICS.forEach(tp => { lists[tp.id] = all.filter(v => inTopic(v, tp)); });
+  const btns = document.getElementById('topicbtns'), grid = document.getElementById('topicgrid');
+  const defs = [{id:'alles', color:'#0b4f6c'}, ...TOPICS];
+  btns.innerHTML = defs.map(tp => `<button class="topic" style="--tc:${tp.color}" data-t="${tp.id}" aria-pressed="${tp.id === topicNow}">${esc(t('tp')[tp.id])}<small>${lists[tp.id].length}</small></button>`).join('');
+  const show = id => {
+    topicNow = id;
+    btns.querySelectorAll('.topic').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === id));
+    const vids = lists[id].slice(0, 12);
+    grid.innerHTML = vids.length ? vids.map(v => card(v, 0, '')).join('') : `<p class="empty">${t('noTopic')}</p>`;
+    animateIn(grid);
+  };
+  btns.onclick = e => { const b = e.target.closest('.topic'); if (b) show(b.dataset.t); };
+  show(topicNow);
+}
+
+// Hero: slow underwater light and bubbles. Pauses when out of view.
+(function sea() {
+  const c = document.getElementById('sea'); if (!c) return;
+  const x = c.getContext('2d'); let w = 0, h = 0, on = true, tt = 0;
+  const rnd = i => { const v = Math.sin(i * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+  const size = () => { const r = c.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); w = c.width = Math.max(1, r.width * d); h = c.height = Math.max(1, r.height * d); };
+  function draw() {
+    const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#0d5a78'); g.addColorStop(.5, '#083a4f'); g.addColorStop(1, '#03131b');
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+    x.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 7; i++) {
+      const px = w * (.08 + i * .15) + Math.sin(tt * .5 + i) * w * .03, pw = w * (.03 + rnd(i) * .05);
+      const gr = x.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, `rgba(150,215,240,${.11 + .05 * Math.sin(tt * 1.1 + i * 2)})`); gr.addColorStop(1, 'rgba(150,215,240,0)');
+      x.fillStyle = gr; x.beginPath(); x.moveTo(px - pw / 2, 0); x.lineTo(px + pw / 2, 0); x.lineTo(px + pw * 1.6 + w * .09, h); x.lineTo(px - pw * .4 + w * .09, h); x.closePath(); x.fill();
+    }
+    x.globalCompositeOperation = 'source-over';
+    for (let i = 0; i < 34; i++) {
+      const sp = h * (.08 + rnd(i + 70) * .12), y = h + 20 - ((tt * sp + rnd(i + 30) * h * 1.3) % (h * 1.3));
+      const bx = rnd(i + 20) * w + Math.sin(tt * 2.5 + i) * 8, r = (2 + rnd(i + 50) * 6) * (w > 900 ? 1.4 : 1);
+      x.strokeStyle = 'rgba(220,245,255,.45)'; x.lineWidth = 1.5; x.beginPath(); x.arc(bx, y, r, 0, 7); x.stroke();
+    }
+    const v = x.createLinearGradient(0, 0, w, 0); v.addColorStop(0, 'rgba(3,15,22,.72)'); v.addColorStop(.6, 'rgba(3,15,22,.15)'); v.addColorStop(1, 'rgba(3,15,22,.4)');
+    x.fillStyle = v; x.fillRect(0, 0, w, h);
+    tt += .016; if (on && !calm) requestAnimationFrame(draw);
+  }
+  size(); addEventListener('resize', () => { size(); if (calm || !on) draw(); });
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => { const was = on; on = es[0].isIntersecting; if (on && !was && !calm) requestAnimationFrame(draw); }).observe(c);
+  draw();
+})();
+
+let DATA = null, counted = false;
 function applyStatic() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
@@ -318,11 +474,19 @@ function renderAll() {
   applyStatic();
   if (!DATA) return;
   const top = renderVideos(DATA.videos);
+  renderTopics(DATA.videos);
   if (DATA.fc) renderForecast(DATA.fc);
+  if (!counted) {
+    counted = true;
+    countUp('st-videos', DATA.videos.regions.reduce((n, r) => n + r.videos.length, 0));
+    countUp('st-regions', DATA.videos.regions.filter(r => r.videos.length).length);
+    countUp('st-viral', (DATA.videos.viral || []).length);
+    countUp('st-spots', DATA.fc ? (DATA.fc.groups || [{spots: DATA.fc.spots}]).reduce((n, g) => n + g.spots.length, 0) : 0);
+  }
   renderTicker(top, DATA.fc, DATA.videos.viral);
 }
 // Highlight the menu item of the section you are looking at.
-const links = [...document.querySelectorAll('.menu a')];
+const links = [...document.querySelectorAll('.menu a[href^="#"]')];
 if ('IntersectionObserver' in window) {
   const seen = new IntersectionObserver(es => es.forEach(e => {
     if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
