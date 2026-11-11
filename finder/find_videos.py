@@ -51,7 +51,7 @@ SEARCHES = [
     {"q": "fishing tuna|marlin|shark|tarpon|snapper|halibut|kingfish|trevally", "lang": "en", "region": "noord-amerika"},
     {"q": "angeln|pêche|fiske|wędkarstwo|pescuit|rybolov|kalastus|рыбалка", "lang": None, "region": "europa"},
     {"q": "pesca tucunaré|dourado|robalo|dorado|pargo|atún|trucha|tilapia", "lang": None, "region": "zuid-amerika"},
-    {"q": "釣り|낚시|ตกปลา|mancing|钓鱼|câu", "lang": None, "region": "azie"},
+    {"q": "釣り|낚시|ตกปลา|mancing|钓鱼|memancing", "lang": None, "region": "azie"},
     {"q": "fishing mahseer|india|kerala|oman|dubai|pakistan|bangladesh", "lang": None, "region": "midden-oosten-india"},
     {"q": "fishing africa|zambezi|tigerfish|namibia|kenya|nigeria|mozambique|tanzania", "lang": None, "region": "afrika"},
     {"q": "fishing australia|queensland|barramundi|murray|zealand|tasmania|darwin", "lang": "en", "region": "oceanie"},
@@ -75,11 +75,19 @@ for _rid, _codes in {
         COUNTRY_REGION[_c] = _rid
 
 # Keep out things that are not real fishing: games, music, live streams, cartoons.
-BLOCKED_CATEGORIES = {"10", "20"}          # Music, Gaming
+BLOCKED_CATEGORIES = {"10", "20", "25"}    # Music, Gaming, News
 BLOCKED_WORDS = ["roblox", "minecraft", "fortnite", "gta", "gameplay", "simulator", "fisch ",
                  "cartoon", "nursery", "lyrics", "asmr", "live stream", "livestream", "🔴",
                  "aquarium", "mukbang", "recipe", "cooking", "anime", "lego", "playstation",
                  "xbox", "nintendo", "pokemon", "pokémon", "stardew", "wow classic", "genshin"]
+# A video must mention fishing in its title or tags, in any of these languages.
+FISHING_WORDS = ["fishing", "fisher", "angler", "angling", "vissen", "visser", "hengel", "snoek",
+                 "karper", "baars", "meerval", "steur", "roofvis", "angeln", "angler", "zander",
+                 "hecht", "karpfen", "pêche", "pesca", "pescar", "fiske", "wędkar", "pescuit",
+                 "rybolov", "kalastus", "рыбал", "釣", "낚시", "ตกปลา", "mancing", "钓", "câu cá",
+                 "cauca", "मछली", "মাছ", "bass", "pike", "carp", "trout", "salmon", "walleye",
+                 "musky", "catfish", "tuna", "marlin", "tarpon", "barramundi", "trevally", "lure"]
+
 MAX_SECONDS = 3 * 3600                     # longer is almost always a (former) live stream
 
 # Dutch fishing spots for the forecast.
@@ -131,8 +139,25 @@ def is_fishing_video(v):
         return False
     if sn.get("liveBroadcastContent", "none") != "none":
         return False
-    text = (sn.get("title", "") + " " + " ".join(sn.get("tags", [])[:15])).lower()
-    return not any(w in text for w in BLOCKED_WORDS)
+    text = (sn.get("title", "") + " " + " ".join(sn.get("tags", [])[:25])).lower()
+    if any(w in text for w in BLOCKED_WORDS):
+        return False
+    return any(w in text for w in FISHING_WORDS)
+
+
+def region_from_script(title):
+    """Guess a region from the alphabet of the title, for makers with no country set."""
+    for ch in title:
+        o = ord(ch)
+        if 0x3040 <= o <= 0x30FF or 0x4E00 <= o <= 0x9FFF or 0xAC00 <= o <= 0xD7AF or 0x0E00 <= o <= 0x0E7F:
+            return "azie"                      # Japanese, Chinese, Korean, Thai
+        if 0x1EA0 <= o <= 0x1EF9 or ch in "ơưăđƠƯĂĐ":
+            return "azie"                      # Vietnamese
+        if 0x0900 <= o <= 0x0DFF or 0x0600 <= o <= 0x06FF:
+            return "midden-oosten-india"       # Indian scripts, Arabic
+        if 0x0400 <= o <= 0x04FF:
+            return "europa"                    # Cyrillic
+    return None
 
 
 def chunks(items, n=50):
@@ -226,7 +251,8 @@ def find_all(key, now):
     countries = channel_countries([v["channelId"] for v in videos], key)
     by_region = {r["id"]: [] for r in REGIONS}
     for v in videos:
-        region = COUNTRY_REGION.get(countries.get(v["channelId"], ""), fallback[v["id"]])
+        region = (COUNTRY_REGION.get(countries.get(v["channelId"], ""))
+                  or region_from_script(v["title"]) or fallback[v["id"]])
         by_region[region].append(v)
     for rid in by_region:
         by_region[rid] = sorted(by_region[rid], key=lambda v: v["score"], reverse=True)[:PER_REGION]
