@@ -54,8 +54,8 @@ select{background:var(--panel);color:var(--fg);border:1px solid var(--line);bord
 <div class="wrap">
   <a href="../" style="color:#ffb48f;font-weight:600;text-decoration:none">← Terug naar Vangst24</a>
   <header>
-    <h1>Vangst<b>24</b> · Voorbeeldaflevering</h1>
-    <p>Voorbeeldaflevering en huisstijl. Druk op Afspelen; het geluid start pas na een klik.</p>
+    <h1>Vangst<b>24</b> · Aflevering van vandaag</h1>
+    <p><span id="datalabel">Met voorbeeldgegevens.</span> Druk op Afspelen; het geluid start pas na een klik.</p>
   </header>
 
   <div class="monitor">
@@ -85,7 +85,7 @@ select{background:var(--panel);color:var(--fg);border:1px solid var(--line);bord
   </div>
 
   <div class="notes">
-    <div class="note"><span class="k">Aflevering · 59 s</span><h2>Voorbeeldaflevering</h2><p>Intro, vangst #1 met vangstkaart, de tactiek uitgelegd onder water, het visweer en de afsluiting. De ondertiteling laat zien wat de presentator zegt.</p></div>
+    <div class="note"><span class="k">Aflevering · 59 s</span><h2>Aflevering van vandaag</h2><p>Intro, de topvideo uit Nederland en België met echte cijfers, de tactiek van de dag onder water, het echte visweer en de afsluiting. De ondertiteling laat zien wat de presentator zegt.</p></div>
     <div class="note"><span class="k">Intro · 10 s</span><h2>Opening</h2><p>Onder water komt een shad voorbij. Daarna draait de wereld rond terwijl de klok 24 uur doorloopt en de visplekken oplichten. Tot slot verschijnt het logo met een plons.</p></div>
     <div class="note"><span class="k">Overgang · 3 s</span><h2>Tussen onderdelen</h2><p>Een korte overgang met eigen kleur per onderdeel van het uur, zodat kijkers meteen zien waar ze zitten.</p></div>
     <div class="note"><span class="k">In beeld</span><h2>Tijdens een vangst</h2><p>Logo, naambalk, vangstkaart met de gegevens en de nieuwsbalk. De vangst en gegevens zijn voorbeelden.</p></div>
@@ -357,8 +357,39 @@ function lakeFootage(ctx, t){
   vignette(ctx, .5);
 }
 
+// ---------- live data from the site (falls back to the example when it cannot be loaded)
+let LIVE = null;
+const fitText = (ctx, text, max) => { let x = text; while (x.length > 4 && ctx.measureText(x).width > max) x = x.slice(0, -2); return x === text ? x : x.trimEnd() + '…'; };
+const nf = n => new Intl.NumberFormat('nl-NL').format(n);
+const hoursAgo = iso => Math.max(1, Math.round((Date.now() - new Date(iso)) / 36e5));
+const mmss = sec => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+function loadLive(){
+  if (location.protocol === 'file:') return;
+  Promise.all([fetch('../data/videos.json', {cache:'no-cache'}).then(r => r.json()), fetch('../data/forecast.json', {cache:'no-cache'}).then(r => r.json()).catch(() => null)])
+    .then(([v, fc]) => {
+      if (!v || v.demo) return;
+      const nl = (v.regions.find(r => r.id === 'nl') || {videos: []}).videos;
+      const all = v.regions.flatMap(r => r.videos.map(x => ({...x, region: r.name})));
+      const top = nl.length ? {...nl[0], region: 'Nederland & België'} : [...all].sort((x, y) => y.score - x.score)[0];
+      if (!top) return;
+      const news = v.regions.filter(r => r.id !== 'nl' && r.videos.length).map(r => `${r.name.toUpperCase()}: ${r.videos[0].title.replace(/#\S+/g, '').replace(/\s+/g, ' ').trim().slice(0, 70)}`);
+      LIVE = {top, news, fc: fc && !fc.demo && fc.spots && fc.spots.length ? fc : null, img: null};
+      if (top.thumb){ const im = new Image(); im.onload = () => { LIVE.img = im; }; im.src = top.thumb; }
+      buildSubs();
+      const lab = document.getElementById('datalabel'); if (lab) lab.textContent = 'Met de echte gegevens van vandaag. Ververst elke 4 uur.';
+    }).catch(() => {});
+}
+
 function graphics(ctx, t){
-  lakeFootage(ctx, t);
+  const L = LIVE;
+  if (L && L.img){
+    // the video's own thumbnail as the picture, cropped to 16:9, slowly zooming
+    const im = L.img, sw = im.naturalWidth, sh = sw * 9 / 16, sy = (im.naturalHeight - sh) / 2, z = 1.04 + t * .004;
+    ctx.fillStyle = '#04121a'; ctx.fillRect(0, 0, W, H);
+    ctx.drawImage(im, 0, Math.max(0, sy), sw, Math.min(sh, im.naturalHeight), W/2 - W*z/2, H/2 - H*z/2, W*z, H*z);
+    const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(4,18,26,.55)'); g.addColorStop(.35, 'rgba(4,18,26,.1)'); g.addColorStop(1, 'rgba(4,18,26,.75)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  } else lakeFootage(ctx, t);
   logoMark(ctx, 80, 120, 64, 1);
   // live chip
   ctx.save(); ctx.font = `700 24px ${MONO}`; const lw = ctx.measureText('LAATSTE 24 UUR').width;
@@ -366,48 +397,57 @@ function graphics(ctx, t){
   ctx.fillStyle = `rgba(255,59,48,${.55+.45*Math.cos(t*4.5)})`; ctx.beginPath(); ctx.arc(W-120-lw-18, 87, 9, 0, 7); ctx.fill();
   ctx.fillStyle = C.white; ctx.fillText('LAATSTE 24 UUR', W-120-lw+2, 96); ctx.restore();
   // rank chip
+  const chip = L ? 'NEDERLAND & BELGIË · #1' : 'WERELD TOP 10 · #1';
   const kr = easeOut(prog(t,.2,.6));
-  ctx.save(); ctx.globalAlpha = kr; ctx.font = `800 40px ${DISPLAY}`; const rw = ctx.measureText('WERELD TOP 10 · #1').width + 32;
+  ctx.save(); ctx.globalAlpha = kr; ctx.font = `800 40px ${DISPLAY}`; const rw = ctx.measureText(chip).width + 32;
   ctx.fillStyle = C.orange; roundRect(ctx, 80, 160, rw, 58, 4); ctx.fill();
-  ctx.fillStyle = '#fff'; ctx.fillText('WERELD TOP 10 · #1', 96, 204); ctx.restore();
+  ctx.fillStyle = '#fff'; ctx.fillText(chip, 96, 204); ctx.restore();
   // lower third
   const x = 96, k1 = easeOut(prog(t,.3,.8)), k2 = easeOut(prog(t,.45,1.05)), k3 = easeOut(prog(t,.6,1.2));
+  const tag = L ? 'VIDEO VAN DE DAG' : 'VANGST VAN DE DAG';
   ctx.save();
-  ctx.font = `700 30px ${DISPLAY}`; ctx.letterSpacing = '3px'; const tagW = ctx.measureText('VANGST VAN DE DAG').width + 36;
+  ctx.font = `700 30px ${DISPLAY}`; ctx.letterSpacing = '3px'; const tagW = ctx.measureText(tag).width + 36;
   ctx.beginPath(); ctx.rect(x, 700, tagW*k1, 46); ctx.clip(); ctx.fillStyle = C.orange; ctx.fillRect(x,700,tagW,46);
-  ctx.fillStyle = '#fff'; ctx.fillText('VANGST VAN DE DAG', x+18, 734); ctx.restore();
-  ctx.save(); ctx.font = `800 76px ${DISPLAY}`; const nameW = ctx.measureText('SNOEK 118 CM · HARINGVLIET').width + 48;
+  ctx.fillStyle = '#fff'; ctx.fillText(tag, x+18, 734); ctx.restore();
+  ctx.save(); ctx.font = `800 ${L ? 60 : 76}px ${DISPLAY}`;
+  const name = L ? fitText(ctx, L.top.title.replace(/#\S+/g, '').replace(/\s+/g, ' ').trim().toUpperCase(), 1150) : 'SNOEK 118 CM · HARINGVLIET';
+  const nameW = ctx.measureText(name).width + 48;
   ctx.beginPath(); ctx.rect(x, 746, nameW*k2, 96); ctx.clip(); ctx.fillStyle = 'rgba(6,22,31,.92)'; ctx.fillRect(x,746,nameW,96);
-  ctx.fillStyle = C.white; ctx.fillText('SNOEK 118 CM · HARINGVLIET', x+24, 820); ctx.restore();
-  ctx.save(); ctx.font = `500 26px ${MONO}`; const meta = 'Shad 23 cm · 6 m diep · water 9 °C · gisteren 16:20'; const metaW = ctx.measureText(meta).width + 40;
+  ctx.fillStyle = C.white; ctx.fillText(name, x+24, L ? 814 : 820); ctx.restore();
+  ctx.save(); ctx.font = `500 26px ${MONO}`;
+  const meta = L ? fitText(ctx, `${L.top.channel} · ${nf(L.top.views)} views · ${hoursAgo(L.top.published)} uur geleden`, 1150) : 'Shad 23 cm · 6 m diep · water 9 °C · gisteren 16:20';
+  const metaW = ctx.measureText(meta).width + 40;
   ctx.beginPath(); ctx.rect(x, 842, metaW*k3, 46); ctx.clip(); ctx.fillStyle = C.white; ctx.fillRect(x,842,metaW,46);
   ctx.fillStyle = C.ink; ctx.fillText(meta, x+20, 874); ctx.restore();
-  // catch card
+  // card: real facts about the video, or the example catch card
   const kc = easeOut(prog(t, 1.0, 1.5)), cx = lerp(W+40, W-500, kc), cy = 196;
-  const rows = [['VIS','Snoek'],['LENGTE','118 cm'],['GEWICHT','± 14 kg'],['AAS','Shad 23 cm'],['DIEPTE','6 m'],['WATER','9 °C'],['LUCHTDRUK','1006 hPa ↓'],['TIJD','16:20']];
+  const rows = L ? [['KANAAL', L.top.channel], ['REGIO', L.top.region], ['VIEWS', nf(L.top.views)], ['PER UUR', nf(L.top.views_per_hour || Math.round(L.top.views / hoursAgo(L.top.published)))], ['GEÜPLOAD', `${hoursAgo(L.top.published)} uur geleden`], ['DUUR', mmss(L.top.seconds)]]
+    : [['VIS','Snoek'],['LENGTE','118 cm'],['GEWICHT','± 14 kg'],['AAS','Shad 23 cm'],['DIEPTE','6 m'],['WATER','9 °C'],['LUCHTDRUK','1006 hPa ↓'],['TIJD','16:20']];
   ctx.save(); ctx.fillStyle = 'rgba(6,22,31,.88)'; roundRect(ctx, cx, cy, 420, 96 + rows.length*54, 6); ctx.fill();
   ctx.fillStyle = C.orange; ctx.fillRect(cx, cy, 420, 8);
-  ctx.font = `800 40px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('VANGSTKAART', cx+28, cy+66);
+  ctx.font = `800 40px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText(L ? 'VIDEOKAART' : 'VANGSTKAART', cx+28, cy+66);
   rows.forEach(([k,v],i) => {
     const kk = prog(t, 1.25 + i*.07, 1.55 + i*.07); ctx.globalAlpha = kk; const ry = cy + 120 + i*54;
     ctx.font = `500 22px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText(k, cx+28, ry);
-    ctx.font = `700 32px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.textAlign = 'right'; ctx.fillText(v, cx+392, ry+2); ctx.textAlign = 'left';
+    ctx.font = `700 32px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.textAlign = 'right'; ctx.fillText(fitText(ctx, String(v), 250), cx+392, ry+2); ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(cx+28, ry+16, 364, 1); ctx.globalAlpha = 1;
   });
   ctx.restore();
   // ticker
   const ty = H - 120, th = 72;
   ctx.fillStyle = C.white; ctx.fillRect(0, ty, W, th);
-  const items = 'NOORWEGEN: heilbot 2,1 m bij Senja   •   FLORIDA: tarpon-trek gestart in Boca Grande   •   IJSSELMEER: snoekbaars bijt op 4–5 m bij Urk   •   ZAMBEZI: tigerfish actief bij zonsopkomst   •   AUSTRALIË: Murray cod-seizoen open   •   MORGEN NL: ZW 3, bewolkt, luchtdruk dalend   •   ';
+  const items = L && L.news.length ? L.news.join('   •   ') + '   •   '
+    : 'NOORWEGEN: heilbot 2,1 m bij Senja   •   FLORIDA: tarpon-trek gestart in Boca Grande   •   IJSSELMEER: snoekbaars bijt op 4–5 m bij Urk   •   ZAMBEZI: tigerfish actief bij zonsopkomst   •   AUSTRALIË: Murray cod-seizoen open   •   MORGEN NL: ZW 3, bewolkt, luchtdruk dalend   •   ';
   ctx.save(); ctx.beginPath(); ctx.rect(0, ty, W, th); ctx.clip();
   ctx.font = `600 36px ${DISPLAY}`; const iw = ctx.measureText(items).width; let off = 260 - ((t*170) % iw);
-  ctx.fillStyle = C.ink; for (let k=0;k<3;k++) ctx.fillText(items, off + k*iw, ty+48);
+  ctx.fillStyle = C.ink; for (let k=0; k<3 && off + k*iw < W; k++) ctx.fillText(items, off + k*iw, ty+48);
   ctx.restore();
   ctx.fillStyle = C.orange; ctx.fillRect(0, ty, 220, th);
   ctx.font = `800 40px ${DISPLAY}`; ctx.fillStyle = '#fff'; ctx.fillText('WERELD', 48, ty+51);
   // clock
+  const clock = L ? new Date().toLocaleTimeString('nl-NL', {timeZone:'Europe/Amsterdam', hour:'2-digit', minute:'2-digit'}) : '20:14';
   ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(W-80-176, 124, 176, 50);
-  ctx.font = `700 26px ${MONO}`; ctx.fillStyle = C.white; ctx.fillText('NL 20:14', W-80-156, 158);
+  ctx.font = `700 26px ${MONO}`; ctx.fillStyle = C.white; ctx.fillText('NL ' + clock, W-80-156, 158);
 }
 
 // ---------- tactic: cross-section of a drop-off
@@ -493,29 +533,44 @@ function tactic(ctx, t){
 }
 
 // ---------- forecast
-const SPOT_FC = [
+const SPOT_EX = [
   { n:'IJsselmeer (Urk)', s:9.5, w:'ZW 3', p:'-3,2', tmp:'9 °C' }, { n:'Friese meren', s:9.5, w:'W 3', p:'-3,5', tmp:'9 °C' },
   { n:'Haringvliet', s:9.5, w:'ZW 4', p:'-2,6', tmp:'10 °C' }, { n:'Noordzeekust', s:8.5, w:'ZW 5', p:'-3,0', tmp:'10 °C' },
   { n:'Maas (Roermond)', s:7.5, w:'Z 2', p:'-1,4', tmp:'8 °C' },
 ];
+const nlNum = x => String(x).replace('.', ',');
+function fcInfo(){
+  const fc = LIVE && LIVE.fc;
+  if (!fc) return { spots: SPOT_EX, moon: 'NIEUWE MAAN', phase: .03, trend: 'DALEND ↓', trendWord: 'dalende', verdict: 'GOED ROOFVISWEER', good: true, wind: 'zuidwestenwind' };
+  const sorted = [...fc.spots].sort((a, b) => b.score - a.score).slice(0, 5);
+  const spots = sorted.map(s => ({ n: s.name, s: s.score, w: `${s.wind_dir} ${s.bft}`, p: (s.pressure_change > 0 ? '+' : '') + nlNum(s.pressure_change), tmp: `${nlNum(Math.round(s.temp))} °C` }));
+  const avgP = fc.spots.reduce((n, s) => n + s.pressure_change, 0) / fc.spots.length, avgS = fc.spots.reduce((n, s) => n + s.score, 0) / fc.spots.length;
+  const trend = avgP <= -1 ? 'DALEND ↓' : avgP >= 1 ? 'STIJGEND ↑' : 'STABIEL →', trendWord = avgP <= -1 ? 'dalende' : avgP >= 1 ? 'stijgende' : 'stabiele';
+  const verdict = avgS >= 7.5 ? 'GOED ROOFVISWEER' : avgS >= 5 ? 'REDELIJK VISWEER' : 'LASTIG VISWEER';
+  const names = {N:'noordenwind', NO:'noordoostenwind', O:'oostenwind', ZO:'zuidoostenwind', Z:'zuidenwind', ZW:'zuidwestenwind', W:'westenwind', NW:'noordwestenwind'};
+  const dirs = {}; fc.spots.forEach(s => { dirs[s.wind_dir] = (dirs[s.wind_dir] || 0) + 1; });
+  const main = Object.keys(dirs).sort((a, b) => dirs[b] - dirs[a])[0];
+  return { spots, moon: fc.moon.toUpperCase(), phase: fc.moon_phase, trend, trendWord, verdict, good: avgP <= -1, wind: names[main] || 'weinig wind' };
+}
 function forecastScene(ctx, t){
+  const F = fcInfo();
   underwater(ctx, t, .62);
   logoMark(ctx, 80, 110, 56, 1);
   const kh = easeOut(prog(t,.1,.6));
   ctx.save(); ctx.globalAlpha = kh;
-  ctx.font = `800 84px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('VISWEER · KOMENDE 24 UUR', 80, 220);
+  ctx.font = `800 84px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText(LIVE && LIVE.fc ? 'VISWEER · NU IN NEDERLAND' : 'VISWEER · KOMENDE 24 UUR', 80, 220);
   ctx.font = `500 26px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText('BIJTSCORE ROOFVIS · VUISTREGEL', 84, 268); ctx.restore();
   const x0 = 80, y0 = 330, rowH = 112;
-  SPOT_FC.forEach((s,i) => {
+  F.spots.forEach((s,i) => {
     const k = easeOut(prog(t, .5 + i*.18, 1.0 + i*.18)), y = y0 + i*rowH;
     ctx.save(); ctx.globalAlpha = k; ctx.translate((1-k)*-80, 0);
     ctx.fillStyle = i === 0 ? 'rgba(232,87,28,.22)' : 'rgba(6,22,31,.8)'; roundRect(ctx, x0, y, 1260, rowH-16, 6); ctx.fill();
-    ctx.font = `700 44px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText(s.n.toUpperCase(), x0+28, y+62);
+    ctx.font = `700 44px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText(fitText(ctx, s.n.toUpperCase(), 360), x0+28, y+62);
     ctx.font = `500 26px ${MONO}`; ctx.fillStyle = '#b9ccd4'; ctx.fillText(`${s.tmp}   ${s.w} Bft   ${s.p} hPa`, x0+430, y+58);
     const bw = 230, bx = x0+900, kb = easeInOut(prog(t, 1.0 + i*.18, 2.2 + i*.18));
     ctx.fillStyle = 'rgba(255,255,255,.12)'; roundRect(ctx, bx, y+34, bw, 22, 11); ctx.fill();
-    ctx.fillStyle = s.s >= 9 ? '#5cc27a' : s.s >= 7 ? '#e0b54a' : '#e2706a'; roundRect(ctx, bx, y+34, Math.max(22, bw*s.s/10*kb), 22, 11); ctx.fill();
-    ctx.font = `800 48px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.textAlign = 'right'; ctx.fillText((s.s*kb).toFixed(1), x0+1240, y+64); ctx.textAlign = 'left';
+    ctx.fillStyle = s.s >= 7 ? '#5cc27a' : s.s >= 4.5 ? '#e0b54a' : '#e2706a'; roundRect(ctx, bx, y+34, Math.max(22, bw*s.s/10*kb), 22, 11); ctx.fill();
+    ctx.font = `800 48px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.textAlign = 'right'; ctx.fillText(nlNum((s.s*kb).toFixed(1)), x0+1240, y+64); ctx.textAlign = 'left';
     ctx.restore();
   });
   // moon + summary panel
@@ -523,12 +578,17 @@ function forecastScene(ctx, t){
   ctx.save(); ctx.globalAlpha = km;
   ctx.fillStyle = 'rgba(6,22,31,.85)'; roundRect(ctx, px, py, 420, 544, 6); ctx.fill();
   ctx.font = `500 24px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText('MAAN', px+30, py+50);
-  ctx.fillStyle = '#e8eef0'; ctx.beginPath(); ctx.arc(px+210, py+160, 80, 0, 7); ctx.fill();
-  ctx.fillStyle = '#0d1c25'; ctx.beginPath(); ctx.arc(px+210+18, py+160, 80, 0, 7); ctx.fill();
-  ctx.font = `700 40px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.textAlign = 'center'; ctx.fillText('NIEUWE MAAN', px+210, py+290);
+  // lit part of the moon from its phase (0 new, .5 full)
+  const mx = px+210, my = py+160, R = 80, ph = F.phase, lit = (1 - Math.cos(2*Math.PI*ph)) / 2, waxing = ph < .5;
+  ctx.fillStyle = '#22343f'; ctx.beginPath(); ctx.arc(mx, my, R, 0, 7); ctx.fill();
+  ctx.fillStyle = '#e8eef0'; ctx.beginPath();
+  ctx.arc(mx, my, R, -Math.PI/2, Math.PI/2, !waxing);
+  ctx.ellipse(mx, my, Math.abs(1 - 2*lit) * R, R, 0, Math.PI/2, -Math.PI/2, lit > .5 ? !waxing : waxing);
+  ctx.fill();
+  ctx.font = `700 40px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.textAlign = 'center'; ctx.fillText(F.moon, px+210, py+290);
   ctx.font = `500 24px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText('LUCHTDRUK', px+210, py+370);
-  ctx.font = `800 64px ${DISPLAY}`; ctx.fillStyle = '#5cc27a'; ctx.fillText('DALEND ↓', px+210, py+440);
-  ctx.font = `600 30px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('GOED ROOFVISWEER', px+210, py+500);
+  ctx.font = `800 64px ${DISPLAY}`; ctx.fillStyle = F.good ? '#5cc27a' : '#e0b54a'; ctx.fillText(F.trend, px+210, py+440);
+  ctx.font = `600 30px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText(F.verdict, px+210, py+500);
   ctx.textAlign = 'left'; ctx.restore();
 }
 
@@ -541,11 +601,11 @@ function outro(ctx, t){
   const w = ctx.measureText('VANGST').width + 200*.08 + ctx.measureText('24').width + 200*.28;
   logoMark(ctx, (W-w)/2, 430 + (1-k)*40, 200, 1);
   ctx.textAlign = 'center';
-  ctx.font = `700 60px ${DISPLAY}`; ctx.fillStyle = C.orange; ctx.fillText('STUUR JE VANGST IN', W/2, 590);
-  ctx.font = `500 32px ${MONO}`; ctx.fillStyle = 'rgba(230,240,245,.9)'; ctx.fillText('Foto of video · soort · lengte · water · aas', W/2, 650);
+  ctx.font = `700 60px ${DISPLAY}`; ctx.fillStyle = C.orange; ctx.fillText('DEEL JE VANGST MET #VANGST24', W/2, 590);
+  ctx.font = `500 32px ${MONO}`; ctx.fillStyle = 'rgba(230,240,245,.9)'; ctx.fillText('Zet je video op YouTube met #vangst24 in de titel', W/2, 650);
   const k2 = easeOut(prog(t, 1.2, 1.8)); ctx.globalAlpha = k2;
   ctx.fillStyle = 'rgba(6,22,31,.85)'; roundRect(ctx, W/2-430, 730, 860, 110, 6); ctx.fill();
-  ctx.font = `700 50px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('MORGEN 20:00 · VANGST VAN DE DAG', W/2, 803);
+  ctx.font = `700 50px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('ELKE 4 UUR NIEUW · VANGST24', W/2, 803);
   ctx.textAlign = 'left'; ctx.restore();
   const f = prog(t, 5.3, 6); if (f>0){ ctx.fillStyle = `rgba(0,0,0,${f})`; ctx.fillRect(0,0,W,H); }
 }
@@ -558,17 +618,30 @@ const EPISODE = [
 ];
 DUR.episode = EPISODE.reduce((a,p) => a + p.d, 0);
 DUR.tactic = 12; DUR.forecast = 10; DUR.outro = 6;
-const SUBS = [
-  [13.6, 17.6, 'Nummer één komt uit eigen water: een snoek van 118 centimeter in het Haringvliet.'],
-  [17.9, 21.9, 'Gisteren om kwart over vier. Water van negen graden en een dalende luchtdruk.'],
-  [22.1, 24.8, 'Na de foto mocht ze meteen terug.'],
-  [28.6, 32.2, 'Hoe deed hij het? Een grote shad, langzaam langs de rand van de talud.'],
-  [32.5, 36.2, 'Optillen, laten zakken en wachten. De meeste aanbeten komen tijdens het zakken.'],
-  [36.5, 39.7, 'Dit weekend proberen? Vis de diepe randen en ga langzamer dan je denkt.'],
-  [43.6, 47.6, 'Morgen: zuidwestenwind, bewolkt en een dalende luchtdruk.'],
-  [47.9, 52.6, 'Goed roofvisweer. De beste kansen op het IJsselmeer en de Friese meren.'],
-  [53.6, 58.4, 'Ving jij vandaag iets moois? Stuur het in. Morgen om acht uur weer Vangst van de Dag.'],
-];
+let SUBS = [];
+function buildSubs(){
+  const F = fcInfo(), L = LIVE;
+  const short = x => { const y = x.replace(/#\S+/g, '').replace(/\s+/g, ' ').trim(); return y.length > 58 ? y.slice(0, 56).trimEnd() + '…' : y; };
+  const catchSubs = L ? [
+    [13.6, 17.6, `Nummer één uit Nederland en België: ${short(L.top.title)}`],
+    [17.9, 21.9, `Van het kanaal ${L.top.channel}, al ${nf(L.top.views)} keer bekeken.`],
+    [22.1, 24.8, 'De hele video staat op de site.'],
+  ] : [
+    [13.6, 17.6, 'Nummer één komt uit eigen water: een snoek van 118 centimeter in het Haringvliet.'],
+    [17.9, 21.9, 'Gisteren om kwart over vier. Water van negen graden en een dalende luchtdruk.'],
+    [22.1, 24.8, 'Na de foto mocht ze meteen terug.'],
+  ];
+  const best = F.spots.slice(0, 2).map(s => s.n.replace(/\s*\(.*\)/, ''));
+  SUBS = [...catchSubs,
+    [28.6, 32.2, 'De tactiek van de dag: een grote shad, langzaam langs de rand van de talud.'],
+    [32.5, 36.2, 'Optillen, laten zakken en wachten. De meeste aanbeten komen tijdens het zakken.'],
+    [36.5, 39.7, 'Dit weekend proberen? Vis de diepe randen en ga langzamer dan je denkt.'],
+    [43.6, 47.6, `Het visweer: ${F.wind} en een ${F.trendWord} luchtdruk.`],
+    [47.9, 52.6, `${F.verdict.charAt(0) + F.verdict.slice(1).toLowerCase()}. De beste kansen: ${best.join(' en ')}.`],
+    [53.6, 58.4, 'Ving jij vandaag iets moois? Zet het op YouTube met #vangst24. Tot de volgende aflevering.'],
+  ];
+}
+buildSubs();
 function partAt(t){ let a = 0; for (const p of EPISODE){ if (t < a + p.d) return { p, lt: t - a }; a += p.d; } const p = EPISODE[EPISODE.length-1]; return { p, lt: p.d }; }
 function subtitle(ctx, t, y){
   const s = SUBS.find(x => t >= x[0] && t < x[1]); if (!s) return;
@@ -680,6 +753,7 @@ window.V24 = { W, H, DUR, SEGMENTS, render, synth };
 
 // ---------- player UI
 const cv = document.getElementById('cv'); if (!cv) return;
+loadLive();
 const ctx = cv.getContext('2d');
 let scene = 'episode', seg = 0, playing = false, t0 = 0, cur = 0, soundOn = true, actx = null, src = null;
 const cache = {};
