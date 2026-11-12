@@ -53,7 +53,7 @@ select{background:var(--panel);color:var(--fg);border:1px solid var(--line);bord
   <div class="monitor">
     <div class="screen"><canvas id="cv" aria-label="Programmabeeld Vangst24"></canvas></div>
     <div class="bar"><i id="prog"></i></div>
-    <div class="tc"><span class="pgm">● PGM</span><span id="tcode">00:00:00:00</span><span id="tlabel">Aflevering · 59 s</span></div>
+    <div class="tc"><span class="pgm">● PGM</span><span id="tcode">00:00:00:00</span><span id="tlabel">Aflevering · 44 s</span></div>
   </div>
 
   <div class="controls">
@@ -77,7 +77,7 @@ select{background:var(--panel);color:var(--fg);border:1px solid var(--line);bord
   </div>
 
   <div class="notes">
-    <div class="note"><span class="k">Aflevering · 59 s</span><h2>Aflevering van vandaag</h2><p>Intro, de topvideo uit Nederland en België met echte cijfers, een losse tip voor roofvis onder water, het echte visweer en de afsluiting. De ondertiteling laat zien wat de presentator zegt.</p></div>
+    <div class="note"><span class="k">Aflevering · 44 s</span><h2>Aflevering van vandaag</h2><p>Intro, de topvideo uit Nederland en België met echte cijfers, het echte visweer en de afsluiting. De ondertiteling laat zien wat de presentator zegt.</p></div>
     <div class="note"><span class="k">Intro · 10 s</span><h2>Opening</h2><p>Onder water komt een shad voorbij. Daarna draait de wereld rond terwijl de klok 24 uur doorloopt en de visplekken oplichten. Tot slot verschijnt het logo met een plons.</p></div>
     <div class="note"><span class="k">Overgang · 3 s</span><h2>Tussen onderdelen</h2><p>Een korte overgang met eigen kleur per onderdeel van het uur, zodat kijkers meteen zien waar ze zitten.</p></div>
     <div class="note"><span class="k">In beeld</span><h2>Tijdens een vangst</h2><p>Logo, naambalk, vangstkaart met de gegevens en de nieuwsbalk. De vangst en gegevens zijn voorbeelden.</p></div>
@@ -96,7 +96,7 @@ const SEGMENTS = [
   { title:'NEDERLAND & BELGIË', sub:'Wat bijt er in onze wateren', time:':22 – :32', color:'#4f8a35' },
   { title:'ZEE & KUST', sub:'Van de Noordzee tot de oceaan', time:':32 – :42', color:'#2a7f9e' },
   { title:'KIJKERSVANGSTEN', sub:'Jullie vangsten van vandaag', time:':42 – :50', color:'#6b5b95' },
-  { title:'VOORUITBLIK', sub:'Het visweer voor de komende 24 uur', time:':50 – :60', color:'#c99a2e' },
+  { title:'VISWEER', sub:'Zo staat het er nu voor', time:':50 – :60', color:'#c99a2e' },
 ];
 const DUR = { intro:10, bumper:3, graphics:10 };
 
@@ -605,7 +605,7 @@ function outro(ctx, t){
 // ---------- episode: the scenes in order, with subtitles
 const EPISODE = [
   { s:'intro', d:10, name:'Intro' }, { s:'bumper', d:3, seg:0, name:'Overgang' }, { s:'graphics', d:12, name:'Vangst #1' },
-  { s:'bumper', d:3, seg:1, name:'Overgang' }, { s:'tactic', d:12, name:'Tactiek' }, { s:'bumper', d:3, seg:5, name:'Overgang' },
+  { s:'bumper', d:3, seg:5, name:'Overgang' },
   { s:'forecast', d:10, name:'Visweer' }, { s:'outro', d:6, name:'Afsluiting' },
 ];
 DUR.episode = EPISODE.reduce((a,p) => a + p.d, 0);
@@ -625,12 +625,9 @@ function buildSubs(){
   ];
   const best = F.spots.slice(0, 2).map(s => s.n.replace(/\s*\(.*\)/, ''));
   SUBS = [...catchSubs,
-    [28.6, 32.2, 'Dan een losse tip voor roofvis: een grote shad, langzaam langs de rand van de talud.'],
-    [32.5, 36.2, 'Optillen, laten zakken en wachten. De meeste aanbeten komen tijdens het zakken.'],
-    [36.5, 39.7, 'Dit weekend proberen? Vis de diepe randen en ga langzamer dan je denkt.'],
-    [43.6, 47.6, `Het visweer: ${F.wind} en een ${F.trendWord} luchtdruk.`],
-    [47.9, 52.6, `${F.verdict.charAt(0) + F.verdict.slice(1).toLowerCase()}. De beste kansen: ${best.join(' en ')}.`],
-    [53.6, 58.4, 'Ving jij vandaag iets moois? Zet het op YouTube met #vangst24. Tot de volgende aflevering.'],
+    [28.6, 32.6, `Het visweer: ${F.wind} en een ${F.trendWord} luchtdruk.`],
+    [32.9, 37.6, `${F.verdict.charAt(0) + F.verdict.slice(1).toLowerCase()}. De beste kansen: ${best.join(' en ')}.`],
+    [38.6, 43.4, 'Ving jij vandaag iets moois? Zet het op YouTube met #vangst24. Tot de volgende aflevering.'],
   ];
 }
 buildSubs();
