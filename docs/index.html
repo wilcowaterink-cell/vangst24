@@ -176,6 +176,15 @@ footer p{margin:0}
 .sendbox .addr{font-size:18px;font-weight:600;color:#ffb48f}
 .consent{margin:12px 0 0;font-size:14px;color:#94aab4;max-width:70ch}
 @media (max-width:760px){.steps{grid-template-columns:1fr}.sendbox{padding:20px}.addr{display:block;margin:10px 0 0}}
+.share{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:10px}
+.sh{font:600 12px var(--f-body);color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:99px;padding:3px 10px;text-decoration:none;cursor:pointer;transition:background .2s ease,color .2s ease,border-color .2s ease}
+.sh:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.sh.lab{border:0;padding-left:0;cursor:default;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+.sh.lab:hover{background:transparent;color:var(--muted)}
+.sh.go{background:var(--accent);border-color:var(--accent);color:#fff}
+.hero .share{margin-top:6px;animation:rise .7s .35s both}
+.hero .sh{color:#d6e3e8;border-color:rgba(255,255,255,.3)}
+.hero .sh.lab{color:#b9ccd4}
 .empty{padding:28px;background:var(--surface);border:1px dashed var(--line);border-radius:6px;color:var(--muted)}
 
 footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px}
@@ -211,6 +220,7 @@ footer .wrap{padding-block:24px 40px}
       <div><b id="st-viral">0</b><span data-i18n="stViral">viraal</span></div>
       <div><b id="st-spots">0</b><span data-i18n="stSpots">visplekken met weer</span></div>
     </div>
+    <div id="siteshare"></div>
   </div>
 </section>
 <div class="demo" id="demo" hidden><div class="wrap" data-i18n="demo">Dit zijn voorbeeldgegevens. Zodra er een YouTube-sleutel is ingesteld, verschijnen hier echte video's van de laatste 24 uur.</div></div>
@@ -311,6 +321,7 @@ const I18N = {
     s1:'Film je vangst', s1t:'Een korte video van de vis, de dril of het terugzetten.', s2:'Zet hem op YouTube', s2t:'Zet #vangst24 in de titel of de beschrijving, met de vissoort en het water erbij.', s3:'Hij verschijnt hier', s3t:'De site zoekt elke 4 uur naar nieuwe video\'s en controleert ze eerst.',
     sendBtn:'Upload op YouTube', consent:'Door #vangst24 te gebruiken geef je toestemming om je video op deze website te tonen. De video blijft van jou.',
     viewersTitle:'Kijkersvangsten', noViewers:'Nog geen kijkersvangsten. Wees de eerste met #vangst24!',
+    share:'Deel', copy:'Kopieer link', copied:'Gekopieerd', shareVia:'via Vangst24', shareSite:'Deel Vangst24', siteText:'De laatste 24 uur vissen, wereldwijd',
     names:{}},
   en: {language:'Language', updated:'Updated', moon:'Moon', world:'World', viral:'Viral', weather:'Fishing weather', top:'World Top 10', regions:'By region',
     demo:'This is example data. Once a YouTube key is set, real videos from the last 24 hours appear here.',
@@ -339,6 +350,7 @@ const I18N = {
     s1:'Film your catch', s1t:'A short video of the fish, the fight or the release.', s2:'Put it on YouTube', s2t:'Add #vangst24 to the title or description, with the species and the water.', s3:'It appears here', s3t:'The site looks for new videos every 4 hours and checks them first.',
     sendBtn:'Upload to YouTube', consent:'By using #vangst24 you give permission to show your video on this website. The video stays yours.',
     viewersTitle:'Viewer catches', noViewers:'No viewer catches yet. Be the first with #vangst24!',
+    share:'Share', copy:'Copy link', copied:'Copied', shareVia:'via Vangst24', shareSite:'Share Vangst24', siteText:'The last 24 hours of fishing, worldwide',
     names:{nl:'Netherlands & Belgium','west-europa':'Western Europe',scandinavie:'Scandinavia','zuid-europa':'Southern Europe','oost-europa':'Eastern Europe','noord-europa':'Northern Europe','noord-amerika':'North America','zuid-amerika':'South & Central America',afrika:'Africa','midden-oosten-india':'Middle East & India',azie:'Asia',oceanie:'Australia & New Zealand','fc:nl':'Netherlands','fc:oceanie':'Oceania'}},
   de: {language:'Sprache', updated:'Aktualisiert', moon:'Mond', world:'Welt', viral:'Viral', weather:'Angelwetter', top:'Welt Top 10', regions:'Nach Region',
     demo:'Das sind Beispieldaten. Sobald ein YouTube-Schlüssel eingerichtet ist, erscheinen hier echte Videos der letzten 24 Stunden.',
@@ -367,6 +379,7 @@ const I18N = {
     s1:'Filme deinen Fang', s1t:'Ein kurzes Video vom Fisch, vom Drill oder vom Zurücksetzen.', s2:'Stell es auf YouTube', s2t:'Schreibe #vangst24 in den Titel oder die Beschreibung, mit Fischart und Gewässer.', s3:'Es erscheint hier', s3t:'Die Seite sucht alle 4 Stunden nach neuen Videos und prüft sie zuerst.',
     sendBtn:'Auf YouTube hochladen', consent:'Mit #vangst24 erlaubst du, dein Video auf dieser Website zu zeigen. Das Video bleibt deins.',
     viewersTitle:'Zuschauerfänge', noViewers:'Noch keine Zuschauerfänge. Sei der Erste mit #vangst24!',
+    share:'Teilen', copy:'Link kopieren', copied:'Kopiert', shareVia:'über Vangst24', shareSite:'Vangst24 teilen', siteText:'Die letzten 24 Stunden Angeln, weltweit',
     names:{nl:'Niederlande & Belgien','west-europa':'Westeuropa',scandinavie:'Skandinavien','zuid-europa':'Südeuropa','oost-europa':'Osteuropa','noord-europa':'Nordeuropa','noord-amerika':'Nordamerika','zuid-amerika':'Süd- & Mittelamerika',afrika:'Afrika','midden-oosten-india':'Naher Osten & Indien',azie:'Asien',oceanie:'Australien & Neuseeland','fc:nl':'Niederlande','fc:oceanie':'Ozeanien'}},
   fr: {language:'Langue', updated:'Mis à jour', moon:'Lune', world:'Monde', viral:'Viral', weather:'Météo pêche', top:'Top 10 mondial', regions:'Par région',
     demo:"Ce sont des données d'exemple. Dès qu'une clé YouTube est configurée, les vraies vidéos des dernières 24 heures apparaissent ici.",
@@ -395,6 +408,7 @@ const I18N = {
     s1:'Filmez votre prise', s1t:'Une courte vidéo du poisson, du combat ou de la remise à l\'eau.', s2:'Mettez-la sur YouTube', s2t:'Ajoutez #vangst24 au titre ou à la description, avec l\'espèce et le plan d\'eau.', s3:'Elle apparaît ici', s3t:'Le site cherche de nouvelles vidéos toutes les 4 heures et les vérifie d\'abord.',
     sendBtn:'Mettre en ligne sur YouTube', consent:'En utilisant #vangst24, vous autorisez l\'affichage de votre vidéo sur ce site. La vidéo reste la vôtre.',
     viewersTitle:'Prises des spectateurs', noViewers:'Pas encore de prises de spectateurs. Soyez le premier avec #vangst24 !',
+    share:'Partager', copy:'Copier le lien', copied:'Copié', shareVia:'via Vangst24', shareSite:'Partager Vangst24', siteText:'Les dernières 24 heures de pêche, dans le monde',
     names:{nl:'Pays-Bas & Belgique','west-europa':"Europe de l'Ouest",scandinavie:'Scandinavie','zuid-europa':'Europe du Sud','oost-europa':"Europe de l'Est",'noord-europa':'Europe du Nord','noord-amerika':'Amérique du Nord','zuid-amerika':'Amérique du Sud & centrale',afrika:'Afrique','midden-oosten-india':'Moyen-Orient & Inde',azie:'Asie',oceanie:'Australie & Nouvelle-Zélande','fc:nl':'Pays-Bas','fc:oceanie':'Océanie'}},
   es: {language:'Idioma', updated:'Actualizado', moon:'Luna', world:'Mundo', viral:'Viral', weather:'Tiempo de pesca', top:'Top 10 mundial', regions:'Por región',
     demo:'Estos son datos de ejemplo. Cuando se configure una clave de YouTube, aquí aparecerán vídeos reales de las últimas 24 horas.',
@@ -423,6 +437,7 @@ const I18N = {
     s1:'Graba tu captura', s1t:'Un vídeo corto del pez, la pelea o la suelta.', s2:'Súbelo a YouTube', s2t:'Pon #vangst24 en el título o la descripción, con la especie y el lugar.', s3:'Aparece aquí', s3t:'La web busca vídeos nuevos cada 4 horas y los revisa primero.',
     sendBtn:'Subir a YouTube', consent:'Al usar #vangst24 das permiso para mostrar tu vídeo en esta web. El vídeo sigue siendo tuyo.',
     viewersTitle:'Capturas de espectadores', noViewers:'Aún no hay capturas de espectadores. ¡Sé el primero con #vangst24!',
+    share:'Compartir', copy:'Copiar enlace', copied:'Copiado', shareVia:'vía Vangst24', shareSite:'Compartir Vangst24', siteText:'Las últimas 24 horas de pesca, en todo el mundo',
     names:{nl:'Países Bajos y Bélgica','west-europa':'Europa occidental',scandinavie:'Escandinavia','zuid-europa':'Europa del sur','oost-europa':'Europa del este','noord-europa':'Europa del norte','noord-amerika':'Norteamérica','zuid-amerika':'Sudamérica y Centroamérica',afrika:'África','midden-oosten-india':'Oriente Medio e India',azie:'Asia',oceanie:'Australia y Nueva Zelanda','fc:nl':'Países Bajos','fc:oceanie':'Oceanía'}},
 };
 const LOCALE = {nl:'nl-NL', en:'en-GB', de:'de-DE', fr:'fr-FR', es:'es-ES'};
@@ -439,6 +454,29 @@ const ago = iso => { const h = Math.max(0, (Date.now() - new Date(iso)) / 36e5);
 const dur = s => { const m = Math.floor(s / 60), r = s % 60, h = Math.floor(m / 60); return h ? `${h}:${String(m % 60).padStart(2,'0')}:${String(r).padStart(2,'0')}` : `${m}:${String(r).padStart(2,'0')}`; };
 const nlTime = d => new Date(d).toLocaleString(LOCALE[lang], {timeZone:'Europe/Amsterdam', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
 
+const SITE = 'https://wilcowaterink-cell.github.io/vangst24/';
+// Share links for one video (or for the site itself when no video is given).
+function shareRow(url, title) {
+  const u = encodeURIComponent(url), tx = encodeURIComponent(`${title} (${t('shareVia')})`);
+  const wa = encodeURIComponent(`${title}\n${url}\n${t('shareVia')}: ${SITE}`);
+  const native = navigator.share ? `<button class="sh go" data-url="${esc(url)}" data-title="${esc(title)}">${t('share')}</button>` : `<span class="sh lab">${t('share')}</span>`;
+  return `<div class="share">${native}
+    <a class="sh" href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a>
+    <a class="sh" href="https://twitter.com/intent/tweet?text=${tx}&url=${u}&hashtags=vangst24" target="_blank" rel="noopener">X</a>
+    <a class="sh" href="https://wa.me/?text=${wa}" target="_blank" rel="noopener">WhatsApp</a>
+    <button class="sh cp" data-url="${esc(url)}">${t('copy')}</button></div>`;
+}
+document.addEventListener('click', e => {
+  const go = e.target.closest('.sh.go'), cp = e.target.closest('.sh.cp');
+  if (go) navigator.share({title: go.dataset.title, text: go.dataset.title, url: go.dataset.url}).catch(() => {});
+  if (cp) {
+    const done = () => { cp.textContent = t('copied'); setTimeout(() => { cp.textContent = t('copy'); }, 1600); };
+    (navigator.clipboard ? navigator.clipboard.writeText(cp.dataset.url) : Promise.reject()).then(done).catch(() => {
+      const i = document.createElement('input'); i.value = cp.dataset.url; document.body.appendChild(i); i.select();
+      try { document.execCommand('copy'); done(); } catch (err) {} i.remove();
+    });
+  }
+});
 function card(v, rank, regionName) {
   const media = v.id
     ? `<button class="media" data-id="${esc(v.id)}" aria-label="${t('play')} ${esc(v.title)}">${rank ? `<span class="rank">${rank}</span>` : ''}${v.viral ? `<span class="viral-badge">${t('viralBadge')}</span>` : ''}<img src="${esc(v.thumb)}" alt="" loading="lazy"><span class="play"></span><span class="dur">${dur(v.seconds)}</span></button>`
@@ -448,6 +486,7 @@ function card(v, rank, regionName) {
     ${regionName ? `<span class="region-tag">${esc(regionName)}</span>` : ''}
     <h3>${v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a>` : esc(v.title)}</h3>
     <div class="meta"><span>${ch}</span><span>${fmt.format(v.views)} ${t('views')}</span>${v.viral ? `<span class="speed">${fmt.format(v.views_per_hour)}${t('perHour')}</span>` : ''}<span>${ago(v.published)}</span></div>
+    ${v.url ? shareRow(v.url, v.title) : ''}
   </div></article>`;
 }
 
@@ -625,6 +664,7 @@ function applyStatic() {
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   fmt = new Intl.NumberFormat(LOCALE[lang]);
   tickClock();
+  document.getElementById('siteshare').innerHTML = shareRow(SITE, 'Vangst24: ' + t('siteText')).replace(`>${t('share')}<`, `>${t('shareSite')}<`);
 }
 function renderAll() {
   applyStatic();
