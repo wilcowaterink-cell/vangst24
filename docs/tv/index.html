@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vangst24 TV</title>
+<meta name="description" content="Vangst24 TV: de wereldronde langs de nieuwste visvideo's van elk werelddeel.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23e8571c'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow,Arial,sans-serif' font-weight='800' font-size='38' text-anchor='middle' fill='%23fff'%3E24%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: a TV set. Channel bar on top, the YouTube player in the middle, name bar and news ticker under it. Nothing is drawn over the player. */
+:root{--bg:#050f15;--panel:#0b2a3a;--line:#1d3b4b;--fg:#f3f7f8;--muted:#9db3bd;--accent:#e8571c;--hi:#ffb48f;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;--f-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+a{color:var(--hi)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+.back{font-weight:600;text-decoration:none}
+.set{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000;box-shadow:0 24px 50px -24px #000}
+.chan{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;justify-content:space-between;background:var(--panel);padding:10px 16px}
+.logo{font-family:var(--f-display);font-weight:800;font-size:30px;display:flex;align-items:center;gap:5px;letter-spacing:.01em}
+.logo span{background:var(--accent);padding:0 6px;border-radius:3px}
+.logo em{font-style:normal;font-size:18px;color:var(--hi);margin-left:8px;letter-spacing:.08em}
+.now{font-family:var(--f-mono);font-size:13px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.now b{color:#fff}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff3b30;margin-right:6px;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.stage{position:relative;aspect-ratio:16/9;max-width:100%;background:#04121a}
+.stage iframe,#player{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* cards shown only while no video is on screen */
+.card{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:6% 7%;background:linear-gradient(160deg,#0d5a78,#03131b 75%);z-index:2}
+.card[hidden]{display:none}
+.card .k{font-family:var(--f-mono);font-size:clamp(11px,1.4vw,16px);letter-spacing:.16em;text-transform:uppercase;color:var(--hi)}
+.card h1,.card h2{font-family:var(--f-display);font-weight:800;text-transform:uppercase;line-height:1;margin:0;font-size:clamp(34px,7.5vw,104px);text-wrap:balance}
+.card p{margin:0;color:#d6e3e8;font-size:clamp(14px,1.8vw,22px);max-width:46ch}
+.card h2{line-height:1.2;margin-top:6px}
+.card .band{display:inline-block;align-self:flex-start;background:var(--bc,var(--accent));padding:.08em .3em;animation:slide .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slide{from{transform:translateX(-30%);opacity:0}}
+.card .big{align-self:flex-start;margin-top:12px;background:var(--accent);border:0;border-radius:6px;color:#fff;font-family:var(--f-display);font-weight:700;font-size:clamp(20px,2.6vw,30px);text-transform:uppercase;padding:.4em .9em;cursor:pointer}
+.third{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 14px;align-items:center;background:var(--panel);padding:12px 16px;border-top:3px solid var(--accent)}
+.third .rg{grid-row:1/3;font-family:var(--f-display);font-weight:800;font-size:clamp(18px,2.4vw,26px);text-transform:uppercase;background:var(--accent);padding:6px 12px;border-radius:4px;line-height:1.05;max-width:11em}
+.third .ti{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,2.8vw,32px);text-transform:uppercase;line-height:1.1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.third .me{font-family:var(--f-mono);font-size:13px;color:var(--muted);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.third .me a{color:#fff}
+.segs{display:flex;gap:3px;background:var(--panel);padding:0 16px 10px}
+.segs i{flex:1;height:5px;border-radius:3px;background:#24465a;overflow:hidden}
+.segs i b{display:block;height:100%;width:0;background:var(--accent)}
+.segs i.done b{width:100%}
+.ticker{display:flex;align-items:center;background:#f3f7f8;color:#06161f;height:40px;overflow:hidden}
+.ticker .lab{flex:none;height:100%;display:flex;align-items:center;padding:0 12px;background:var(--accent);color:#fff;font-family:var(--f-display);font-weight:800;text-transform:uppercase;z-index:1}
+.ticker .run{white-space:nowrap;font-weight:600;padding-left:100%;animation:tick 120s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default}
+select{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;font:600 15px var(--f-body);padding:8px 10px}
+.spacer{flex:1}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin:0;padding:0;list-style:none}
+.list button{width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:6px;padding:9px 12px;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.list button.on{border-left-color:var(--accent);background:#103547}
+.list small{font-family:var(--f-mono);font-size:11px;color:var(--hi);text-transform:uppercase;letter-spacing:.06em}
+.list span{font-size:14px;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+h3{font-family:var(--f-display);font-size:24px;text-transform:uppercase;margin:10px 0 0}
+.fine{color:var(--muted);font-size:14px;margin:0;max-width:80ch}
+@media (prefers-reduced-motion:reduce){.ticker .run{animation:none;padding-left:12px}.dot,.card .band{animation:none}}
+@media (max-width:600px){.third{grid-template-columns:1fr}.third .rg{grid-row:auto;justify-self:start;margin-bottom:6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Terug naar Vangst24</a>
+  <div class="set">
+    <div class="chan">
+      <div class="logo">VANGST<span>24</span><em>TV</em></div>
+      <div class="now"><span><i class="dot"></i>WERELDRONDE</span><span>Item <b id="pos">–</b></span><span>NL <b id="clock">--:--</b></span></div>
+    </div>
+    <div class="stage">
+      <div id="player"></div>
+      <div class="card" id="start">
+        <span class="k">De laatste 24 uur vissen</span>
+        <h1>De wereldronde</h1>
+        <p id="startText">Van elk werelddeel de best bekeken nieuwe visvideo van vandaag, achter elkaar. Elke 4 uur nieuw.</p>
+        <button class="big" id="go" disabled>Laden…</button>
+      </div>
+      <div class="card" id="bumper" hidden>
+        <span class="k" id="bk">Volgende halte</span>
+        <h2><span class="band" id="bn">Nederland</span></h2>
+        <p id="bt"></p>
+      </div>
+    </div>
+    <div class="third">
+      <div class="rg" id="rg">Vangst24 TV</div>
+      <div class="ti" id="ti">Druk op Start om de wereldronde te beginnen</div>
+      <div class="me" id="me">Echte video's, afgespeeld via YouTube. Alle rechten blijven bij de makers.</div>
+    </div>
+    <div class="segs" id="segs"></div>
+    <div class="ticker"><div class="lab">Straks</div><div class="run" id="ticker">…</div></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="prev" disabled>◀ Vorige</button>
+    <button class="btn primary" id="next" disabled>Volgende ▶</button>
+    <label>Per video <select id="len"><option value="30">30 seconden</option><option value="45" selected>45 seconden</option><option value="90">90 seconden</option><option value="0">helemaal</option></select></label>
+    <span class="spacer"></span>
+    <span class="fine" id="status"></span>
+  </div>
+
+  <h3>In deze ronde</h3>
+  <ol class="list" id="list"></ol>
+  <p class="fine">Vangst24 TV speelt de video's af met de speler van YouTube. De kijkcijfers tellen voor de makers en hun kanaal staat er steeds bij. De volgorde volgt de zon: van Oceanië en Azië via Europa naar Amerika.</p>
+</div>
+
+<script>
+// Order of the round: follow the sun from east to west, ending at home.
+const ORDER = ['oceanie','azie','midden-oosten-india','afrika','oost-europa','scandinavie','zuid-europa','west-europa','zuid-amerika','noord-amerika','nl'];
+const COLORS = {oceanie:'#2a7f9e',azie:'#6b5b95','midden-oosten-india':'#a8801f',afrika:'#8a5a2b','oost-europa':'#4f8a35',scandinavie:'#0b6f96','zuid-europa':'#c44d2b','west-europa':'#2f8a4a','zuid-amerika':'#a8801f','noord-amerika':'#0b6f96',nl:'#e8571c',viraal:'#d7263d'};
+const $ = id => document.getElementById(id);
+const nf = n => new Intl.NumberFormat('nl-NL').format(n);
+const clean = s => s.replace(/#\S+/g, '').replace(/\s+/g, ' ').trim();
+let items = [], idx = -1, player = null, apiReady = false, timer = null, tickT = null, clipStart = 0, bumperT = null;
+
+function buildItems(data){
+  const out = [], used = new Set();
+  const viral = (data.viral || []).find(v => v.id);
+  if (viral){ out.push({...viral, rid:'viraal', region:'Viraal'}); used.add(viral.id); }
+  ORDER.forEach(rid => {
+    const r = data.regions.find(x => x.id === rid); if (!r) return;
+    const v = r.videos.find(x => x.id && !used.has(x.id)); if (!v) return;
+    used.add(v.id); out.push({...v, rid, region: r.name});
+  });
+  return out;
+}
+function renderList(){
+  $('list').innerHTML = items.map((v, i) => `<li><button data-i="${i}" class="${i === idx ? 'on' : ''}"><small>${v.region}</small><span></span></button></li>`).join('');
+  $('list').querySelectorAll('span').forEach((el, i) => { el.textContent = clean(items[i].title) || items[i].title; });
+  $('segs').innerHTML = items.map((_, i) => `<i class="${i < idx ? 'done' : ''}"><b></b></i>`).join('');
+  $('ticker').textContent = items.filter((_, i) => i !== idx).map(v => `${v.region.toUpperCase()}: ${clean(v.title).slice(0, 70)}`).join('   •   ');
+}
+function clipLen(){ return +$('len').value; }
+function startAt(v){ return v.seconds > 240 ? Math.min(60, Math.round(v.seconds * .15)) : v.seconds > 90 ? 10 : 0; }
+
+function show(i){
+  clearTimeout(timer); clearInterval(tickT); clearTimeout(bumperT);
+  if (!items.length) return;
+  idx = (i + items.length) % items.length;
+  const v = items[idx];
+  try { player && player.stopVideo && player.stopVideo(); } catch (e) {}
+  // region card first (the player is covered only while nothing is playing)
+  $('start').hidden = true; $('bumper').hidden = false;
+  $('bk').textContent = idx === 0 ? 'We beginnen met' : 'Volgende halte';
+  $('bn').textContent = v.region; $('bn').style.setProperty('--bc', COLORS[v.rid] || '#e8571c');
+  $('bn').style.animation = 'none'; void $('bn').offsetWidth; $('bn').style.animation = '';
+  $('bt').textContent = clean(v.title);
+  $('rg').textContent = v.region; $('rg').style.background = COLORS[v.rid] || '#e8571c';
+  $('ti').textContent = clean(v.title) || v.title;
+  $('me').innerHTML = '';
+  const a = document.createElement('a'); a.href = 'https://www.youtube.com/channel/' + encodeURIComponent(v.channelId); a.target = '_blank'; a.rel = 'noopener'; a.textContent = v.channel;
+  $('me').append(a, ` · ${nf(v.views)} views · `);
+  const w = document.createElement('a'); w.href = v.url; w.target = '_blank'; w.rel = 'noopener'; w.textContent = 'hele video op YouTube'; $('me').append(w);
+  $('pos').textContent = `${idx + 1} / ${items.length}`;
+  $('prev').disabled = $('next').disabled = false;
+  renderList();
+  bumperT = setTimeout(() => playCurrent(), 2600);
+}
+function playCurrent(){
+  const v = items[idx]; if (!v) return;
+  $('bumper').hidden = true;
+  if (!apiReady || !player || !player.loadVideoById){ $('status').textContent = 'De YouTube-speler kon niet laden. Open de video via de link eronder.'; return; }
+  player.loadVideoById({videoId: v.id, startSeconds: startAt(v)});
+  // safety net: if nothing starts within 12 s (blocked or removed video), move on
+  timer = setTimeout(() => show(idx + 1), 12000);
+}
+function onState(e){
+  if (e.data === 1){ // playing
+    clearTimeout(timer); clearInterval(tickT);
+    const len = clipLen(), bar = $('segs').children[idx] && $('segs').children[idx].firstChild;
+    if (!len){ if (bar) bar.style.width = '100%'; return; }
+    clipStart = Date.now();
+    tickT = setInterval(() => {
+      const k = (Date.now() - clipStart) / (len * 1000);
+      if (bar) bar.style.width = Math.min(100, k * 100) + '%';
+      if (k >= 1){ clearInterval(tickT); show(idx + 1); }
+    }, 250);
+  } else if (e.data === 2){ clearInterval(tickT); // paused by the viewer: wait
+  } else if (e.data === 0){ clearInterval(tickT); show(idx + 1); } // ended
+}
+function onError(){ clearTimeout(timer); $('status').textContent = 'Een video kon niet afspelen en is overgeslagen.'; show(idx + 1); }
+
+window.onYouTubeIframeAPIReady = () => {
+  player = new YT.Player('player', {host: 'https://www.youtube-nocookie.com', playerVars: {rel: 0, playsinline: 1, modestbranding: 1},
+    events: {onReady: () => { apiReady = true; ready(); }, onStateChange: onState, onError: onError}});
+};
+function ready(){ if (items.length && apiReady){ $('go').disabled = false; $('go').textContent = '▶ Start de wereldronde'; } }
+
+$('go').onclick = () => show(0);
+$('next').onclick = () => show(idx + 1);
+$('prev').onclick = () => show(idx - 1);
+$('list').onclick = e => { const b = e.target.closest('button[data-i]'); if (b) show(+b.dataset.i); };
+const clock = () => { $('clock').textContent = new Date().toLocaleTimeString('nl-NL', {timeZone:'Europe/Amsterdam', hour:'2-digit', minute:'2-digit'}); };
+clock(); setInterval(clock, 30000);
+
+fetch('../data/videos.json', {cache: 'no-cache'}).then(r => r.json()).then(data => {
+  items = buildItems(data);
+  if (!items.length){ $('startText').textContent = 'Er zijn nu geen video\'s om af te spelen. Kom over een paar uur terug.'; $('go').textContent = 'Geen video\'s'; return; }
+  $('startText').textContent = `${items.length} video's uit ${new Set(items.map(v => v.rid)).size} delen van de wereld, achter elkaar. Elke 4 uur nieuw.`;
+  renderList(); $('pos').textContent = `– / ${items.length}`; ready();
+}).catch(() => { $('startText').textContent = 'De gegevens konden niet geladen worden.'; });
+
+const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api';
+s.onerror = () => { $('go').textContent = 'YouTube laadt niet'; $('status').textContent = 'De YouTube-speler kon niet laden. Controleer je verbinding of een advertentieblokker.'; };
+document.head.appendChild(s);
+</script>
+</body>
+</html>

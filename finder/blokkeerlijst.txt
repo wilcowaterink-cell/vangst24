@@ -11,3 +11,9 @@
 debug play
 food scene
 fish market
+
+# Geen vissen: vis snijden en markten
+cutting tuna
+cutting fish
+fish cutting
+market
