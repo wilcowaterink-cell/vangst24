@@ -45,8 +45,8 @@ REGIONS = [
 
 # The searches. In a YouTube search "|" means OR and only joins the words right
 # next to it, so "fishing bass|pike" means: fishing AND (bass OR pike).
-# Each search costs 100 of the 10,000 free daily units: 13 searches x 6 runs
-# a day (every 4 hours) = 7,800 units.
+# Each search costs 100 of the 10,000 free daily units: 14 searches x 6 runs
+# a day (every 4 hours) = 8,400 units.
 # "region" is where a video goes when the maker's country is unknown.
 SEARCHES = [
     {"q": "vissen|snoek|snoekbaars|karper|hengelsport|roofvissen|karpervissen|zeevissen", "lang": "nl", "region": "nl"},
@@ -63,6 +63,10 @@ SEARCHES = [
     {"q": "fishing australia|queensland|barramundi|murray|zealand|tasmania|darwin", "lang": "en", "region": "oceanie"},
 ]
 # One extra worldwide search over a longer period, for videos that are taking off.
+# Viewers send in a catch by uploading it to YouTube with #vangst24.
+VIEWER_SEARCH = {"q": "vangst24", "lang": None, "region": None}
+VIEWER_DAYS = 14              # how long a viewer video stays on the site
+VIEWER_KEEP = 24
 VIRAL_SEARCH = {"q": "fishing|pesca|angeln|pêche|vissen|釣り|рыбалка", "lang": None, "region": None}
 
 # Maker's country -> region.
@@ -248,8 +252,12 @@ def load_blocklist():
 BLOCK_WORDS, BLOCK_CHANNELS, BLOCK_IDS = load_blocklist()
 
 
-def check_video(v):
-    """Return None when the video is a real fishing video, else the reason it is rejected."""
+def check_video(v, viewer=False):
+    """Return None when the video is a real fishing video, else the reason it is rejected.
+
+    viewer=True is for videos sent in with #vangst24: they must carry that tag,
+    but need no fishing word in the title and no minimum number of views.
+    """
     sn = v["snippet"]
     title = sn.get("title", "")
     low_title = " " + title.lower() + " "
@@ -277,6 +285,9 @@ def check_video(v):
     good = any(g in topics for g in GOOD_TOPICS)
     if "food" in topics and not good:
         return "YouTube-onderwerp: eten"
+    if viewer:
+        text = low_title + tags + sn.get("description", "").lower()
+        return None if "vangst24" in text.replace(" ", "") else "geen #vangst24 in titel of beschrijving"
     in_title = any(w in low_title for w in FISHING_WORDS)
     in_tags = any(w in tags for w in FISHING_WORDS)
     if not in_title and not (in_tags and good):
@@ -319,7 +330,7 @@ def search_ids(search, key, since):
     return [it["id"]["videoId"] for it in found.get("items", [])]
 
 
-def video_details(ids, key, now, min_seconds):
+def video_details(ids, key, now, min_seconds, viewer=False):
     out = []
     for part in chunks(ids):
         details = get_json(YT + "videos", {
@@ -332,7 +343,7 @@ def video_details(ids, key, now, min_seconds):
                 continue
             if not v["status"].get("embeddable", False):
                 continue
-            reason = check_video(v)
+            reason = check_video(v, viewer)
             if reason:
                 REJECTED.append({"title": v["snippet"].get("title", ""), "channel": v["snippet"].get("channelTitle", ""),
                                  "url": f"https://www.youtube.com/watch?v={v['id']}", "reason": reason,
@@ -406,7 +417,20 @@ def find_all(key, now):
 
     pool = {v["id"]: v for v in videos + extra if v["viral"]}
     viral = sorted(pool.values(), key=lambda v: v["views_per_hour"], reverse=True)[:VIRAL_KEEP]
-    return by_region, viral
+
+    viewers = []
+    try:
+        viewer_since = (now - dt.timedelta(days=VIEWER_DAYS)).isoformat().replace("+00:00", "Z")
+        search = dict(VIEWER_SEARCH)
+        ids = search_ids(search, key, viewer_since)
+        viewers = video_details(ids, key, now, 5, viewer=True)
+        viewers = sorted(viewers, key=lambda v: v["published"], reverse=True)[:VIEWER_KEEP]
+        for v in viewers:
+            v["viral"] = False
+        print(f"  kijkers (#vangst24): {len(viewers)} van {len(ids)} gevonden")
+    except Exception as e:
+        print(f"  viewer search failed ({e})", file=sys.stderr)
+    return by_region, viral, viewers
 
 
 def demo_videos():
@@ -626,8 +650,9 @@ def main():
     if demo:
         by_region = demo_videos()
         viral = demo_viral()
+        viewers = []
     else:
-        by_region, viral = find_all(key, now)
+        by_region, viral, viewers = find_all(key, now)
         for r in REGIONS:
             print(f"  {r['name']}: {len(by_region[r['id']])} videos")
         print(f"  Viraal: {len(viral)} videos")
@@ -640,7 +665,7 @@ def main():
         print("No videos found; keeping the existing videos.json.", file=sys.stderr)
         return
     with open(os.path.join(DATA_DIR, "videos.json"), "w", encoding="utf-8") as f:
-        json.dump({"generated_at": stamp, "demo": demo, "viral": viral, "regions": regions}, f,
+        json.dump({"generated_at": stamp, "demo": demo, "viral": viral, "viewers": viewers, "regions": regions}, f,
                   ensure_ascii=False, indent=1)
 
     csv_path = write_planning_csv(regions, viral, now)

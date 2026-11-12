@@ -18,7 +18,7 @@ planning/kandidaten-*.csv    daily list of candidate clips for the episode
 4. Open **APIs & Services → Credentials → Create credentials → API key**.
 5. Copy the key. Keep it secret: never paste it into the website or a public file.
 
-The free quota is 10,000 units a day. One run does 12 searches plus 1 worldwide "viral" search (about 1,300 units), so every 4 hours (7,800 units a day) fits.
+The free quota is 10,000 units a day. One run does 14 searches (about 1,400 units), so every 4 hours (8,400 units a day) fits.
 
 ## Step 2: Put it on GitHub (free hosting + automatic updates)
 
@@ -52,6 +52,10 @@ The website plays videos through YouTube's own player, which YouTube allows. The
 The finder also searches worldwide for fishing videos that are taking off: more than 50,000 views and over 2,000 views per hour, uploaded in the last 48 hours. They appear in the "Viraal" section and are marked "ja" in the `viraal` column of the planning list. Change the limits at the top of `finder/find_videos.py` (`VIRAL_...`).
 
 The website may show them (embedded). For the TV channel you need permission first: see `planning/toestemming-vragen.md`.
+
+## Viewer catches (#vangst24)
+
+Viewers send in a catch by uploading their own video to YouTube with `#vangst24` in the title or description. The finder searches for it on every run and shows what it finds under "Kijkersvangsten" for 14 days. These videos go through the same block list and topic checks, but need no fishing word in the title and no minimum number of views. Nobody has to receive mail or files.
 
 ## Checking videos before they appear
 
