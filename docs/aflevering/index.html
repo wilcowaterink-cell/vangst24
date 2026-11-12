@@ -85,7 +85,7 @@ select{background:var(--panel);color:var(--fg);border:1px solid var(--line);bord
   </div>
 
   <div class="notes">
-    <div class="note"><span class="k">Aflevering · 59 s</span><h2>Aflevering van vandaag</h2><p>Intro, de topvideo uit Nederland en België met echte cijfers, de tactiek van de dag onder water, het echte visweer en de afsluiting. De ondertiteling laat zien wat de presentator zegt.</p></div>
+    <div class="note"><span class="k">Aflevering · 59 s</span><h2>Aflevering van vandaag</h2><p>Intro, de topvideo uit Nederland en België met echte cijfers, een losse tip voor roofvis onder water, het echte visweer en de afsluiting. De ondertiteling laat zien wat de presentator zegt.</p></div>
     <div class="note"><span class="k">Intro · 10 s</span><h2>Opening</h2><p>Onder water komt een shad voorbij. Daarna draait de wereld rond terwijl de klok 24 uur doorloopt en de visplekken oplichten. Tot slot verschijnt het logo met een plons.</p></div>
     <div class="note"><span class="k">Overgang · 3 s</span><h2>Tussen onderdelen</h2><p>Een korte overgang met eigen kleur per onderdeel van het uur, zodat kijkers meteen zien waar ze zitten.</p></div>
     <div class="note"><span class="k">In beeld</span><h2>Tijdens een vangst</h2><p>Logo, naambalk, vangstkaart met de gegevens en de nieuwsbalk. De vangst en gegevens zijn voorbeelden.</p></div>
@@ -100,7 +100,7 @@ const DISPLAY = '"Barlow Condensed","Arial Narrow",Arial,sans-serif';
 const MONO = '"JetBrains Mono",ui-monospace,Menlo,monospace';
 const SEGMENTS = [
   { title:'WERELD TOP 10', sub:'De beste vangsten van de laatste 24 uur', time:':00 – :10', color:'#0b6f96' },
-  { title:'TACTIEK VAN DE DAG', sub:'Zo werd hij gevangen', time:':10 – :22', color:'#e8571c' },
+  { title:'TIP VAN DE DAG', sub:'Een tip om zelf te proberen', time:':10 – :22', color:'#e8571c' },
   { title:'NEDERLAND & BELGIË', sub:'Wat bijt er in onze wateren', time:':22 – :32', color:'#4f8a35' },
   { title:'ZEE & KUST', sub:'Van de Noordzee tot de oceaan', time:':32 – :42', color:'#2a7f9e' },
   { title:'KIJKERSVANGSTEN', sub:'Jullie vangsten van vandaag', time:':42 – :50', color:'#6b5b95' },
@@ -523,13 +523,13 @@ function tactic(ctx, t){
   }
   // header + steps
   logoMark(ctx, 80, 110, 56, 1);
-  ctx.font = `800 64px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('TACTIEK: SHAD LANGS DE TALUD', 80, 200);
+  ctx.font = `800 64px ${DISPLAY}`; ctx.fillStyle = C.white; ctx.fillText('TIP VOOR ROOFVIS: SHAD LANGS DE TALUD', 80, 200);
   const steps = ['1  Werp over de rand, in het diepe', '2  Laat zakken tot de bodem', '3  Twee tikken omhoog', '4  Laat zakken: hier komt de aanbeet'];
   const st = [1.2, 2.6, 3.3, 6.5];
   ctx.fillStyle = 'rgba(6,22,31,.85)'; roundRect(ctx, W-640, 60, 580, 250, 6); ctx.fill();
   ctx.font = `600 30px ${DISPLAY}`;
   steps.forEach((s,i) => { const k = prog(t, st[i], st[i]+.4); ctx.globalAlpha = .25 + .75*k; ctx.fillStyle = k>0 ? C.white : '#8fa6b1'; ctx.fillText(s.toUpperCase(), W-610, 120 + i*54); ctx.globalAlpha = 1; });
-  ctx.font = `500 22px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText('Shad 23 cm · jigkop 21 g · gevlochten lijn 0,15 mm', 80, 246);
+  ctx.font = `500 22px ${MONO}`; ctx.fillStyle = '#8fb3c1'; ctx.fillText('Algemene tip, los van de video · shad 23 cm · jigkop 21 g', 80, 246);
 }
 
 // ---------- forecast
@@ -633,7 +633,7 @@ function buildSubs(){
   ];
   const best = F.spots.slice(0, 2).map(s => s.n.replace(/\s*\(.*\)/, ''));
   SUBS = [...catchSubs,
-    [28.6, 32.2, 'De tactiek van de dag: een grote shad, langzaam langs de rand van de talud.'],
+    [28.6, 32.2, 'Dan een losse tip voor roofvis: een grote shad, langzaam langs de rand van de talud.'],
     [32.5, 36.2, 'Optillen, laten zakken en wachten. De meeste aanbeten komen tijdens het zakken.'],
     [36.5, 39.7, 'Dit weekend proberen? Vis de diepe randen en ga langzamer dan je denkt.'],
     [43.6, 47.6, `Het visweer: ${F.wind} en een ${F.trendWord} luchtdruk.`],
